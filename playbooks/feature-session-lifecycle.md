@@ -4,7 +4,7 @@
 for a feature branch, bug investigation, or exploratory thread, separate from
 the project's main session.
 
-**Owner**: supervisor
+**Owner**: project session (primary). Supervisor from `general` may open a feature session only for cross-project coordination that no single project session owns; in that case the feature must not mutate project code, only coordinate.
 
 **Preconditions**:
 - Target project is in `/opt/projects/scripts/lib/sessions.conf`

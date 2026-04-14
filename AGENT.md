@@ -33,7 +33,7 @@ Do not treat prior supervisor conversation transcripts as truth sources. They ma
 
 - **Unit**: a supervisor interaction episode. Starts when a human attaches to the `general` session or a scheduled job invokes supervisor work. Ends when the human detaches without scheduled follow-up, or when the scheduled job exits.
 - **Durable state between units**: `handoffs/INBOX/`, `decisions/`, `events/`, `.meta/` artifacts referenced by pointers.
-- **Session hierarchy**: `general` (you) → per-project sessions (systemd-supervised) → feature sessions (ephemeral, tracked in `sessions/`). See `decisions/0002-feature-sessions.md`. Do not open feature sessions from here; project sessions own their features.
+- **Session hierarchy**: `general` (you) → per-project sessions (systemd-supervised) → feature sessions (ephemeral, tracked in `sessions/`). See `decisions/0002-feature-sessions.md`. You may open feature sessions for cross-project coordination, but prefer delegating to the relevant project session — features are usually a project-session concern.
 - **Session transcript** (JSONL at `/root/.claude/projects/-opt-projects/` for Claude or `/root/.codex/sessions/**/` with cwd `/opt/projects` for Codex) is **not durable state**. Read it as context; promote anything load-bearing to `decisions/` or `playbooks/` before the session ends.
 
 ## Reentry
@@ -103,20 +103,20 @@ Recurring supervisor procedures (e.g., "onboard a new project to the reflection 
 
 You do not:
 
-- Commit project code
-- Push to project remotes
-- Deploy
-- Run migrations
-- Modify project `CLAUDE.md` files without an ADR
+- **Edit** project code (not just commit — *edit*). If a file under a project repo needs to change, delegate via `.handoff/<project>-*.md`. The supervisor never leaves a project repo dirty.
+- Commit, push, or tag in project repos
+- Deploy or run migrations
+- Modify project `CLAUDE.md` / `AGENTS.md` files without an ADR
 - Act on handoffs addressed to other sessions
+- Open feature sessions as a way to bypass the above (a feature session opened from `general` inherits these boundaries — it is supervisor-initiated and should only coordinate, not code)
 
-You may edit this repo freely (commit, branch). You may edit `/opt/projects/CLAUDE.md` when an ADR authorizes it.
+You may edit this repo freely (commit, branch). You may edit `/opt/projects/CLAUDE.md` when an ADR authorizes it. You may edit `scripts/lib/`, `workspace.sh`, and systemd units — those are workspace infrastructure, not project code.
 
 ## Review path
 
-Before accepting an ADR, call the `advisor` tool (Claude) or its equivalent (Codex: web-search-backed reasoning, or ask the human). When the proposed decision is architectural or changes a contract, route to the opposing agent:
+Before accepting an ADR, route to the opposing agent for adversarial review:
 
-- If you are Claude: ask Codex to review (via a handoff or `codex exec`)
-- If you are Codex: ask Claude to review
+- If you are Claude: ask Codex (`codex exec --skip-git-repo-check --sandbox read-only "<review prompt>"`)
+- If you are Codex: ask Claude (`claude -p "<review prompt>"`, or drop a handoff for the general session to pick up)
 
-Don't treat a self-review as an adversarial review.
+Both agents must have symmetric options here. If you find yourself reaching for a tool that only exists in one harness (e.g. Claude's `advisor`), substitute the cross-agent review instead. Do not treat a self-review as adversarial.
