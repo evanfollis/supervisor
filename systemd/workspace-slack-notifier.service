@@ -1,0 +1,14 @@
+[Unit]
+Description=Slack notifier — post workspace state transitions to Slack
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WorkingDirectory=/opt/workspace/supervisor
+EnvironmentFile=-/opt/workspace/supervisor/config/slack.env
+ExecStart=/opt/workspace/supervisor/scripts/slack/notifier.py --once
+TimeoutStartSec=2min
+StandardOutput=append:/var/log/workspace-slack-notifier.log
+StandardError=append:/var/log/workspace-slack-notifier.log

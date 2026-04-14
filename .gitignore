@@ -3,3 +3,8 @@ handoffs/INBOX/*
 !handoffs/INBOX/.gitkeep
 sessions/*.json
 !sessions/.gitkeep
+config/slack.env
+notes/TRIAGE/*
+!notes/TRIAGE/.gitkeep
+notes/ARCHIVE/*
+!notes/ARCHIVE/.gitkeep

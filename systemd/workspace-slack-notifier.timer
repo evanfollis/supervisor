@@ -1,0 +1,11 @@
+[Unit]
+Description=Run Slack notifier every 60 seconds
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=60s
+AccuracySec=5s
+Persistent=false
+
+[Install]
+WantedBy=timers.target
