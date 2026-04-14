@@ -33,6 +33,7 @@ Do not treat prior supervisor conversation transcripts as truth sources. They ma
 
 - **Unit**: a supervisor interaction episode. Starts when a human attaches to the `general` session or a scheduled job invokes supervisor work. Ends when the human detaches without scheduled follow-up, or when the scheduled job exits.
 - **Durable state between units**: `handoffs/INBOX/`, `decisions/`, `events/`, `.meta/` artifacts referenced by pointers.
+- **Session hierarchy**: `general` (you) → per-project sessions (systemd-supervised) → feature sessions (ephemeral, tracked in `sessions/`). See `decisions/0002-feature-sessions.md`. Do not open feature sessions from here; project sessions own their features.
 - **Session transcript** (JSONL at `/root/.claude/projects/-opt-projects/` for Claude or `/root/.codex/sessions/**/` with cwd `/opt/projects` for Codex) is **not durable state**. Read it as context; promote anything load-bearing to `decisions/` or `playbooks/` before the session ends.
 
 ## Reentry
