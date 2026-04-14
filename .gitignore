@@ -1,3 +1,5 @@
 events/supervisor-events.jsonl
 handoffs/INBOX/*
 !handoffs/INBOX/.gitkeep
+sessions/*.json
+!sessions/.gitkeep
