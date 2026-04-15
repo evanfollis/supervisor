@@ -27,7 +27,7 @@ One JSON object per line:
 ## Required fields
 
 - `ts` — ISO-8601 UTC timestamp
-- `agent` — `claude` or `codex`
+- `agent` — `claude`, `codex`, or `unknown`
 - `type` — see list in `AGENT.md` § Event model
 - `ref` — path or ID of the artifact this event references
 - `note` — single-line human-readable summary (≤120 chars)
@@ -40,5 +40,5 @@ One JSON object per line:
 ## Rules
 
 - **Append-only.** Never edit past entries.
-- **Write before acting.** Emit `delegated` before creating the handoff file, not after. Makes replay robust to mid-action crashes.
+- **Write before acting** where possible. For lifecycle events whose artifact does not exist yet, emit immediately after creation.
 - **One line per event.** Don't pretty-print.

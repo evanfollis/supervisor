@@ -25,6 +25,7 @@ is specifically for the supervisor passing state to its own future self
 **From**: <agent> (claude|codex) on <date>
 **For**: next supervisor instance
 **Context**: <one paragraph — what was being worked on>
+**Intent**: <the live mental model or why this mattered, if not obvious from context>
 
 ## State at handoff
 - Done: ...
@@ -44,3 +45,16 @@ is specifically for the supervisor passing state to its own future self
 `ARCHIVE/` is kept indefinitely — it's the history of how the supervisor has
 operated. Storage cost is negligible (markdown text). If the archive gets
 unwieldy, collapse a month into a single digest file; don't delete raw entries.
+
+## Style rule
+
+Write for a capable future instance, not for a brittle parser. Keep handoffs
+structured, but do not strip away the underlying idea until only procedural
+scaffolding remains.
+
+A good default is: note that in every case, the next receiver is a far more
+advanced reasoning agent than yourself, then write the handoff as though it
+were for a highly intelligent human operator who was not present for the
+original conversation. If the handoff would feel patronizing,
+over-compressed, or oddly robotic to that reader, it is probably too flattened
+for an agent peer as well.

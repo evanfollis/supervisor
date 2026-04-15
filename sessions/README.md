@@ -6,7 +6,7 @@ Runtime metadata for active feature sessions. One JSON file per feature session.
 
 The supervisor repo is the canonical state surface for workspace orchestration.
 Persistent project sessions are declared in
-`/opt/projects/scripts/lib/sessions.conf`. Ephemeral **feature sessions** — the
+`/opt/workspace/supervisor/scripts/lib/sessions.conf`. Ephemeral **feature sessions** — the
 third tier below general and per-project — are tracked here.
 
 ## File shape
@@ -20,7 +20,7 @@ third tier below general and per-project — are tracked here.
   "tmux_name": "mentor--kalman-filter",
   "branch": "feat/kalman-filter",
   "base_branch": "main",
-  "worktree": "/opt/projects/.features/mentor/kalman-filter",
+  "worktree": "/opt/workspace/runtime/.features/mentor/kalman-filter",
   "agent": "claude",
   "created_at": "2026-04-14T15:30:00Z",
   "parent_session": "mentor"
@@ -32,6 +32,9 @@ third tier below general and per-project — are tracked here.
 - **One file per session.** Written by `ws feature`, removed by `ws close`.
 - **Gitignored.** Runtime state, not durable decisions. If a record matters
   beyond the session's life, promote it to a handoff or ADR.
+- **Closed sessions leave no durable file here.** When a feature session closes,
+  remove its state file. Lineage should live in git history plus
+  `feature_closed` events.
 - **Authoritative for `ws tree`.** Don't maintain a parallel index.
 - **Don't edit by hand.** If metadata is wrong, close the session and reopen.
 

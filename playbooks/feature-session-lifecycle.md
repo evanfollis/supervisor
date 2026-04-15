@@ -7,15 +7,15 @@ the project's main session.
 **Owner**: project session (primary). Supervisor from `general` may open a feature session only for cross-project coordination that no single project session owns; in that case the feature must not mutate project code, only coordinate.
 
 **Preconditions**:
-- Target project is in `/opt/projects/scripts/lib/sessions.conf`
+- Target project is in `/opt/workspace/supervisor/scripts/lib/sessions.conf`
 - Project working tree is clean (worktree base will be the project's default branch)
 - `jq` installed, `tmux` running, systemd workspace-session services healthy
 
 **Outputs**:
-- Worktree at `/opt/projects/.features/<project>/<slug>/`
+- Worktree at `/opt/workspace/runtime/.features/<project>/<slug>/`
 - Branch `feat/<slug>` tracking the project's default branch
 - Tmux session `<project>--<slug>` running the chosen agent
-- Metadata file `/opt/projects/supervisor/sessions/<project>--<slug>.json`
+- Metadata file `/opt/workspace/supervisor/sessions/<project>--<slug>.json`
 - Event `feature_opened` appended to `supervisor/events/supervisor-events.jsonl`
 
 ## Steps
@@ -31,7 +31,7 @@ the project's main session.
 
    **Verify**: `ws tree` shows the new feature under its project with status
    `(up)`. Metadata file exists at
-   `/opt/projects/supervisor/sessions/<project>--<slug>.json`.
+   `/opt/workspace/supervisor/sessions/<project>--<slug>.json`.
 
 2. **Attach and work.**
    ```
@@ -66,7 +66,7 @@ the project's main session.
      first; `--force` keeps the branch and removes only the worktree + meta.
 
    **Verify**: `ws tree` no longer lists the feature; `ls
-   /opt/projects/.features/<project>/` does not contain the slug.
+   /opt/workspace/runtime/.features/<project>/` does not contain the slug.
 
 ## Rollback
 
@@ -82,4 +82,4 @@ the project's main session.
 - Feature sessions are **not** systemd-supervised. If one crashes, that's a
   signal — do not wrap them in a restart loop.
 - Metadata is **gitignored** in the supervisor repo; it's runtime state.
-- Rationale: `/opt/projects/supervisor/decisions/0002-feature-sessions.md`.
+- Rationale: `/opt/workspace/supervisor/decisions/0002-feature-sessions.md`.
