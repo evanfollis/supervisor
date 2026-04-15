@@ -1,0 +1,10 @@
+[Unit]
+Description=Run weekly Codex server maintenance scheduler
+
+[Timer]
+OnCalendar=Sun *-*-* 02:05:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

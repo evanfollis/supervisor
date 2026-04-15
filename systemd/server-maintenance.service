@@ -1,0 +1,15 @@
+[Unit]
+Description=Nightly Codex server maintenance analysis
+After=network.target server-health-capture.service
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=-/etc/workspace.env
+WorkingDirectory=/
+ExecStart=/bin/bash -lc '. /etc/workspace.env 2>/dev/null || true; exec "${WORKSPACE_SERVER_MAINTENANCE_SCRIPT:-/opt/workspace/supervisor/scripts/lib/server-maintenance.sh}"'
+TimeoutStartSec=45min
+StandardOutput=append:/var/log/server-maintenance.log
+StandardError=append:/var/log/server-maintenance.log

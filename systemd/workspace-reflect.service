@@ -1,0 +1,15 @@
+[Unit]
+Description=Workspace - per-project 12h self-reflection (read-only, propose-only)
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WorkingDirectory=/opt/workspace/supervisor
+ExecStart=/opt/workspace/supervisor/scripts/lib/reflect-all.sh
+TimeoutStartSec=30min
+SuccessExitStatus=0 2
+StandardOutput=append:/var/log/workspace-reflect.log
+StandardError=append:/var/log/workspace-reflect.log

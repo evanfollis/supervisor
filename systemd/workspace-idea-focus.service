@@ -1,0 +1,13 @@
+[Unit]
+Description=Refresh workspace idea focus queue
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WorkingDirectory=/opt/workspace/supervisor
+ExecStart=/opt/workspace/supervisor/scripts/lib/idea-focus.sh
+TimeoutStartSec=5min
+StandardOutput=append:/var/log/workspace-idea-focus.log
+StandardError=append:/var/log/workspace-idea-focus.log

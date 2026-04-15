@@ -1,0 +1,15 @@
+[Unit]
+Description=Weekly Codex server maintenance scheduler
+After=network.target server-maintenance.service
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=-/etc/workspace.env
+WorkingDirectory=/
+ExecStart=/bin/bash -lc '. /etc/workspace.env 2>/dev/null || true; exec "${WORKSPACE_SERVER_MAINTENANCE_SCHEDULE_SCRIPT:-/opt/workspace/supervisor/scripts/lib/server-maintenance-schedule.sh}"'
+TimeoutStartSec=45min
+StandardOutput=append:/var/log/server-maintenance-schedule.log
+StandardError=append:/var/log/server-maintenance-schedule.log

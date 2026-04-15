@@ -1,0 +1,15 @@
+[Unit]
+Description=Server health snapshot capture
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=-/etc/workspace.env
+WorkingDirectory=/
+ExecStart=/bin/bash -lc '. /etc/workspace.env 2>/dev/null || true; exec "${WORKSPACE_SERVER_HEALTH_CAPTURE_SCRIPT:-/opt/workspace/supervisor/scripts/lib/server-health-snapshot.sh}"'
+TimeoutStartSec=10min
+StandardOutput=append:/var/log/server-health-capture.log
+StandardError=append:/var/log/server-health-capture.log

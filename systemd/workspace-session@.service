@@ -1,0 +1,19 @@
+[Unit]
+Description=Workspace tmux session supervisor for %i
+After=multi-user.target
+
+[Service]
+Type=simple
+User=root
+Environment=HOME=/root
+EnvironmentFile=-/etc/workspace.env
+WorkingDirectory=/
+ExecStart=/bin/bash -lc '. /etc/workspace.env 2>/dev/null || true; exec "${WORKSPACE_SESSION_SUPERVISOR:-/opt/workspace/supervisor/scripts/lib/session-supervisor.sh}" %i'
+Restart=always
+RestartSec=5
+KillMode=process
+StandardOutput=append:/var/log/workspace-sessions.log
+StandardError=append:/var/log/workspace-sessions.log
+
+[Install]
+WantedBy=multi-user.target

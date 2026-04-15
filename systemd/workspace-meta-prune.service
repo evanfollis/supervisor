@@ -1,0 +1,9 @@
+[Unit]
+Description=Workspace - prune old reflections and synthesis files
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/opt/workspace/supervisor/scripts/lib/prune-meta.sh
+StandardOutput=append:/var/log/workspace-meta-prune.log
+StandardError=append:/var/log/workspace-meta-prune.log

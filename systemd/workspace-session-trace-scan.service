@@ -1,0 +1,7 @@
+[Unit]
+Description=Normalize agent session transcripts into workspace session trace
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/workspace/supervisor
+ExecStart=/opt/workspace/supervisor/scripts/lib/session-trace-scan.sh

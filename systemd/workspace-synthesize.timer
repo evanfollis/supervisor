@@ -1,0 +1,10 @@
+[Unit]
+Description=Run workspace synthesis every 12 hours, ~1h after reflections complete
+
+[Timer]
+OnCalendar=*-*-* 03,15:23:00
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

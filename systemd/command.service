@@ -1,0 +1,15 @@
+[Unit]
+Description=Command - Orchestration Control Surface
+After=network.target docker.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/workspace/projects/command
+EnvironmentFile=/opt/workspace/projects/command/.env.local
+ExecStart=/usr/bin/node dist/server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

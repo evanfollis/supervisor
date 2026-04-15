@@ -1,0 +1,8 @@
+[Unit]
+Description=Command telemetry anomaly scan
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/workspace/projects/command
+ExecStart=/usr/bin/npm run --silent meta:scan
+SuccessExitStatus=0 2

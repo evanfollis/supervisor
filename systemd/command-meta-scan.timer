@@ -1,0 +1,9 @@
+[Unit]
+Description=Run Command telemetry anomaly scan hourly
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target
