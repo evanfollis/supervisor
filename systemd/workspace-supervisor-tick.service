@@ -1,0 +1,38 @@
+[Unit]
+Description=Workspace - supervisor tick (between-session driver)
+Documentation=file:///opt/workspace/supervisor/decisions/0014-supervisor-tick-and-pm-pattern.md
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+Environment=HOME=/root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WorkingDirectory=/opt/workspace/supervisor
+ExecStart=/opt/workspace/supervisor/scripts/lib/supervisor-tick.sh
+TimeoutStartSec=20min
+SuccessExitStatus=0 2
+
+# OS-level sandbox — ADR-0014 §Scope side effects. Tier-C paths are read-only
+# at the kernel level; the tick cannot mutate them regardless of what the
+# model decides to do.
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=true
+ReadWritePaths=/opt/workspace/supervisor/friction
+ReadWritePaths=/opt/workspace/supervisor/handoffs
+ReadWritePaths=/opt/workspace/supervisor/events
+ReadWritePaths=/opt/workspace/supervisor/system
+ReadWritePaths=/opt/workspace/supervisor/ideas
+ReadWritePaths=/opt/workspace/supervisor/decisions
+ReadWritePaths=/opt/workspace/supervisor/.git
+ReadWritePaths=/opt/workspace/runtime
+ReadWritePaths=/var/log
+# HOME is read-only; but the claude CLI writes transcripts under ~/.claude.
+# Allow only that subtree, not all of /root.
+ReadWritePaths=/root/.claude
+ReadWritePaths=/root/.codex/sessions
+
+StandardOutput=append:/var/log/workspace-supervisor-tick.log
+StandardError=append:/var/log/workspace-supervisor-tick.log

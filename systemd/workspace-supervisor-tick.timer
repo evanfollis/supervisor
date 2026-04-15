@@ -1,0 +1,11 @@
+[Unit]
+Description=Run the supervisor tick every 2 hours (between-session driver)
+Documentation=file:///opt/workspace/supervisor/decisions/0014-supervisor-tick-and-pm-pattern.md
+
+[Timer]
+OnCalendar=*-*-* 00/2:47:00
+Persistent=true
+RandomizedDelaySec=3min
+
+[Install]
+WantedBy=timers.target

@@ -261,6 +261,56 @@ else
   say_warn "no synthesis pointer at $ptr"
 fi
 
+# --- supervisor tick: timer + recent report + ticks/ branch age (ADR-0014) ---
+section "supervisor tick"
+if systemctl list-unit-files 'workspace-supervisor-tick.timer' --no-legend --no-pager 2>/dev/null | grep -q workspace-supervisor-tick; then
+  tick_state=$(systemctl is-active workspace-supervisor-tick.timer 2>/dev/null || echo inactive)
+  tick_enabled=$(systemctl is-enabled workspace-supervisor-tick.timer 2>/dev/null || echo disabled)
+  if [[ "$tick_state" == "active" && "$tick_enabled" == "enabled" ]]; then
+    say_ok "workspace-supervisor-tick.timer ($tick_state, $tick_enabled)"
+    # Freshness: last report (including skipped runs) within 4h when enabled.
+    latest=$(ls -t "$WORKSPACE_META_DIR"/supervisor-tick-*.md 2>/dev/null | head -1 || echo "")
+    if [[ -n "$latest" ]]; then
+      mtime=$(stat -c %Y "$latest")
+      age=$(( now_epoch - mtime ))
+      if (( age < 14400 )); then
+        say_ok "latest tick report $(age_hours "$age")h old: $(basename "$latest")"
+      elif (( age < 28800 )); then
+        say_warn "latest tick report $(age_hours "$age")h old (expected <4h)"
+      else
+        say_fail "latest tick report $(age_hours "$age")h old — timer may be broken"
+      fi
+    else
+      say_warn "no supervisor-tick-*.md report found yet (timer just enabled?)"
+    fi
+  else
+    say_fail "workspace-supervisor-tick.timer is $tick_state / $tick_enabled"
+  fi
+else
+  say_warn "workspace-supervisor-tick.timer not installed"
+fi
+
+# Ticks branch age — attended sessions must merge/delete within 24h/72h.
+if [[ -d "$SUPERVISOR_ROOT/.git" ]]; then
+  while IFS= read -r b; do
+    [[ -z "$b" ]] && continue
+    committer_ts=$(git -C "$SUPERVISOR_ROOT" log -1 --format='%ct' "$b" 2>/dev/null || echo 0)
+    age=$(( now_epoch - committer_ts ))
+    if (( age > 259200 )); then
+      say_fail "tick branch '$b' aged $(age_hours "$age")h (>72h — attended merge overdue)"
+    elif (( age > 86400 )); then
+      say_warn "tick branch '$b' aged $(age_hours "$age")h (>24h — attended merge needed)"
+    else
+      say_ok "tick branch '$b' fresh ($(age_hours "$age")h)"
+    fi
+  done < <(git -C "$SUPERVISOR_ROOT" branch --list 'ticks/*' --format='%(refname:short)' 2>/dev/null)
+fi
+
+# Hold file reminder — if present, the tick is suspended.
+if [[ -e "$RUNTIME_ROOT/.locks/supervisor-tick.hold" ]]; then
+  say_warn "tick is suspended — hold file present at $RUNTIME_ROOT/.locks/supervisor-tick.hold"
+fi
+
 # --- friction surface: new records suggest the reflection discipline is live ---
 section "friction surface"
 fric="$SUPERVISOR_ROOT/friction"
