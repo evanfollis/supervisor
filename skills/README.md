@@ -47,8 +47,8 @@ Claude and Codex each look for skills in their own directories
 repo into both, symlink it:
 
 ```
-ln -sf /opt/projects/supervisor/skills/<name> ~/.claude/skills/<name>
-ln -sf /opt/projects/supervisor/skills/<name> ~/.codex/skills/<name>
+ln -sf /opt/workspace/supervisor/skills/<name> ~/.claude/skills/<name>
+ln -sf /opt/workspace/supervisor/skills/<name> ~/.codex/skills/<name>
 ```
 
 See `playbooks/install-skills.md` for the full procedure once written.
