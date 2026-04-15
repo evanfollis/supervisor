@@ -33,6 +33,44 @@ check "No NextResponse.redirect(new URL..req.url)" \
 check "No new URL(path, req.url) in handlers"  \
   "! git ls-files 2>/dev/null | xargs -r grep -lE 'new URL\\([^,]+,\\s*req\\.url' 2>/dev/null | grep -q ."
 
+# --- /review compliance (projects with git history) ---
+# Synthesis 2026-04-14 Proposal 1: fail if commits touching code since the last
+# deploy tag have no review artifact. Review evidence is a file at
+# .reviews/<full-sha>.md. Projects without a deploy tag scan HEAD..HEAD~20.
+# Code paths are any tracked file outside README*, *.md docs, *.json/yaml/toml
+# config, and .gitignore-adjacent metadata.
+if git rev-parse --git-dir >/dev/null 2>&1; then
+  LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+  if [[ -n "$LAST_TAG" ]]; then
+    RANGE_ARG=("$LAST_TAG..HEAD")
+  else
+    # No tag — scan up to the last 20 commits, or fewer if shallower history.
+    DEPTH=$(git rev-list --count HEAD 2>/dev/null || echo 0)
+    if (( DEPTH > 20 )); then
+      RANGE_ARG=("HEAD~20..HEAD")
+    else
+      RANGE_ARG=("HEAD")
+    fi
+  fi
+  UNREVIEWED=$(git log --format='%H' "${RANGE_ARG[@]}" -- \
+      '*.py' '*.ts' '*.tsx' '*.js' '*.jsx' '*.go' '*.rs' '*.sh' '*.sql' \
+      2>/dev/null \
+    | while read -r sha; do
+        [[ -z "$sha" ]] && continue
+        test -f ".reviews/$sha.md" && continue
+        git notes --ref=review show "$sha" >/dev/null 2>&1 && continue
+        echo "$sha"
+      done)
+  if [[ -z "$UNREVIEWED" ]]; then
+    say "Review artifacts for code commits" "✓"
+  else
+    say "Review artifacts for code commits" "✗"
+    echo "    unreviewed SHAs (need .reviews/<sha>.md or git note): "
+    echo "$UNREVIEWED" | sed 's/^/      /'
+    FAIL=1
+  fi
+fi
+
 # --- README / metadata (soft; warn-only could be added later) ---
 check "README present"                    "test -f README.md -o -f README.rst -o -f README"
 
