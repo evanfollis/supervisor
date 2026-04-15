@@ -14,20 +14,21 @@ if [[ ! -f "$CONF" ]]; then
 fi
 
 FAILED=()
-while IFS='|' read -r name path; do
+while IFS='|' read -r name path prompt; do
   # Skip comments and blank lines
   [[ -z "${name// }" ]] && continue
   [[ "${name:0:1}" == "#" ]] && continue
   name="$(echo "$name" | xargs)"
   path="$(echo "$path" | xargs)"
+  prompt="$(echo "${prompt:-}" | xargs)"
 
   if [[ ! -d "$path" ]]; then
     echo "reflect-all: skipping $name — $path not found"
     continue
   fi
 
-  echo "=== reflect-all: $name ($path) ==="
-  if ! "$LIB_DIR/reflect.sh" "$name" "$path"; then
+  echo "=== reflect-all: $name ($path)${prompt:+ [prompt=$prompt]} ==="
+  if ! "$LIB_DIR/reflect.sh" "$name" "$path" "$prompt"; then
     echo "reflect-all: $name FAILED" >&2
     FAILED+=("$name")
   fi

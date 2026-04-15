@@ -73,6 +73,9 @@ case "${1:-status}" in
   context)
     exec "$WORKSPACE_SCRIPTS_ROOT/current-context.sh"
     ;;
+  doctor)
+    exec "$WORKSPACE_SCRIPTS_ROOT/doctor.sh"
+    ;;
   *)
     echo "Usage: workspace.sh {start|stop|restart [name]|status|add <name> <path>}"
     echo "       workspace.sh feature <slug> [--project <name>] [--agent claude|codex]"
@@ -81,5 +84,6 @@ case "${1:-status}" in
     echo "       workspace.sh idea {new|update|list|show} ..."
     echo "       workspace.sh idea-focus"
     echo "       workspace.sh context"
+    echo "       workspace.sh doctor"
     ;;
 esac

@@ -14,9 +14,23 @@ set -euo pipefail
 
 PROJECT="${1:?project name required}"
 PROJECT_DIR="${2:?project dir required}"
+PROMPT_TEMPLATE_OVERRIDE="${3:-}"
 LIB_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$LIB_DIR/workspace-paths.sh"
-PROMPT_TEMPLATE="$LIB_DIR/reflect-prompt.md"
+if [[ -n "$PROMPT_TEMPLATE_OVERRIDE" ]]; then
+  # Allow either absolute path or a basename resolved under LIB_DIR.
+  if [[ "$PROMPT_TEMPLATE_OVERRIDE" == /* ]]; then
+    PROMPT_TEMPLATE="$PROMPT_TEMPLATE_OVERRIDE"
+  else
+    PROMPT_TEMPLATE="$LIB_DIR/$PROMPT_TEMPLATE_OVERRIDE"
+  fi
+else
+  PROMPT_TEMPLATE="$LIB_DIR/reflect-prompt.md"
+fi
+if [[ ! -f "$PROMPT_TEMPLATE" ]]; then
+  echo "reflect: prompt template not found: $PROMPT_TEMPLATE" >&2
+  exit 1
+fi
 
 if [[ ! -d "$PROJECT_DIR" ]]; then
   echo "reflect: project dir not found: $PROJECT_DIR" >&2

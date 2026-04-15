@@ -36,10 +36,12 @@ In descending order of authority:
 3. **Decisions** under `supervisor/decisions/` (binding for workspace-wide choices)
 4. **Idea ledger** under `supervisor/ideas/` (novel proposals + dispositions)
 5. **Maintenance-agent manifests** under `supervisor/maintenance-agents/` (declared asynchronous maintenance structure)
-6. **Server snapshots** at `/opt/workspace/runtime/.meta/server-health-*.md`
-7. **Synthesis files** at `/opt/workspace/runtime/.meta/cross-cutting-*.md`
-8. **Reflections** at `/opt/workspace/runtime/.meta/*-reflection-*.md`
-9. **User messages** (tie-breakers, new requirements)
+6. **Friction records** under `supervisor/friction/` (authoritative log of what the system has noticed about itself; see ADR-0013)
+7. **Harness configuration** at `/root/.claude/settings.json` and `/root/.claude/hooks/` — what the attached Claude harness actually does between tool calls. Drift here is invisible to repo-only review and must be watched.
+8. **Server snapshots** at `/opt/workspace/runtime/.meta/server-health-*.md`
+9. **Synthesis files** at `/opt/workspace/runtime/.meta/cross-cutting-*.md`
+10. **Reflections** at `/opt/workspace/runtime/.meta/*-reflection-*.md`
+11. **User messages** (tie-breakers, new requirements)
 
 Do not treat prior supervisor conversation transcripts as truth sources. They may contain in-flight thinking, dead ends, or superseded choices. Use `decisions/` for durable claims.
 
@@ -85,6 +87,7 @@ Append-only events live at `events/supervisor-events.jsonl`. Emit events for:
 - `delegated` — when you route work to a project session via `.handoff/`
 - `escalated` — when you ask the human for a decision
 - `synthesis_reviewed` — after you read and act on a cross-cutting synthesis
+- `session_reflected` — emitted at session end (or by the 12h meta-reflection job) once the self-reflection pass has run; see ADR-0013 and `playbooks/self-reflection.md`
 - `feature_opened` — when workspace feature-session tooling opens an ephemeral session
 - `feature_closed` — when workspace feature-session tooling closes an ephemeral session
 
