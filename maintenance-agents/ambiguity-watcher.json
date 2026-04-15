@@ -1,0 +1,29 @@
+{
+  "cadence": "daily",
+  "escalate_when": [
+    "The same ambiguity appears across more than one project",
+    "A contract boundary is unclear enough to cause repeated misrouting",
+    "Existing policy appears internally inconsistent"
+  ],
+  "id": "ambiguity-watcher",
+  "inputs": [
+    "runtime/.telemetry/session-trace.jsonl",
+    "runtime/.meta/*-reflection-*.md",
+    "runtime/.meta/cross-cutting-*.md",
+    "supervisor/ideas/"
+  ],
+  "outputs": [
+    "ambiguity reports",
+    "contract clarification proposals",
+    "targeted escalation recommendations"
+  ],
+  "owner_layer": "supervisor",
+  "purpose": "Detect emerging ambiguity before it turns into broad workflow drift.",
+  "shared_skills": [
+    "detect-emerging-ambiguity",
+    "form-escalation-packet"
+  ],
+  "status": "planned",
+  "title": "Ambiguity Watcher",
+  "trigger": "Repeated confusion, boundary uncertainty, or policy hesitation in traces and reflections"
+}

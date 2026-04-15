@@ -1,0 +1,29 @@
+{
+  "cadence": "continuous via idea intake, plus periodic queue review",
+  "escalate_when": [
+    "A novel idea would alter governance boundaries or cross-project substrate",
+    "Pressure testing reveals a strategic decision rather than an operational one",
+    "An idea keeps resurfacing with different wording but the same structural impact"
+  ],
+  "id": "novelty-triager",
+  "inputs": [
+    "supervisor/ideas/",
+    "runtime/.meta/LATEST_IDEA_FOCUS",
+    "runtime/.telemetry/session-trace.jsonl",
+    "supervisor/decisions/"
+  ],
+  "outputs": [
+    "idea dispositions",
+    "sandbox proposals",
+    "rejection or deferral rationales"
+  ],
+  "owner_layer": "supervisor",
+  "purpose": "Pressure-test novel proposals so value is integrated while noise and structural drift are resisted.",
+  "shared_skills": [
+    "pressure-test-novelty",
+    "form-escalation-packet"
+  ],
+  "status": "planned",
+  "title": "Novelty Triager",
+  "trigger": "New idea records, queue resurfacing, or repeated structural novelty in human interaction"
+}

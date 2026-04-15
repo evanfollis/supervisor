@@ -1,0 +1,28 @@
+{
+  "cadence": "daily",
+  "escalate_when": [
+    "A friction pattern is cross-project rather than local",
+    "The likely fix would change workspace process or authority",
+    "The same stall or retry pattern persists after local mitigation"
+  ],
+  "id": "friction-analyst",
+  "inputs": [
+    "runtime/.telemetry/session-trace.jsonl",
+    "runtime/.telemetry/events.jsonl",
+    "runtime/.meta/*-reflection-*.md"
+  ],
+  "outputs": [
+    "friction summaries",
+    "workflow simplification candidates",
+    "local-vs-systemic friction classifications"
+  ],
+  "owner_layer": "supervisor",
+  "purpose": "Find recurring stalls, retries, re-explanations, and procedural drag.",
+  "shared_skills": [
+    "analyze-recurring-friction",
+    "compress-policy-from-repetition"
+  ],
+  "status": "planned",
+  "title": "Friction Analyst",
+  "trigger": "Observable repeated stall patterns in traces, events, or reflection output"
+}

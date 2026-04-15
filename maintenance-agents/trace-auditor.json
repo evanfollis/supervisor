@@ -1,0 +1,30 @@
+{
+  "cadence": "daily",
+  "escalate_when": [
+    "Critical governance surfaces are missing from telemetry or transcript normalization",
+    "Direct principal intervention is occurring without adequate legibility",
+    "A derived queue or trace is drifting from its canonical source"
+  ],
+  "id": "trace-auditor",
+  "inputs": [
+    "runtime/.telemetry/session-trace.jsonl",
+    "runtime/.telemetry/events.jsonl",
+    "supervisor/events/supervisor-events.jsonl",
+    "runtime/.meta/LATEST_IDEA_FOCUS",
+    "supervisor/ideas/"
+  ],
+  "outputs": [
+    "trace coverage reports",
+    "telemetry gap findings",
+    "auditability improvement proposals"
+  ],
+  "owner_layer": "supervisor",
+  "purpose": "Ensure the control plane is actually seeing enough to govern without reconstructing local context.",
+  "shared_skills": [
+    "audit-trace-coverage",
+    "detect-emerging-ambiguity"
+  ],
+  "status": "planned",
+  "title": "Trace Auditor",
+  "trigger": "Observed gaps between intended governance surfaces and actual traces"
+}

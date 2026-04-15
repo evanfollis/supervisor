@@ -1,0 +1,30 @@
+{
+  "cadence": "daily or after significant escalation clusters",
+  "escalate_when": [
+    "Repeated resolutions imply a workspace policy change",
+    "A lower layer appears to need expanded or reduced authority",
+    "Compression would conflict with an existing ADR or workspace policy"
+  ],
+  "id": "policy-compressor",
+  "inputs": [
+    "runtime/.telemetry/session-trace.jsonl",
+    "runtime/.telemetry/events.jsonl",
+    "supervisor/decisions/",
+    "runtime/.meta/*-reflection-*.md",
+    "runtime/.meta/cross-cutting-*.md"
+  ],
+  "outputs": [
+    "ADR proposals",
+    "playbook amendments",
+    "policy candidate summaries"
+  ],
+  "owner_layer": "supervisor",
+  "purpose": "Convert repeated lower-level judgment into explicit policy, playbooks, or delegation guidance.",
+  "shared_skills": [
+    "compress-policy-from-repetition",
+    "form-escalation-packet"
+  ],
+  "status": "planned",
+  "title": "Policy Compressor",
+  "trigger": "Recurring patterns across decisions, escalations, or direct principal interventions"
+}
