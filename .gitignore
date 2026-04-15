@@ -4,6 +4,10 @@ handoffs/INBOX/*
 sessions/*.json
 !sessions/.gitkeep
 config/slack.env
+config/workspace.env
+.codex
+**/__pycache__/
+*.pyc
 notes/TRIAGE/*
 !notes/TRIAGE/.gitkeep
 notes/ARCHIVE/*
