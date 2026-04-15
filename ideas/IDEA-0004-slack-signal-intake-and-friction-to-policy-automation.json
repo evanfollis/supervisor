@@ -12,16 +12,16 @@
     "Codex adversarial review (2026-04-14) identified 7 concrete issues; all addressed in the rewrite."
   ],
   "id": "IDEA-0004",
-  "next_step": "Accept ADR-0010 (notes/TRIAGE) and ADR-0011 (Slack integration); then ship Stage 1 (outbound only).",
+  "next_step": "Close Stage 1 exit gaps (daily digest post, throttling, heartbeat/health integration), then observe the 2-week SLO window before committing to Stage 2 (inbound normalizer).",
   "priority": "high",
   "proposer": "human",
-  "review_after": null,
+  "review_after": "2026-04-29",
   "risk": "medium",
   "scope": "governance",
   "slug": "slack-signal-intake-and-friction-to-policy-automation",
-  "status": "pressure_tested",
-  "summary": "Use Slack as the principal's mobile I/O surface: a notifier posts status cards for governance events, and a normalizer routes tagged inbound messages to the idea ledger, handoff INBOX, active-issues staging, or a new notes/TRIAGE surface. Scoped down from the original seven-channel intake/maintenance-agent/candidate-state-machine design after Codex review.",
+  "status": "adopted",
+  "summary": "Use Slack as the principal's mobile I/O surface: a notifier posts status cards for governance events, and a normalizer routes tagged inbound messages to the idea ledger, handoff INBOX, active-issues staging, or a new notes/TRIAGE surface. Scoped down from the original seven-channel intake/maintenance-agent/candidate-state-machine design after Codex review. Stage 1 (outbound) deployed 2026-04-15 against the Signal Foundry workspace.",
   "target_layer": "supervisor",
   "title": "Slack signal intake and friction-to-policy automation",
-  "updated_at": "2026-04-14T21:22:23Z"
+  "updated_at": "2026-04-15T03:10:00Z"
 }

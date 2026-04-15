@@ -13,6 +13,9 @@
   context surfaces.
 - Active control-plane item: `IDEA-0003`.
 - Routed via handoff: `/opt/workspace/runtime/.handoff/context-repo-context-repo-redesign.md`
+- **Watch for second-signal drift**: if the redesign proposal comes back
+  oriented around new abstract schemas, that's the same failure class
+  repeating and warrants escalation.
 
 ### Interaction-derived signal triage
 
@@ -21,38 +24,47 @@
   and compoundable value.
 - Active control-plane item: `IDEA-0002`.
 
-### Supervisor repo self-alignment with current-state model
+### `/review` enforcement gate → live; Command blocks on git
 
-The supervisor repo partially embodies the intended context-repo model but
-still carries log-shaped and reference-shaped surfaces that dilute the
-working-context bundle. Items marked *(ADR required)* contradict the current
-charter and must be routed through a decision before being changed.
+- `scripts/lib/preflight-deploy.sh` now fails deploys lacking review
+  artifacts for code-touching commits (supervisor commit `668c7b0`,
+  cross-cutting-2026-04-14 Proposal 1).
+- `command` has no git repo, so the gate is silently permissive for the
+  one project most obviously designed to catch. Delegated:
+  `/opt/workspace/runtime/.handoff/command-bootstrap-git.md`. Until that
+  returns, treat command as an exemption that must be closed, not a
+  baseline.
 
-- **Events live inside the repo.** `events/supervisor-events.jsonl` is
-  append-only telemetry and should sit under `/opt/workspace/runtime/.telemetry/`
-  with only a pointer in `system/`. *(ADR required — charter §Event model
-  currently locates the log here.)*
-- **Idea JSON carries an inline `history[]` log.** Per-file append state
-  duplicates git and events. Strip history; rely on `git log -- ideas/…` and
-  `idea_*` events.
-- **`handoffs/ARCHIVE/` is a log.** Resolution is already in git. Either
-  relocate to runtime or drop. *(ADR required — charter §Reentry step 3
-  specifies archive path.)*
-- **No `session_id` in commit messages.** The "why did it change" retrieval
-  path from the context-repo model is not wired up. Tracked as ADR-0009.
-- **`docs/` has no promotion/retirement rule.** Files such as
-  `workspace-migration-plan.md` look like completed work still loaded as live
-  reference. Add a `docs/README.md` retention rule.
-- **AGENT.md duplicates `system/status.md`** on reentry order and operating
-  model. Two sources of truth for "how the supervisor operates" will drift.
-  Compress AGENT.md to charter-only; keep operating model in `system/`.
-- **`projects/` retention rule is implicit.** State it: one file per project
-  currently under supervisor attention; absence means project-session
-  responsibility.
-- **`sessions/` has no retention rule.** Add: closed feature sessions delete
-  their state file; lineage lives in git + `feature_closed` events.
+### Telemetry schema gap
 
-## Structural
+- `events.jsonl` has no required-fields contract. Command floods
+  `sessions.listed`; atlas emits nothing. Meta-scan produces false
+  positives because it can't distinguish smoke vs. real traffic.
+- Proposal 2 from cross-cutting-2026-04-14 (minimum event schema with
+  `sourceType` field) is the next highest-leverage workspace-level
+  change. Not yet acted on.
+
+## Structural (supervisor self-alignment)
+
+These items concern the supervisor repo matching its own current-state
+model. Resolved items are removed; remaining items are tracked to an ADR.
+
+- **Events live inside the repo.** Charter §Event model locates
+  `events/supervisor-events.jsonl` in-repo. Should be in
+  `/opt/workspace/runtime/.telemetry/` with a pointer here. Addressed
+  by **ADR-0012 (accepted)**; migration queued as a separate execution
+  task.
+- **`handoffs/ARCHIVE/` is a log.** Resolution is already in git.
+  Addressed by **ADR-0012 (accepted)**; migration queued with events.
+- **`AGENT.md` duplicates `system/status.md`** on reentry order and
+  operating model. Two sources of truth for "how the supervisor operates"
+  will drift. **Open — needs ADR or direct compression.** Candidate for
+  next pass.
+- **Idea JSON carries inline `history[]` log.** Per-file append state
+  duplicates git and events. Strip history; rely on `git log -- ideas/…`
+  and `idea_*` events. **Open — touches `scripts/lib/idea-ledger.py`.**
+
+## Structural (workspace-wide)
 
 ### Current-state bundle discipline must hold
 
@@ -60,13 +72,28 @@ charter and must be routed through a decision before being changed.
 - Reentry should continue to prefer `system/status.md`,
   `system/active-issues.md`, `system/active-ideas.md`, and relevant
   `projects/` / `roles/` state files.
-- Reference and archive layers should be opened only when the state surfaces
-  point at them.
+- Reference and archive layers should be opened only when the state
+  surfaces point at them.
 
 ### Cross-agent project transport is still soft
 
-- Runtime handoffs exist and are the intended project-session routing surface.
-- Direct opposite-agent CLI invocation from the supervisor is unreliable in the
-  current sandbox: local `claude -p` calls hang without returning usable output.
-- The control plane should not assume that ad hoc CLI invocation is a reliable
-  substitute for a proper session-to-session transport and acknowledgment path.
+- Runtime handoffs exist and are the intended project-session routing
+  surface.
+- Direct opposite-agent CLI invocation from the supervisor is unreliable
+  in the current sandbox: local `claude -p` calls hang without returning
+  usable output.
+- The control plane should not assume that ad hoc CLI invocation is a
+  reliable substitute for a proper session-to-session transport and
+  acknowledgment path.
+
+## Resolved (removed from this surface; see git history for detail)
+
+Previously-listed items that have been closed:
+
+- *session_id in commit trailers* — ADR-0009 accepted; all supervisor
+  commits from 2026-04-14 onward carry the trailer.
+- *`docs/` promotion/retirement rule* — `docs/README.md` already
+  defines it.
+- *`projects/` retention rule* — `projects/README.md` already defines
+  it.
+- *`sessions/` retention rule* — `sessions/README.md` already defines it.
