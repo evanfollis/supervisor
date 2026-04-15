@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "overall_status": {
+      "type": "string",
+      "enum": ["healthy", "watch", "action-required", "urgent"]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "next_maintenance_window": {
+      "type": "string"
+    },
+    "scheduled_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "priority": {
+            "type": "string",
+            "enum": ["p1", "p2", "p3"]
+          },
+          "cadence": {
+            "type": "string",
+            "enum": ["one-time", "nightly", "weekly", "monthly"]
+          },
+          "recommended_window": { "type": "string" },
+          "reason": { "type": "string" },
+          "commands": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "required": ["title", "priority", "cadence", "recommended_window", "reason", "commands"],
+        "additionalProperties": false
+      }
+    },
+    "automation_improvements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "handoff_required": {
+      "type": "boolean"
+    },
+    "handoff_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "overall_status",
+    "summary",
+    "next_maintenance_window",
+    "scheduled_tasks",
+    "automation_improvements",
+    "handoff_required",
+    "handoff_note"
+  ],
+  "additionalProperties": false
+}
