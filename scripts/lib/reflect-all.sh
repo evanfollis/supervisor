@@ -28,7 +28,10 @@ while IFS='|' read -r name path prompt; do
   fi
 
   echo "=== reflect-all: $name ($path)${prompt:+ [prompt=$prompt]} ==="
-  if ! "$LIB_DIR/reflect.sh" "$name" "$path" "$prompt"; then
+  # `< /dev/null`: reflect.sh spawns `claude -p` which inherits stdin — without
+  # redirection it consumes the remaining lines of $CONF and the loop exits
+  # after one project. This bug silently degraded 6 of 7 projects' reflections.
+  if ! "$LIB_DIR/reflect.sh" "$name" "$path" "$prompt" < /dev/null; then
     echo "reflect-all: $name FAILED" >&2
     FAILED+=("$name")
   fi

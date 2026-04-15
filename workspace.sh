@@ -6,7 +6,10 @@
 # scripts/lib/sessions.conf.
 
 set -euo pipefail
-LIB_DIR="$(cd "$(dirname "$0")" && pwd)/scripts/lib"
+# Resolve symlinks so invocation via /opt/workspace/workspace.sh (a symlink to
+# this file) still finds scripts/lib relative to the real location.
+SCRIPT_PATH="$(readlink -f "$0")"
+LIB_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)/scripts/lib"
 source "$LIB_DIR/workspace-paths.sh"
 CONF="$WORKSPACE_SESSION_CONF"
 
