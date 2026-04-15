@@ -2,6 +2,33 @@
 
 ## Immediate
 
+### reflect-all.sh stdin bug — only 1 of 7 projects reflected per cycle [CRITICAL]
+
+- `reflect-all.sh` uses a `while IFS='|' read -r` loop over `projects.conf`. The `claude -p` subprocess
+  invoked by `reflect.sh` inherits stdin, consuming the remaining project lines and terminating the loop
+  after the first active project.
+- Evidence: 4 of 7 projects have zero reflection files ever (skillfoundry-harness, mentor,
+  context-repository, supervisor). The synthesis loop has been operating on 1 of 7 projects.
+- Fix: add `< /dev/null` to the `reflect.sh` invocation in `reflect-all.sh` (Tier C for tick — attended session must apply).
+- INBOX entry: `reflect-all-stdin-fix-2026-04-15T10-48-22Z.md`
+- Source: cross-cutting synthesis 2026-04-15T03:26, Pattern #1
+
+### workspace.sh doctor broken [HIGH]
+
+- `workspace.sh doctor` fails with "No such file or directory" at line 10 — path computes to
+  `/opt/workspace/scripts/lib/workspace-paths.sh` but file is at
+  `/opt/workspace/supervisor/scripts/lib/workspace-paths.sh`.
+- Every tick reports a false FAIL until fixed.
+- INBOX entry: `URGENT-doctor-broken-2026-04-15T10-48-22Z.md`
+- Friction: FR-0008
+
+### Server patch + reboot overdue [HIGH]
+
+- Maintenance window 2026-04-15 08:00-09:00 UTC passed; server still at REBOOT REQUIRED, 45 upgradable
+  packages, kernel 6.8.0-90 running vs 6.8.0-107 installed.
+- INBOX entry: `URGENT-server-maintenance-overdue-2026-04-15T10-48-22Z.md`
+- Friction: FR-0009
+
 ### Context repository mismatch
 
 - The `context-repository` project is currently chartered as an abstract spec
