@@ -1,0 +1,27 @@
+{
+  "artifacts": [
+    "/opt/workspace/supervisor/docs/slack-signal-intake-and-policy-automation-plan.md",
+    "/opt/workspace/supervisor/decisions/0010-notes-triage-surface.md",
+    "/opt/workspace/supervisor/decisions/0011-slack-mobile-io-surface.md"
+  ],
+  "compoundability": "high",
+  "created_at": "2026-04-14T20:33:38Z",
+  "disposition_rationale": "Original sprawling design duplicated the reflection/synthesis loops. Rescoped to the real need (mobile view + note-drop) and pressure-tested via Codex review. The rewrite narrows Slack to a thin affordance over existing substrates, with governance invariants enforced mechanically (no agent writes, tag-driven routing, idempotency spec, TRIAGE surface to preserve INBOX semantics).",
+  "disturbs": [],
+  "evidence": [
+    "Codex adversarial review (2026-04-14) identified 7 concrete issues; all addressed in the rewrite."
+  ],
+  "id": "IDEA-0004",
+  "next_step": "Accept ADR-0010 (notes/TRIAGE) and ADR-0011 (Slack integration); then ship Stage 1 (outbound only).",
+  "priority": "high",
+  "proposer": "human",
+  "review_after": null,
+  "risk": "medium",
+  "scope": "governance",
+  "slug": "slack-signal-intake-and-friction-to-policy-automation",
+  "status": "pressure_tested",
+  "summary": "Use Slack as the principal's mobile I/O surface: a notifier posts status cards for governance events, and a normalizer routes tagged inbound messages to the idea ledger, handoff INBOX, active-issues staging, or a new notes/TRIAGE surface. Scoped down from the original seven-channel intake/maintenance-agent/candidate-state-machine design after Codex review.",
+  "target_layer": "supervisor",
+  "title": "Slack signal intake and friction-to-policy automation",
+  "updated_at": "2026-04-14T21:22:23Z"
+}

@@ -1,0 +1,29 @@
+{
+  "artifacts": [
+    "/opt/workspace/projects/context-repository/README.md",
+    "/opt/workspace/projects/context-repository/CLAUDE.md",
+    "/opt/workspace/supervisor/docs/ideal-state-interaction-model.md",
+    "/opt/workspace/supervisor/docs/maintenance-agent-framework.md"
+  ],
+  "compoundability": "high",
+  "created_at": "2026-04-14T18:37:54Z",
+  "disposition_rationale": "The current repo charter conflicts with the intended use of the context repository as efficient loaded working state rather than append-only architectural specification.",
+  "disturbs": [
+    "/opt/workspace/projects/context-repository/README.md",
+    "/opt/workspace/projects/context-repository/CLAUDE.md"
+  ],
+  "evidence": [],
+  "id": "IDEA-0003",
+  "next_step": "Route a redesign handoff to the context-repo session to propose a state-oriented structure and provenance contract.",
+  "priority": "high",
+  "proposer": "human",
+  "review_after": null,
+  "risk": "medium",
+  "scope": "governance",
+  "slug": "redesign-context-repository-around-current-state-context-surfaces",
+  "status": "pressure_tested",
+  "summary": "The current context-repository repo is optimized as an abstract specification layer, but the intended design is a current-state filing system that can be loaded as working context while logs live elsewhere. Redesign it around system/project status and active-issue surfaces, with git history and session_id-linked commits providing change narrative and provenance.",
+  "target_layer": "supervisor",
+  "title": "Redesign context-repository around current-state context surfaces",
+  "updated_at": "2026-04-14T18:37:54Z"
+}

@@ -1,0 +1,24 @@
+{
+  "artifacts": [
+    "/opt/workspace/supervisor/docs/idea-focus-queue.md",
+    "/opt/workspace/supervisor/docs/trace-schema.md"
+  ],
+  "compoundability": "high",
+  "created_at": "2026-04-14T18:00:09Z",
+  "disposition_rationale": "This directly addresses the risk that the idea ledger becomes archival rather than behavior-shaping.",
+  "disturbs": [],
+  "evidence": [],
+  "id": "IDEA-0002",
+  "next_step": "Define a signal taxonomy and decide which existing artifacts should feed it first: session trace, reflections, and synthesis outputs.",
+  "priority": "high",
+  "proposer": "human",
+  "review_after": null,
+  "risk": "medium",
+  "scope": "governance",
+  "slug": "interaction-derived-signal-triage-for-compoundable-value",
+  "status": "framed",
+  "summary": "Build a mechanism that classifies ongoing interactions into noise, local friction, and compoundable value so the supervisor can keep the active queue small while still surfacing high-leverage recurring patterns.",
+  "target_layer": "supervisor",
+  "title": "Interaction-derived signal triage for compoundable value",
+  "updated_at": "2026-04-14T18:00:09Z"
+}
