@@ -62,13 +62,15 @@ if [[ -d "$CLAUDE_DIR" ]]; then
   fi
 fi
 
-# Codex JSONL — broad check (fallback): any codex session file touched recently.
-# Narrow check (cwd match) is brittle across codex versions; the broad check is
-# a conservative over-skip rather than an under-skip.
+# Codex JSONL — any recent rollout file mentioning the supervisor cwd.
+# Subtle: `find ... | xargs -r grep -l` exits 0 when find is empty (xargs -r
+# just skips execution) AND when grep matches — we can't use the pipeline
+# exit status to distinguish the two. Capture output and test for non-empty.
 CODEX_ROOT="/root/.codex/sessions"
 if [[ -d "$CODEX_ROOT" ]]; then
-  if find "$CODEX_ROOT" -name 'rollout-*.jsonl' -newermt '15 minutes ago' 2>/dev/null \
-     | xargs -r -I {} grep -l -m1 -F '/opt/workspace/supervisor' {} >/dev/null 2>&1; then
+  codex_matches=$(find "$CODEX_ROOT" -name 'rollout-*.jsonl' -newermt '15 minutes ago' 2>/dev/null \
+    | xargs -r -I {} grep -l -m1 -F '/opt/workspace/supervisor' {} 2>/dev/null || true)
+  if [[ -n "$codex_matches" ]]; then
     skip_with_reason "Codex session referencing supervisor cwd active in last 15 min"
   fi
 fi
