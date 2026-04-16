@@ -43,10 +43,19 @@ do not hover in the middle.
    your completion report. Not a summary — the actual output.
 5. Commit your changes with a clear message (imperative mood, explain why).
 6. Push to origin.
-7. **Update `{{PROJECT_CWD}}/CURRENT_STATE.md`** to reflect what changed. This
-   is the primary breadcrumb for the next agent. A short accurate file beats a
-   long stale one. Update the "Last updated" line, "What's in progress", "Known
-   broken", "Recent decisions", and "What bit the last session" sections.
+7. **Update your context repository.** Your front-door file (`CONTEXT.md` or
+   `CURRENT_STATE.md` — whichever you use) must be updated to reflect what
+   changed. This is the primary breadcrumb for the next agent. A short accurate
+   file beats a long stale one.
+
+   This is **your** file to design and maintain. If the current structure isn't
+   serving you, change it. The invariants are: small front door (a fresh agent
+   can orient in 2 minutes), progressive disclosure (depth behind the front
+   door), overwritten not appended (current state, not log), and updated every
+   session. How you achieve those invariants is your call.
+
+   At minimum update: what changed, what's now known broken, what bit you,
+   what the next agent should read first.
 8. Write a completion report to:
    `{{WORKSPACE_HANDOFF_DIR}}/general-{{PROJECT_NAME}}-tick-complete-{{ISO_NOW}}.md`
    using the **required format** below.

@@ -126,11 +126,23 @@ claude_md = (
     else '(no CLAUDE.md found)'
 )
 
-current_state_path = Path(project_cwd) / 'CURRENT_STATE.md'
+# Discover the project's context front-door file.
+# Convention: CONTEXT.md takes priority; fall back to CURRENT_STATE.md.
+# Agents may use either name; they own their repo's structure.
+ctx_candidates = ['CONTEXT.md', 'CURRENT_STATE.md']
+current_state_path = None
+for name in ctx_candidates:
+    candidate = Path(project_cwd) / name
+    if candidate.exists():
+        current_state_path = candidate
+        break
+
 current_state = (
     current_state_path.read_text()
-    if current_state_path.exists()
-    else '(no CURRENT_STATE.md yet — create one as part of this tick using the template at /opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md)'
+    if current_state_path
+    else ('(no context front-door file found — create CONTEXT.md or CURRENT_STATE.md as part of this tick.\n'
+          'Use /opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md as a starting point,\n'
+          'but design the structure to fit this project. You own it.)')
 )
 
 handoff = Path(os.environ['TICK_HANDOFF_FILE']).read_text()

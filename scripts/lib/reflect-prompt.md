@@ -55,18 +55,21 @@ Only ambiguities that block progress. At most 3.
 
 ## Update CURRENT_STATE.md
 
-After writing the reflection output file, update `{{PROJECT_DIR}}/CURRENT_STATE.md`.
-You have write access to this file specifically; all other project files are read-only.
+After writing the reflection output file, update the project's context
+front-door file. Check for `{{PROJECT_DIR}}/CONTEXT.md` first; if it doesn't
+exist, check for `{{PROJECT_DIR}}/CURRENT_STATE.md`. Write access to this file
+is permitted; all other project source files are read-only.
 
 Update it to reflect what you learned in this reflection pass:
-- Set "Last updated" to {{ISO_NOW}} (reflection)
+- Set "Last updated" to {{ISO_NOW}} (reflection pass)
 - Update "Known broken or degraded" based on what you observed
-- Update "What bit the last session" with any patterns from session transcripts
+- Update "What bit the last session" with patterns from session transcripts
 - Update "Recent decisions" if the reflection surfaced significant judgment calls
 - Update "What the next agent must read first" if priorities shifted
 
-If `CURRENT_STATE.md` doesn't exist yet, create it using the template at
-`/opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md`.
+If neither `CONTEXT.md` nor `CURRENT_STATE.md` exists yet, create `CURRENT_STATE.md`
+using the template at `/opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md`.
+That template is a starting point — the agent is free to evolve the structure.
 
 Do not rewrite the entire file — update the sections that changed. Preserve
 entries in "Recent decisions" that are still accurate.
