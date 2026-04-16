@@ -125,6 +125,14 @@ claude_md = (
     if claude_md_path.exists()
     else '(no CLAUDE.md found)'
 )
+
+current_state_path = Path(project_cwd) / 'CURRENT_STATE.md'
+current_state = (
+    current_state_path.read_text()
+    if current_state_path.exists()
+    else '(no CURRENT_STATE.md yet — create one as part of this tick using the template at /opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md)'
+)
+
 handoff = Path(os.environ['TICK_HANDOFF_FILE']).read_text()
 
 subs = {
@@ -135,6 +143,7 @@ subs = {
     '{{HANDOFF_BASENAME}}':      os.environ['TICK_HANDOFF_BASENAME'],
     '{{WORKSPACE_HANDOFF_DIR}}': os.environ['TICK_WORKSPACE_HANDOFF_DIR'],
     '{{PROJECT_CLAUDE_MD}}':     claude_md,
+    '{{CURRENT_STATE}}':         current_state,
     '{{HANDOFF_CONTENT}}':       handoff,
 }
 for k, v in subs.items():

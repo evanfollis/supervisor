@@ -6,14 +6,15 @@ You are running as an unattended 12-hour reflection job. You do **not** have a c
 
 1. `git -C {{PROJECT_DIR}} log --since="12 hours ago" --stat --oneline` — what changed
 2. `git -C {{PROJECT_DIR}} status` — uncommitted work (may indicate in-flight sessions)
-3. `{{WORKSPACE_TELEMETRY_FILE}}` — workspace-shared events in the last 12h (tail and filter)
-4. Any project-local telemetry under `{{PROJECT_DIR}}/.telemetry/` or `events.jsonl` if present
-5. **Session transcripts** — `{{SESSION_DIR}}/*.jsonl` — the actual Claude Code conversations in this project's cwd. Use `ls -lt {{SESSION_DIR}}/*.jsonl | head -5` to pick recently-modified files (last 12h). Each line is a JSON message. Scan for: what the user was actually working on, decisions made, dead-ends hit, frustration signals, repeated corrections, advisor calls. These are often more honest than commit messages. **Do not quote verbatim** — summarize behavior and cite by file + line number.
-6. `{{WORKSPACE_META_DIR}}/{{PROJECT}}-reflection-*.md` — prior reflection files (if any) — don't repeat findings unless still unaddressed
-7. `{{PROJECT_DIR}}/CLAUDE.md` — project principles
-8. `{{WORKSPACE_ROOT_CLAUDE_MD}}` — workspace principles
-9. `{{WORKSPACE_SESSION_MEMORY_DIR}}/MEMORY.md` and relevant memory files
-10. `{{PROJECT_DIR}}/.atlas/` / `.meta/methodology.jsonl` / similar state stores if they exist
+3. `{{PROJECT_DIR}}/CURRENT_STATE.md` — **read this first if it exists**; it tells you what the last session knew and what was broken
+4. `{{WORKSPACE_TELEMETRY_FILE}}` — workspace-shared events in the last 12h (tail and filter)
+5. Any project-local telemetry under `{{PROJECT_DIR}}/.telemetry/` or `events.jsonl` if present
+6. **Session transcripts** — `{{SESSION_DIR}}/*.jsonl` — the actual Claude Code conversations in this project's cwd. Use `ls -lt {{SESSION_DIR}}/*.jsonl | head -5` to pick recently-modified files (last 12h). Each line is a JSON message. Scan for: what the user was actually working on, decisions made, dead-ends hit, frustration signals, repeated corrections, advisor calls. These are often more honest than commit messages. **Do not quote verbatim** — summarize behavior and cite by file + line number.
+7. `{{WORKSPACE_META_DIR}}/{{PROJECT}}-reflection-*.md` — prior reflection files (if any) — don't repeat findings unless still unaddressed
+8. `{{PROJECT_DIR}}/CLAUDE.md` — project principles
+9. `{{WORKSPACE_ROOT_CLAUDE_MD}}` — workspace principles
+10. `{{WORKSPACE_SESSION_MEMORY_DIR}}/MEMORY.md` and relevant memory files
+11. `{{PROJECT_DIR}}/.atlas/` / `.meta/methodology.jsonl` / similar state stores if they exist
 
 ## Short-circuit rule
 
@@ -52,10 +53,29 @@ Ranked. Each proposal is a concrete change: file + one-line description. Do **no
 ### Questions for the human
 Only ambiguities that block progress. At most 3.
 
+## Update CURRENT_STATE.md
+
+After writing the reflection output file, update `{{PROJECT_DIR}}/CURRENT_STATE.md`.
+You have write access to this file specifically; all other project files are read-only.
+
+Update it to reflect what you learned in this reflection pass:
+- Set "Last updated" to {{ISO_NOW}} (reflection)
+- Update "Known broken or degraded" based on what you observed
+- Update "What bit the last session" with any patterns from session transcripts
+- Update "Recent decisions" if the reflection surfaced significant judgment calls
+- Update "What the next agent must read first" if priorities shifted
+
+If `CURRENT_STATE.md` doesn't exist yet, create it using the template at
+`/opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md`.
+
+Do not rewrite the entire file — update the sections that changed. Preserve
+entries in "Recent decisions" that are still accurate.
+
 ## Constraints
 
 - **Do not** run `git commit`, `git push`, or any command that writes to the project repo.
-- **Do not** edit files in `{{PROJECT_DIR}}` except `{{OUTPUT_FILE}}` inside `.meta/`.
+- **Do not** edit project source files. The only files you may write are `{{OUTPUT_FILE}}` and `{{PROJECT_DIR}}/CURRENT_STATE.md`.
 - If you discover a critical security issue (leaked credential, live CVE), write a file at `{{WORKSPACE_HANDOFF_DIR}}/URGENT-{{PROJECT}}-<topic>.md` flagging it, then continue normally.
 - Keep the reflection under 400 lines. If you have more to say, rank and trim.
 - If you find yourself uncertain about what's true, say so explicitly in the output. Do not fabricate certainty.
+- **Radical truth applies here too.** If the project is in bad shape, say so. If the last session made poor decisions, name them. A reflection that flatters the project is useless.

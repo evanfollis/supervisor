@@ -134,10 +134,15 @@ incorrect, or the model found an unblocked path (gh, curl, direct fs).
 EOF
     exit 3
   fi
-  if [[ "$BEFORE_DIRTY" != "$AFTER_DIRTY" ]]; then
-    echo "reflect[$PROJECT]: WARNING — working tree changed during reflection." >&2
+  # Filter out CURRENT_STATE.md — reflections are permitted (and expected) to
+  # maintain it. Any other working-tree mutation is unexpected and warrants an alert.
+  BEFORE_DIRTY_FILTERED=$(echo "$BEFORE_DIRTY" | grep -v 'CURRENT_STATE\.md' || true)
+  AFTER_DIRTY_FILTERED=$(echo "$AFTER_DIRTY" | grep -v 'CURRENT_STATE\.md' || true)
+  if [[ "$BEFORE_DIRTY_FILTERED" != "$AFTER_DIRTY_FILTERED" ]]; then
+    echo "reflect[$PROJECT]: WARNING — working tree changed during reflection (excluding CURRENT_STATE.md)." >&2
     cat > "$WORKSPACE_HANDOFF_DIR/URGENT-${PROJECT}-reflection-dirty-tree.md" <<EOF
-Reflection session for ${PROJECT} at ${ISO_NOW} modified the working tree.
+Reflection session for ${PROJECT} at ${ISO_NOW} modified the working tree
+(excluding expected CURRENT_STATE.md writes).
 Before:
 ${BEFORE_DIRTY}
 After:
