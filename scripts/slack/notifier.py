@@ -114,32 +114,54 @@ def card_for_supervisor_event(ev: dict) -> Card | None:
     ref = ev.get("ref", "")
     note = ev.get("note", "")
     agent = ev.get("agent", "unknown")
-    routine_types = {"handoff_received", "synthesis_reviewed"}
+    # Events that are too noisy to post individually
+    routine_types = {
+        "handoff_received", "synthesis_reviewed",
+        "project_tick_started",  # fire-and-forget; only report on outcome
+    }
     if t in routine_types:
         return None
+
     glyph_by_type = {
-        "decision_recorded": ":memo:",
-        "idea_logged": ":bulb:",
-        "idea_updated": ":bulb:",
-        "escalated": ":red_circle:",
-        "delegated": ":arrow_right:",
-        "feature_opened": ":sparkles:",
-        "feature_closed": ":white_check_mark:",
+        "decision_recorded":       ":memo:",
+        "idea_logged":             ":bulb:",
+        "idea_updated":            ":bulb:",
+        "escalated":               ":red_circle:",
+        "delegated":               ":arrow_right:",
+        "feature_opened":          ":sparkles:",
+        "feature_closed":          ":white_check_mark:",
+        "project_tick_succeeded":  ":large_green_circle:",
+        "project_tick_failed":     ":orange_circle:",
+        "project_tick_escalated":  ":red_circle:",
     }
     glyph = glyph_by_type.get(t, ":information_source:")
+
     headlines = {
-        "decision_recorded": "New ADR recorded",
-        "idea_logged": "New idea in ledger",
-        "idea_updated": "Idea ledger updated",
-        "escalated": "Supervisor escalation raised",
-        "delegated": "Supervisor delegated work",
-        "feature_opened": "Feature session opened",
-        "feature_closed": "Feature session closed",
+        "decision_recorded":       "New ADR recorded",
+        "idea_logged":             "New idea in ledger",
+        "idea_updated":            "Idea ledger updated",
+        "escalated":               "Supervisor escalation raised",
+        "delegated":               "Supervisor delegated work",
+        "feature_opened":          "Feature session opened",
+        "feature_closed":          "Feature session closed",
+        "project_tick_succeeded":  f"Project tick done: {agent}",
+        "project_tick_failed":     f"Project tick FAILED: {agent}",
+        "project_tick_escalated":  f"Project tick needs human input: {agent}",
     }
     headline = headlines.get(t, f"Supervisor event: {t}")
     summary = note or "(no note)"
+
+    # Route: escalations → #supervisor-loop (principal-facing);
+    # project tick outcomes → #workspace-ops; everything else → #supervisor-loop.
+    if t in {"project_tick_succeeded", "project_tick_failed"}:
+        channel = CHANNEL_OPS
+    elif t == "project_tick_escalated":
+        channel = CHANNEL_SUPERVISOR
+    else:
+        channel = CHANNEL_SUPERVISOR
+
     return Card(
-        channel=CHANNEL_SUPERVISOR,
+        channel=channel,
         glyph=glyph,
         headline=headline,
         summary=summary,

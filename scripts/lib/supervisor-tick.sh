@@ -260,8 +260,9 @@ if [[ -n "$POST_SUP_DIRTY" ]]; then
   branch="ticks/$(date -u +%Y-%m-%d-%H)"
   # Flow: stage explicit Tier-A paths, commit on the current branch (advances
   # main locally), move the new commit onto the ticks/ branch, then rewind the
-  # main branch pointer so main is unchanged. Working tree ends up clean. The
-  # tick never pushes — ADR-0014 §Push discipline.
+  # main branch pointer so main is unchanged. Working tree ends up clean.
+  # The principal has delegated approval authority (2026-04-16); push the tick
+  # branch to origin so governance artifacts are backed up and visible.
   git -C "$SUP" add \
     friction/ handoffs/ system/ ideas/ decisions/ \
     2>/dev/null || true
@@ -283,8 +284,15 @@ agent: tick" || {
     # (everything was just committed) is safe; it restores the checked-out
     # files to the pre-tick state while the tick's commit lives on $branch.
     git -C "$SUP" reset --hard "$PRE_SUP_HEAD" >/dev/null
-    emit_event "session_reflected" "tick committed to $branch (sha=${new_sha:0:12})"
-    echo "supervisor-tick: committed Tier-A writes to $branch (attended review to merge)"
+    # Push tick branch to origin — non-fatal; a failed push is escalated but
+    # doesn't abort the tick (the commit is safe locally on $branch).
+    if git -C "$SUP" push origin "${branch}:${branch}" 2>&1; then
+      emit_event "session_reflected" "tick committed + pushed $branch (sha=${new_sha:0:12})"
+      echo "supervisor-tick: committed Tier-A writes to $branch and pushed to origin"
+    else
+      emit_event "escalated" "tick committed to $branch but push to origin failed — manual push required"
+      echo "supervisor-tick: committed to $branch; push to origin failed (non-fatal)" >&2
+    fi
   else
     # Changes were all in gitignored paths (events/, .meta/ etc.) — nothing to
     # commit. Leave them as-is.
