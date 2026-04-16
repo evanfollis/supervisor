@@ -63,6 +63,9 @@ Use:
 Also write an escalation to:
 `{{WORKSPACE_HANDOFF_DIR}}/general-{{PROJECT_NAME}}-tick-quality-flag-{{ISO_NOW}}.md`
 
+(`{{WORKSPACE_HANDOFF_DIR}}` is the runtime handoff directory, not the supervisor
+INBOX. The supervisor INBOX is for governance; this is an operational flag.)
+
 Include exactly: what the report claimed, what the evidence actually shows,
 what needs to be re-examined or re-run.
 

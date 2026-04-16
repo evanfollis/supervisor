@@ -79,9 +79,14 @@ claude -p "$(cat "$PROMPT_FILE")" \
   --disallowedTools \
     "Bash(git commit:*)" "Bash(git push:*)" "Bash(git reset:*)" \
     "Bash(git add:*)" "Bash(rm:*)" "Bash(mv:*)" \
-    "Bash(systemctl:*)" "Bash(docker:*)" \
-    "Edit" "Write" "NotebookEdit" \
+    "Bash(systemctl start:*)" "Bash(systemctl stop:*)" \
+    "Bash(systemctl restart:*)" "Bash(systemctl enable:*)" \
+    "Bash(docker:*)" \
+    "Edit" "NotebookEdit" \
   2>&1 | tail -n 60 || EXIT_CODE=$?
+# Note: "Write" is intentionally NOT blocked — the observer needs to write
+# the observation file and any escalation handoffs (both in runtime/ paths).
+# "Edit" IS blocked to prevent modifying existing source files.
 
 if [[ -f "$OBSERVATION_FILE" ]]; then
   # Check verdict line to decide event type
