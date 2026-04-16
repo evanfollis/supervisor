@@ -38,6 +38,21 @@ skip_with_reason() {
   printf '# Supervisor tick skipped — %s\n\n_timestamp_: %s\n' "$reason" "$ISO_NOW" > "$REPORT"
   emit_event "session_reflected" "tick skipped — $reason"
   echo "supervisor-tick: SKIP — $reason" >&2
+
+  # S3-P2: escalate after 3 consecutive skips with the same reason.
+  # Count recent session_reflected events whose note matches this skip reason.
+  if [[ -f "$EVENT_FILE" ]]; then
+    consecutive=$(grep '"type":"session_reflected"' "$EVENT_FILE" \
+      | tail -20 \
+      | grep -c "\"tick skipped — ${reason}\"" 2>/dev/null || true)
+    if (( consecutive >= 3 )); then
+      emit_event "escalated" \
+        "tick skipped ${consecutive} consecutive times: ${reason} — intervention may be required" \
+        "$REPORT"
+      echo "supervisor-tick: ESCALATED — $consecutive consecutive skips: $reason" >&2
+    fi
+  fi
+
   exit 0
 }
 
