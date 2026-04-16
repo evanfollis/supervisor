@@ -191,16 +191,23 @@ claude -p "$(cat "$PROMPT_FILE")" \
 COMPLETION_FILE="${WORKSPACE_HANDOFF_DIR}/general-${PROJECT_NAME}-tick-complete-${ISO_NOW}.md"
 ESCALATION_FILE="${WORKSPACE_HANDOFF_DIR}/general-${PROJECT_NAME}-tick-escalation-${ISO_NOW}.md"
 
+OBSERVER_REPORT_FILE=""
+OBSERVER_REPORT_TYPE="completion"
+
 if [[ -f "$ESCALATION_FILE" ]]; then
   emit_event "project_tick_escalated" \
     "escalation for $HANDOFF_BASENAME — see $(basename "$ESCALATION_FILE")" \
     "$ESCALATION_FILE"
   echo "supervisor-project-tick[$PROJECT_NAME]: escalated — $ESCALATION_FILE"
+  OBSERVER_REPORT_FILE="$ESCALATION_FILE"
+  OBSERVER_REPORT_TYPE="escalation"
 elif [[ -f "$COMPLETION_FILE" ]]; then
   emit_event "project_tick_succeeded" \
     "completed $HANDOFF_BASENAME" \
     "$COMPLETION_FILE"
   echo "supervisor-project-tick[$PROJECT_NAME]: completed — $COMPLETION_FILE"
+  OBSERVER_REPORT_FILE="$COMPLETION_FILE"
+  OBSERVER_REPORT_TYPE="completion"
 elif [[ "$EXIT_CODE" -ne 0 ]]; then
   emit_event "project_tick_failed" \
     "claude exit $EXIT_CODE processing $HANDOFF_BASENAME" \
@@ -213,6 +220,19 @@ else
     "completed $HANDOFF_BASENAME (no report written)" \
     "$HANDOFF_FILE"
   echo "supervisor-project-tick[$PROJECT_NAME]: done (no report written)"
+fi
+
+# --- 8. executive observation pass -------------------------------------------
+# Spawn a brief headless executive-posture session to review the tick output
+# against the actual git state. Non-fatal — observer failure does not affect
+# the tick's reported outcome.
+if [[ -n "$OBSERVER_REPORT_FILE" && -f "$OBSERVER_REPORT_FILE" ]]; then
+  "$LIB_DIR/supervisor-tick-observer.sh" \
+    "$PROJECT_NAME" \
+    "$OBSERVER_REPORT_FILE" \
+    "$OBSERVER_REPORT_TYPE" \
+    "$HANDOFF_BASENAME" \
+    2>&1 | tail -n 30 || true
 fi
 
 exit 0

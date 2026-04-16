@@ -117,7 +117,8 @@ def card_for_supervisor_event(ev: dict) -> Card | None:
     # Events that are too noisy to post individually
     routine_types = {
         "handoff_received", "synthesis_reviewed",
-        "project_tick_started",  # fire-and-forget; only report on outcome
+        "project_tick_started",   # fire-and-forget; only report on outcome
+        "tick_observation_clean", # observer says all good — no Slack needed
     }
     if t in routine_types:
         return None
@@ -130,9 +131,12 @@ def card_for_supervisor_event(ev: dict) -> Card | None:
         "delegated":               ":arrow_right:",
         "feature_opened":          ":sparkles:",
         "feature_closed":          ":white_check_mark:",
-        "project_tick_succeeded":  ":large_green_circle:",
-        "project_tick_failed":     ":orange_circle:",
-        "project_tick_escalated":  ":red_circle:",
+        "project_tick_succeeded":      ":large_green_circle:",
+        "project_tick_failed":         ":orange_circle:",
+        "project_tick_escalated":      ":red_circle:",
+        "tick_observation_concern":    ":yellow_circle:",
+        "tick_observation_flagged":    ":red_circle:",
+        "tick_observation_failed":     ":orange_circle:",
     }
     glyph = glyph_by_type.get(t, ":information_source:")
 
@@ -144,18 +148,22 @@ def card_for_supervisor_event(ev: dict) -> Card | None:
         "delegated":               "Supervisor delegated work",
         "feature_opened":          "Feature session opened",
         "feature_closed":          "Feature session closed",
-        "project_tick_succeeded":  f"Project tick done: {agent}",
-        "project_tick_failed":     f"Project tick FAILED: {agent}",
-        "project_tick_escalated":  f"Project tick needs human input: {agent}",
+        "project_tick_succeeded":      f"Project tick done: {agent}",
+        "project_tick_failed":         f"Project tick FAILED: {agent}",
+        "project_tick_escalated":      f"Project tick needs human input: {agent}",
+        "tick_observation_concern":    f"Executive noted concern: {agent}",
+        "tick_observation_flagged":    f"Executive flagged tick quality: {agent}",
+        "tick_observation_failed":     f"Observer produced no output: {agent}",
     }
     headline = headlines.get(t, f"Supervisor event: {t}")
     summary = note or "(no note)"
 
-    # Route: escalations → #supervisor-loop (principal-facing);
-    # project tick outcomes → #workspace-ops; everything else → #supervisor-loop.
-    if t in {"project_tick_succeeded", "project_tick_failed"}:
+    # Route: operational outcomes → #workspace-ops;
+    # escalations + quality flags → #supervisor-loop (principal-facing).
+    if t in {"project_tick_succeeded", "project_tick_failed",
+             "tick_observation_concern", "tick_observation_failed"}:
         channel = CHANNEL_OPS
-    elif t == "project_tick_escalated":
+    elif t in {"project_tick_escalated", "tick_observation_flagged"}:
         channel = CHANNEL_SUPERVISOR
     else:
         channel = CHANNEL_SUPERVISOR
