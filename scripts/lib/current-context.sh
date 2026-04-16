@@ -12,6 +12,15 @@ print_file() {
   printf '\n\n'
 }
 
+print_capabilities() {
+  local probe="$ROOT/scripts/lib/capability-attestation.sh"
+  [[ -x "$probe" ]] || return 0
+  printf '## capability-attestation\n\n'
+  "$probe" --markdown
+  printf '\n\n'
+}
+
+print_capabilities
 print_file "$ROOT/AGENT.md"
 print_file "$ROOT/system/status.md"
 print_file "$ROOT/system/active-issues.md"

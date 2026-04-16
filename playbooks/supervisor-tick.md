@@ -13,7 +13,8 @@ and merge.
 2. No manual hold file at
    `/opt/workspace/runtime/.locks/supervisor-tick.hold`.
 3. No Claude supervisor JSONL activity in last 15 min.
-4. No Codex session referencing `/opt/workspace/supervisor` cwd in
+4. No Codex session referencing `/opt/workspace` or the legacy
+   `/opt/workspace/supervisor` cwd in
    last 15 min.
 5. Tmux `general` session `session_activity` older than 15 min.
 6. Supervisor repo working tree is clean (no uncommitted changes).

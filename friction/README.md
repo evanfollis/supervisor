@@ -5,6 +5,13 @@ they're noticed during supervisor work. Friction is the raw material
 for system improvement; leaving it in session transcripts is how it
 gets lost.
 
+Think of this as policy-search input:
+
+- friction records are the reward/error signal
+- charter, playbooks, prompts, and state surfaces are the current policy
+- repeated friction means the policy needs refinement
+- resolved recurring friction is evidence the policy improved
+
 ## What belongs here
 
 - Moments where the system made the supervisor do extra work it
@@ -61,3 +68,9 @@ Do not delete resolved entries. Their existence is the learning trail.
   smooth.
 - **Promote compounding friction.** If three frictions share a root
   cause, open an ADR.
+- **Tune policy from friction.** Do not just record drag; update the
+  governing surfaces that caused it when the fix is clear.
+- **Use transcripts as behavioral telemetry.** They are where you see
+  hesitation, passivity, repeated principal prompts, and self-imposed
+  gates. They are not authoritative fact sources; disagreements between
+  transcript and current truth sources are friction to capture.

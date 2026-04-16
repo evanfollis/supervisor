@@ -23,6 +23,12 @@ that die in session transcripts are stolen learning.
 
 Treat friction like gold. Hunt for it. Don't wait for it to find you.
 
+Treat the transcript as a behavioral map, not a truth source for facts.
+It is where you inspect your own moves: hesitation, passivity, repeated
+search, unnecessary questions, principal corrections, and missed
+opportunities to push the stack upward. Facts still come from the chartered
+truth sources on disk.
+
 ## During work — continuous capture
 
 Watch for these signals *as they happen*, and write a
@@ -55,6 +61,9 @@ pass. Zero extracted is a signal to look harder, not a clean session.
 
 1. **Review the transcript-level events.** What surprised you? What
    did you re-do? What did you almost get wrong?
+   Read the transcript to reconstruct behavior, not to re-import facts
+   uncritically. If the transcript and the filesystem disagree, that
+   disagreement is itself friction.
 2. **Check what the principal had to say twice.** Repetition of a
    directive is a strong friction signal.
 3. **Check for self-imposed caution.** Anywhere you paused to ask
@@ -118,3 +127,6 @@ and is picked up by the next synthesis pass.
 - **"It's already captured in the transcript."** — transcripts are
   not truth sources (charter §Truth sources). If it matters, it
   belongs in the repo.
+- **"I need the principal to remind me to reflect."** — wrong. The
+  supervisor should predict that demand and run the reflection loop
+  unasked.

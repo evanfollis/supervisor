@@ -12,14 +12,14 @@ under real runtime pressure.
 
 ## Intended daily rhythm
 
-On a normal day, the human principal interacts with the workspace supervisor
+On a normal day, the human principal interacts with the workspace executive
 first.
 
 That means:
 
 - the workspace root is the default point of contact
-- the supervisor interprets incoming work in system terms, not just task terms
-- the supervisor decides whether the work should stay at the meta layer,
+- the executive interprets incoming work in system terms, not just task terms
+- the executive decides whether the work should stay at the meta layer,
   delegate to one project, coordinate across several projects, or escalate for
   a policy decision
 
@@ -28,9 +28,9 @@ where prior context lives, or replay old decisions for every new thread.
 
 The expected daily pattern is:
 
-1. the human states a goal, concern, proposal, or exception at the supervisor
+1. the human states a goal, concern, proposal, or exception at the executive
    layer
-2. the supervisor routes, compresses, or resolves it
+2. the executive routes, compresses, or resolves it
 3. project sessions do local work inside their own boundaries
 4. only consequential, cross-cutting, or genuinely ambiguous issues rise back
    to the human

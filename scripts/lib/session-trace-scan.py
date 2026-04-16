@@ -46,7 +46,7 @@ def parse_sessions_conf(path: Path):
             name = parts[0]
             cwd = parts[1] if len(parts) > 1 else ""
             agent = parts[2] if len(parts) > 2 and parts[2] else "claude"
-            role = parts[3] if len(parts) > 3 and parts[3] else ("supervisor" if name == "general" else "project")
+            role = parts[3] if len(parts) > 3 and parts[3] else ("executive" if name == "general" else "project")
             if cwd:
                 registry.append(
                     {
@@ -62,12 +62,18 @@ def parse_sessions_conf(path: Path):
 
 def alias_cwds(cwd: str, workspace_root: str):
     aliases = {os.path.normpath(cwd)}
+    supervisor_root = os.path.normpath(os.path.join(workspace_root, "supervisor"))
     if cwd.startswith("/opt/workspace/projects/"):
         aliases.add(os.path.normpath(cwd.replace("/opt/workspace/projects/", "/opt/projects/", 1)))
-    elif cwd == "/opt/workspace/supervisor":
+    elif cwd == supervisor_root:
         aliases.add("/opt/projects/supervisor")
 
     if cwd == os.path.normpath(workspace_root):
+        aliases.add("/opt/projects")
+        aliases.add(supervisor_root)
+        aliases.add("/opt/projects/supervisor")
+    elif cwd == supervisor_root:
+        aliases.add(os.path.normpath(workspace_root))
         aliases.add("/opt/projects")
 
     return sorted(aliases)
@@ -129,7 +135,7 @@ def load_registry(sessions_conf: Path, manifests_dir: Path, workspace_root: str)
             "session_name": "workspace-root",
             "cwd": root_cwd,
             "agent": "mixed",
-            "role": "supervisor",
+            "role": "executive",
             "kind": "adhoc",
         }
         key = (root_item["session_name"], root_item["cwd"])

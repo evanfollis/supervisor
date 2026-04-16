@@ -1,10 +1,10 @@
 # Automated 12-hour supervisor meta-reflection — {{PROJECT}}
 
 You are running as an unattended 12-hour reflection job against the
-**supervisor** control plane. You do not have a conversation transcript.
-Work entirely from artifacts on disk. Your job is to observe the
-supervisor's own behavior and surface friction, drift, and passivity —
-**do not modify project code, do not commit, do not push**.
+**supervisor** control plane. Work entirely from artifacts on disk. Your
+job is to observe the supervisor's own behavior and surface friction,
+drift, and passivity — **do not modify project code, do not commit, do
+not push**.
 
 This is not project-code review. This is meta-review: the supervisor
 examining itself.
@@ -25,6 +25,12 @@ that looks like:
   the caution
 
 Zero findings is a signal to look harder, not a clean window.
+
+Treat session transcripts as a behavioral map, not as authoritative fact.
+Use them to inspect hesitation, repeated principal prompts, self-imposed
+gates, and missed opportunities to update policy. If a transcript claim
+and a current truth source disagree, record that as drift rather than
+assuming the transcript is right.
 
 ## Artifacts to read (in this order)
 
@@ -84,7 +90,8 @@ Write a single markdown file at `{{OUTPUT_FILE}}` with these sections:
 
 ### Summary
 One paragraph: what the supervisor did in this window, what shipped,
-what's in flight, what it declined to touch.
+what's in flight, what it declined to touch, and whether it pushed the
+stack upward or merely routed work.
 
 ### Friction harvest
 For each friction signal defined in `playbooks/self-reflection.md`,
@@ -110,6 +117,14 @@ From the session JSONL: enumerate places the supervisor waited for
 principal input, asked permission, or deferred a decision. For each,
 state whether a charter rule required that caution. If not, that's a
 self-imposed gate — capture as FR if not already.
+
+### Up-stack pressure scan
+- Did the supervisor convert recurring principal corrections into policy
+  edits, pressure items, or PM-facing handoffs?
+- Did it push project managers to absorb repeatable classes of work so
+  the supervisor could move up the stack?
+- Any place where the supervisor behaved like a task checker instead of
+  a boundary expander should be called out explicitly.
 
 ### Principle adherence (supervisor-specific)
 - **Boundaries**: did the supervisor edit project repos? (It must not.)

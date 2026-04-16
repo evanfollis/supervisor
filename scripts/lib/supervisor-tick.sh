@@ -55,23 +55,28 @@ fi
 
 # --- 3. attended-session signals ---------------------------------------------
 # Claude JSONL
-CLAUDE_DIR="/root/.claude/projects/-opt-workspace-supervisor"
-if [[ -d "$CLAUDE_DIR" ]]; then
-  if find "$CLAUDE_DIR" -maxdepth 1 -name '*.jsonl' -newermt '15 minutes ago' 2>/dev/null | grep -q .; then
-    skip_with_reason "Claude supervisor JSONL active in last 15 min"
+declare -a CLAUDE_DIRS=(
+  "/root/.claude/projects/-opt-workspace"
+  "/root/.claude/projects/-opt-workspace-supervisor"
+)
+for CLAUDE_DIR in "${CLAUDE_DIRS[@]}"; do
+  if [[ -d "$CLAUDE_DIR" ]]; then
+    if find "$CLAUDE_DIR" -maxdepth 1 -name '*.jsonl' -newermt '15 minutes ago' 2>/dev/null | grep -q .; then
+      skip_with_reason "Claude supervisor JSONL active in last 15 min"
+    fi
   fi
-fi
+done
 
-# Codex JSONL — any recent rollout file mentioning the supervisor cwd.
+# Codex JSONL — any recent rollout file mentioning a supervisor cwd.
 # Subtle: `find ... | xargs -r grep -l` exits 0 when find is empty (xargs -r
 # just skips execution) AND when grep matches — we can't use the pipeline
 # exit status to distinguish the two. Capture output and test for non-empty.
 CODEX_ROOT="/root/.codex/sessions"
 if [[ -d "$CODEX_ROOT" ]]; then
   codex_matches=$(find "$CODEX_ROOT" -name 'rollout-*.jsonl' -newermt '15 minutes ago' 2>/dev/null \
-    | xargs -r -I {} grep -l -m1 -F '/opt/workspace/supervisor' {} 2>/dev/null || true)
+    | xargs -r grep -El -m1 '"cwd":"(/opt/workspace|/opt/workspace/supervisor)"' 2>/dev/null || true)
   if [[ -n "$codex_matches" ]]; then
-    skip_with_reason "Codex session referencing supervisor cwd active in last 15 min"
+    skip_with_reason "Codex session referencing supervisor root active in last 15 min"
   fi
 fi
 

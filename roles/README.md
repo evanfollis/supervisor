@@ -10,6 +10,12 @@ These are not long theoretical essays. They are small summaries of:
 - what it should ignore by default
 - what authority boundaries matter right now
 
+Current top-level split:
+
+- `executive` — principal-facing top-level partner
+- `supervisor` — governance / policy / reflection
+- `operator` — host-control when capability is actually present
+
 ## Rules
 
 - Keep role files short and behavioral.

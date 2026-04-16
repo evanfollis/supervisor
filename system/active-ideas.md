@@ -33,5 +33,20 @@
 - Status: `framed`
 - Why it matters: determines whether the system can distinguish noise
   from genuinely compounding signals across ordinary interaction
+- Clarification: the important target is not repo shaping directly. It is
+  shaping the project-manager layer from principal interaction signals so PMs
+  can better shape projects without repeated executive correction.
 - Next step: define a signal taxonomy and identify the first source
-  surfaces to classify
+  surfaces to classify, with explicit categories for:
+  - strategic intent
+  - architecture pressure
+  - policy correction
+  - PM shaping signal
+  - friction / supervision burden
+- Additional rule: interaction signals need confidence grading before
+  promotion. A single statement may be:
+  - a local correction
+  - a sampled preference
+  - evidence of a recurring structural principle
+  Promotion into policy should depend on seriousness, recurrence, and fit with
+  the broader model, not raw recency.

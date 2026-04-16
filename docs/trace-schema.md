@@ -24,9 +24,9 @@ Minimum shape:
 ```json
 {
   "session_name": "general",
-  "cwd": "/opt/workspace/supervisor",
+  "cwd": "/opt/workspace",
   "agent": "claude",
-  "role": "supervisor",
+  "role": "executive",
   "kind": "persistent",
   "source": "sessions.conf",
   "desired_state": "running",
@@ -51,7 +51,7 @@ Minimum shape:
   "ts": "2026-04-14T17:12:46.790Z",
   "source": "codex",
   "session_name": "workspace-root",
-  "session_role": "supervisor",
+  "session_role": "executive",
   "cwd": "/opt/workspace",
   "actor": "user",
   "kind": "message",

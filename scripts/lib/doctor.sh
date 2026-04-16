@@ -32,6 +32,11 @@ say_fail() { printf '  %s✗%s %s\n' "$C_FAIL" "$C_RST" "$1"; FAIL=1; }
 note()     { printf '    %s%s%s\n' "$C_DIM" "$1" "$C_RST"; }
 section()  { printf '\n%s\n' "$1"; }
 
+systemctl_ok=1
+if ! systemctl list-unit-files --no-legend --no-pager >/dev/null 2>&1; then
+  systemctl_ok=0
+fi
+
 now_epoch=$(date -u +%s)
 age_hours() {  # seconds → rounded hours
   local s="$1"
@@ -147,33 +152,41 @@ expected_timers=(
   server-maintenance.timer
   server-maintenance-schedule.timer
 )
-for t in "${expected_timers[@]}"; do
-  if systemctl list-unit-files "$t" --no-legend --no-pager 2>/dev/null | grep -q "$t"; then
-    state=$(systemctl is-active "$t" 2>/dev/null || echo inactive)
-    enabled=$(systemctl is-enabled "$t" 2>/dev/null || echo disabled)
-    if [[ "$state" == "active" && "$enabled" == "enabled" ]]; then
-      say_ok "$t ($state, $enabled)"
+if (( ! systemctl_ok )); then
+  say_warn "systemctl unavailable in current harness; skipped live timer checks"
+else
+  for t in "${expected_timers[@]}"; do
+    if systemctl list-unit-files "$t" --no-legend --no-pager 2>/dev/null | grep -q "$t"; then
+      state=$(systemctl is-active "$t" 2>/dev/null || echo inactive)
+      enabled=$(systemctl is-enabled "$t" 2>/dev/null || echo disabled)
+      if [[ "$state" == "active" && "$enabled" == "enabled" ]]; then
+        say_ok "$t ($state, $enabled)"
+      else
+        say_fail "$t is $state / $enabled"
+      fi
     else
-      say_fail "$t is $state / $enabled"
+      say_warn "$t not installed"
     fi
-  else
-    say_warn "$t not installed"
-  fi
-done
+  done
+fi
 
 # --- supervisor session: the general tmux session should be supervised + up ---
 section "general session"
 # workspace-session@.service is a template — instantiated units don't show up in
 # list-unit-files, so ask is-active directly.
-if systemctl list-unit-files 'workspace-session@.service' --no-legend --no-pager 2>/dev/null | grep -q workspace-session; then
-  svc_state=$(systemctl is-active "workspace-session@general.service" 2>/dev/null || echo inactive)
-  case "$svc_state" in
-    active)      say_ok "workspace-session@general.service is active" ;;
-    activating)  say_warn "workspace-session@general.service is activating" ;;
-    *)           say_fail "workspace-session@general.service is $svc_state" ;;
-  esac
+if (( ! systemctl_ok )); then
+  say_warn "systemctl unavailable in current harness; skipped general-session service check"
 else
-  say_warn "workspace-session@.service template unit not installed"
+  if systemctl list-unit-files 'workspace-session@.service' --no-legend --no-pager 2>/dev/null | grep -q workspace-session; then
+    svc_state=$(systemctl is-active "workspace-session@general.service" 2>/dev/null || echo inactive)
+    case "$svc_state" in
+      active)      say_ok "workspace-session@general.service is active" ;;
+      activating)  say_warn "workspace-session@general.service is activating" ;;
+      *)           say_fail "workspace-session@general.service is $svc_state" ;;
+    esac
+  else
+    say_warn "workspace-session@.service template unit not installed"
+  fi
 fi
 
 # --- harness config visibility (FR-0002): list what hooks are active ---
@@ -199,15 +212,19 @@ fi
 
 # --- notifier: Slack notifier consumes events.jsonl; confirm it's alive ---
 section "notifier"
-if systemctl list-unit-files 'workspace-notify.timer' --no-legend --no-pager 2>/dev/null | grep -q workspace-notify; then
-  n_state=$(systemctl is-active workspace-notify.timer 2>/dev/null || echo inactive)
-  if [[ "$n_state" == "active" ]]; then
-    say_ok "workspace-notify.timer is $n_state"
-  else
-    say_warn "workspace-notify.timer is $n_state"
-  fi
+if (( ! systemctl_ok )); then
+  say_warn "systemctl unavailable in current harness; skipped notifier timer check"
 else
-  note "workspace-notify.timer not installed (notifier may be disabled by design)"
+  if systemctl list-unit-files 'workspace-notify.timer' --no-legend --no-pager 2>/dev/null | grep -q workspace-notify; then
+    n_state=$(systemctl is-active workspace-notify.timer 2>/dev/null || echo inactive)
+    if [[ "$n_state" == "active" ]]; then
+      say_ok "workspace-notify.timer is $n_state"
+    else
+      say_warn "workspace-notify.timer is $n_state"
+    fi
+  else
+    note "workspace-notify.timer not installed (notifier may be disabled by design)"
+  fi
 fi
 
 # --- events stream: has it been appended to in the last 24h? ---
@@ -263,31 +280,35 @@ fi
 
 # --- supervisor tick: timer + recent report + ticks/ branch age (ADR-0014) ---
 section "supervisor tick"
-if systemctl list-unit-files 'workspace-supervisor-tick.timer' --no-legend --no-pager 2>/dev/null | grep -q workspace-supervisor-tick; then
-  tick_state=$(systemctl is-active workspace-supervisor-tick.timer 2>/dev/null || echo inactive)
-  tick_enabled=$(systemctl is-enabled workspace-supervisor-tick.timer 2>/dev/null || echo disabled)
-  if [[ "$tick_state" == "active" && "$tick_enabled" == "enabled" ]]; then
-    say_ok "workspace-supervisor-tick.timer ($tick_state, $tick_enabled)"
-    # Freshness: last report (including skipped runs) within 4h when enabled.
-    latest=$(ls -t "$WORKSPACE_META_DIR"/supervisor-tick-*.md 2>/dev/null | head -1 || echo "")
-    if [[ -n "$latest" ]]; then
-      mtime=$(stat -c %Y "$latest")
-      age=$(( now_epoch - mtime ))
-      if (( age < 14400 )); then
-        say_ok "latest tick report $(age_hours "$age")h old: $(basename "$latest")"
-      elif (( age < 28800 )); then
-        say_warn "latest tick report $(age_hours "$age")h old (expected <4h)"
+if (( ! systemctl_ok )); then
+  say_warn "systemctl unavailable in current harness; skipped supervisor-tick timer state check"
+else
+  if systemctl list-unit-files 'workspace-supervisor-tick.timer' --no-legend --no-pager 2>/dev/null | grep -q workspace-supervisor-tick; then
+    tick_state=$(systemctl is-active workspace-supervisor-tick.timer 2>/dev/null || echo inactive)
+    tick_enabled=$(systemctl is-enabled workspace-supervisor-tick.timer 2>/dev/null || echo disabled)
+    if [[ "$tick_state" == "active" && "$tick_enabled" == "enabled" ]]; then
+      say_ok "workspace-supervisor-tick.timer ($tick_state, $tick_enabled)"
+      # Freshness: last report (including skipped runs) within 4h when enabled.
+      latest=$(ls -t "$WORKSPACE_META_DIR"/supervisor-tick-*.md 2>/dev/null | head -1 || echo "")
+      if [[ -n "$latest" ]]; then
+        mtime=$(stat -c %Y "$latest")
+        age=$(( now_epoch - mtime ))
+        if (( age < 14400 )); then
+          say_ok "latest tick report $(age_hours "$age")h old: $(basename "$latest")"
+        elif (( age < 28800 )); then
+          say_warn "latest tick report $(age_hours "$age")h old (expected <4h)"
+        else
+          say_fail "latest tick report $(age_hours "$age")h old — timer may be broken"
+        fi
       else
-        say_fail "latest tick report $(age_hours "$age")h old — timer may be broken"
+        say_warn "no supervisor-tick-*.md report found yet (timer just enabled?)"
       fi
     else
-      say_warn "no supervisor-tick-*.md report found yet (timer just enabled?)"
+      say_fail "workspace-supervisor-tick.timer is $tick_state / $tick_enabled"
     fi
   else
-    say_fail "workspace-supervisor-tick.timer is $tick_state / $tick_enabled"
+    say_warn "workspace-supervisor-tick.timer not installed"
   fi
-else
-  say_warn "workspace-supervisor-tick.timer not installed"
 fi
 
 # Ticks branch age — attended sessions must merge/delete within 24h/72h.

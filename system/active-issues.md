@@ -44,6 +44,40 @@
   `sourceType` field) is the next highest-leverage workspace-level
   change. Not yet acted on.
 
+### Command is still too close to its mechanism
+
+- `command.synaplex.ai` is now the live executive front door for capability
+  attestation, ensuring `executive-codex`, and recovering session fabric.
+- But the product still leaks too much implementation detail. Recent work
+  exposed that `Sessions` and `Orchestrate` had divergent Codex models and the
+  system drifted toward local UI cleanup before fully repairing the underlying
+  control-plane abstraction.
+- The active pressure is no longer "make command prettier." It is "make
+  command a trustworthy executive control plane that reduces principal
+  supervision burden."
+- Immediate live failure: the homepage executive surface still says the message
+  was sent, but does not return a real conversational response. The principal
+  is still being pushed down into dead lane/session reasoning.
+- Active PM task:
+  `/opt/workspace/runtime/.handoff/command-fix-broken-executive-conversation-2026-04-15T19-28Z.md`
+- Current state: the `command` lane has implemented the direct-response fix on
+  disk and validation passes. The remaining blocker is operational deployment
+  of the updated service.
+- See friction record: `/opt/workspace/supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`
+
+### Executive relapsed into implementation instead of shaping the `command` PM
+
+- The principal correctly called out that the executive was still trying to be
+  a do-it-all surface instead of operating at the PM-shaping level.
+- This was not just a tone issue. Workspace-root executive sessions directly
+  touched `command` repeatedly while the real need was clearer PM pressure,
+  product architecture, and acceptance criteria for the browser control plane.
+- Immediate correction: treat `command` as a PM/product-system problem and hold
+  the next pass there, rather than continuing to patch it from the executive
+  lane.
+- See friction record:
+  `/opt/workspace/supervisor/friction/FR-0018-executive-relapsed-into-project-implementation.md`
+
 ## Structural (supervisor self-alignment)
 
 These items concern the supervisor repo matching its own current-state
@@ -63,6 +97,9 @@ model. Resolved items are removed; remaining items are tracked to an ADR.
 - **Idea JSON carries inline `history[]` log.** Per-file append state
   duplicates git and events. Strip history; rely on `git log -- ideas/…`
   and `idea_*` events. **Open — touches `scripts/lib/idea-ledger.py`.**
+- **Supervisor pressure was implicit, not surfaced.** `pressure-queue.md`
+  now exists to make dropped pressure visible. The discipline still needs to
+  prove itself in live use.
 
 ## Structural (workspace-wide)
 
@@ -101,6 +138,11 @@ Previously-listed items that have been closed:
 - *Server patch + reboot overdue* (2026-04-15) — 45 upgradable packages
   applied, kernel 6.8.0-107 installed; reboot executed same session.
   FR-0009.
+- *Supervisor tick paused by hold file* (2026-04-15) — resolved in attended
+  session by removing `/opt/workspace/runtime/.locks/supervisor-tick.hold`.
+- *Post-reboot runtime health surfaces stale* (2026-04-15) — resolved in
+  attended session; latest snapshot is
+  `/opt/workspace/runtime/.meta/server-health-2026-04-15T12-57-45Z.md`.
 - *session_id in commit trailers* — ADR-0009 accepted; all supervisor
   commits from 2026-04-14 onward carry the trailer.
 - *`docs/` promotion/retirement rule* — `docs/README.md` already
