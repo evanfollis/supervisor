@@ -49,16 +49,14 @@
   and compoundable value.
 - Active control-plane item: `IDEA-0002`.
 
-### `/review` enforcement gate → live; Command blocks on git
+### `/review` enforcement gate → live
 
 - `scripts/lib/preflight-deploy.sh` now fails deploys lacking review
   artifacts for code-touching commits (supervisor commit `668c7b0`,
   cross-cutting-2026-04-14 Proposal 1).
-- `command` has no git repo, so the gate is silently permissive for the
-  one project most obviously designed to catch. Delegated:
-  `/opt/workspace/runtime/.handoff/command-bootstrap-git.md`. Until that
-  returns, treat command as an exemption that must be closed, not a
-  baseline.
+- **Closed 2026-04-17**: `command` is on `main` at `c2eb4f2` with ~20+
+  commits of real history. The "no git repo" blocker is resolved; the
+  gate applies to command like any other project.
 
 ### Telemetry schema gap
 
@@ -69,24 +67,21 @@
   `sourceType` field) is the next highest-leverage workspace-level
   change. Not yet acted on.
 
-### Command is still too close to its mechanism
+### Command — consolidation pass 2026-04-17
 
-- `command.synaplex.ai` is now the live executive front door for capability
-  attestation, ensuring `executive-codex`, and recovering session fabric.
-- But the product still leaks too much implementation detail. Recent work
-  exposed that `Sessions` and `Orchestrate` had divergent Codex models and the
-  system drifted toward local UI cleanup before fully repairing the underlying
-  control-plane abstraction.
-- The active pressure is no longer "make command prettier." It is "make
-  command a trustworthy executive control plane that reduces principal
-  supervision burden."
-- Immediate live failure: the homepage executive surface still says the message
-  was sent, but does not return a real conversational response. The principal
-  is still being pushed down into dead lane/session reasoning.
-- Active PM task: `command-fix-broken-executive-conversation-2026-04-15T19-28Z.md`
-- **Status unclear**: the handoff file is no longer present in `runtime/.handoff/`. Either it was consumed and deleted (fix landed), or it was lost. Attended session must verify: check command git log for a direct-response fix commit, then confirm deployment.
-- Current state: either fixed and deployed, or silently dropped — unknown.
-- See friction record: `/opt/workspace/supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`
+- `command.synaplex.ai` was consolidated down to three things: executive chat
+  (native Claude/Codex threads resumable from CLI via `--resume <uuid>`),
+  portfolio cards rendering each project's `CURRENT_STATE.md` front door at
+  full fidelity, and collapsed operator tools. Deleted: `/orchestrate`,
+  `/terminal`, `/telemetry`, `/meta`, `/sessions` index.
+- The homepage conversation surface now returns real conversational responses
+  (verified end-to-end server-side; CLI resume confirmed for both models).
+  The prior "says sent, no response" failure is closed.
+- **Remaining live pressure**: the front door is still more mechanism-adjacent
+  than it should be — chats are good at inspection but not yet at steering.
+  The advice-vs-action gap (agents diagnose but don't commit to action) is
+  the next shape to break. See: FR-0016 remains open pending that shift.
+- Friction record: `/opt/workspace/supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`
 
 ### Executive relapsed into implementation instead of shaping the `command` PM
 
