@@ -94,6 +94,27 @@ partial completion.
 
 ---
 
+## Adversarial-review gate
+
+If this tick produced commits touching **≥3 files OR ≥100 net added lines**,
+run an adversarial review before writing the completion report:
+
+```bash
+/opt/workspace/supervisor/scripts/lib/adversarial-review.sh <path-or-file> \
+  --out /opt/workspace/supervisor/.reviews/<project>-<slug>-$(date -u +%Y-%m-%dT%H-%M-%SZ).md
+```
+
+The script wraps `codex exec --sandbox read-only` and cannot modify project
+state. Include the review artifact path in the `Delivery state` section of
+your completion report. If the review identifies a real failure mode, fix
+it before closing the tick. If review is blocked (codex unavailable, timeout,
+rate-limit), state the blocker explicitly in the completion report —
+**do not skip silently**. This gate is a response to the multi-cycle pattern
+of substantial commits landing without adversarial pressure; see FR-0025 and
+cross-cutting-2026-04-17T15-23-41Z Proposal 1.
+
+---
+
 ## Completion report format
 
 ```markdown
