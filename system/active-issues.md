@@ -2,15 +2,6 @@
 
 ## Immediate
 
-### `timestamp` vs `ts` field naming — human decision required (3 cycles)
-
-- Two independent projects (command and atlas) emit `timestamp` (epoch ms integer).
-- Workspace CLAUDE.md specifies `ts` (ISO 8601 string).
-- Any meta-scan or synthesis consumer that filters on `ts` silently drops all events.
-- **Human decision required**: update spec to match reality (Option A, zero code changes), or migrate both projects to `ts` (Option B, cleaner interop).
-- Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 2
-- See: FR-0022 (proposed — timestamp/ts field naming ambiguity)
-
 ### Tick handoff consumption gate — prompt change needed
 
 - Tick sessions run prescribed loops without checking `runtime/.handoff/<project>-*` first.
@@ -20,14 +11,21 @@
   `supervisor/handoffs/INBOX/playbook-update-tick-handoff-consumption-gate-2026-04-17T04-47Z.md`
 - Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 1
 
-### Deploy gate: "pushed" ≠ "deployed"
+### Deploy gate: "pushed" ≠ "deployed" — tick prompt amendment pending
 
-- Tick completion reports conflate git push with production deployment.
-- S1-P2 dispositioned `verified:true` after eb18e35, but command was never redeployed. Events.jsonl has 0 `sourceType` records.
-- Fix: amend tick prompt and CLAUDE.md to require explicit `deployed: true/false` in completion reports.
-- Attended session required. Playbook-update handoff written:
+- CLAUDE.md §Quality: Radical Truth updated with "Pushed is not deployed" rule (2026-04-17).
+- Remaining: `scripts/lib/supervisor-project-tick-prompt.md` still needs `Delivery state` section requirement.
+- Attended session required (Tier C). Playbook-update handoff written:
   `supervisor/handoffs/INBOX/playbook-update-deploy-gate-2026-04-17T04-47Z.md`
 - Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 4
+
+### Atlas claim_hash as canonical identity — ADR-class migration deferred
+
+- Atlas ingest uses `claim_hash[:16]` as hypothesis identity; all existing 40+ `.json` hypothesis files are keyed on this scheme.
+- The adversarial review (Codex, 2026-04-17) flagged this as a fragile identity: case/whitespace drift in the `claim:` field silently creates duplicate hypotheses.
+- The fix requires a migration script, new ID scheme, and a re-key of existing files — ADR-class work.
+- Migration plan documented in atlas `CURRENT_STATE.md`. Do not attempt inline.
+- Source: atlas tick completion 2026-04-17T09-10-35Z, Finding 1.
 
 ### Tick branch governance gap — FR-0020
 
