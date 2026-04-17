@@ -2,6 +2,16 @@
 
 ## Immediate
 
+### `/review` EROFS broken — adversarial review path defeated
+
+- The `/review` skill fails with `EROFS: read-only file system, open '/root/.claude.json'` in all project sessions.
+- Root cause: sandboxed sessions mount `/root/` read-only; the skill writes `.claude.json`.
+- **5+ items unreviewed**: ADR-0015 (4 cycles), ADR-0016 (2 cycles), ADR-0017 (1 cycle), atlas 5076ba0 (5 cycles), atlas dedup/telemetry (1 cycle).
+- **URGENT handoff was written and archived 2026-04-17T02-49Z. No attended action yet.**
+- Next action: test `codex exec --skip-git-repo-check --sandbox read-only "..."` as fallback; if it works, use it to batch the 5 pending reviews.
+- If codex fallback also fails, open an ADR for the review-path gap.
+- See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
+
 ### Tick handoff consumption gate — prompt change needed
 
 - Tick sessions run prescribed loops without checking `runtime/.handoff/<project>-*` first.
@@ -90,11 +100,9 @@
 - Immediate live failure: the homepage executive surface still says the message
   was sent, but does not return a real conversational response. The principal
   is still being pushed down into dead lane/session reasoning.
-- Active PM task:
-  `/opt/workspace/runtime/.handoff/command-fix-broken-executive-conversation-2026-04-15T19-28Z.md`
-- Current state: the `command` lane has implemented the direct-response fix on
-  disk and validation passes. The remaining blocker is operational deployment
-  of the updated service.
+- Active PM task: `command-fix-broken-executive-conversation-2026-04-15T19-28Z.md`
+- **Status unclear**: the handoff file is no longer present in `runtime/.handoff/`. Either it was consumed and deleted (fix landed), or it was lost. Attended session must verify: check command git log for a direct-response fix commit, then confirm deployment.
+- Current state: either fixed and deployed, or silently dropped — unknown.
 - See friction record: `/opt/workspace/supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`
 
 ### Executive relapsed into implementation instead of shaping the `command` PM
