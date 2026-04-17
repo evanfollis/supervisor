@@ -4,6 +4,8 @@ description: Tick sessions commit friction records and active-issues changes to 
 type: feedback
 ---
 
+Status: open
+
 Tick sessions commit Tier A governance artifacts (friction/, system/active-issues.md, handoffs/ARCHIVE/) to `ticks/YYYY-MM-DD-HH` branches. These branches are pushed to origin but never merged to main. The result: friction records created in a tick are invisible to any subsequent session reading from main.
 
 Confirmed at this tick: FR-0020 and FR-0021 were claimed in the events log for the 02:49Z tick, but `ls friction/` on main shows only FR-0001 through FR-0019. The tick branch `ticks/2026-04-17-02` has the files; main does not.

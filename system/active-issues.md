@@ -12,23 +12,6 @@
 - If codex fallback also fails, open an ADR for the review-path gap.
 - See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
 
-### Tick handoff consumption gate — prompt change needed
-
-- Tick sessions run prescribed loops without checking `runtime/.handoff/<project>-*` first.
-- Result: preflight evidence handoff (28h unread) and command homepage handoff (38h unread) sat through 2 cycles each.
-- Fix: add handoff-check step to `scripts/lib/supervisor-project-tick-prompt.md`.
-- Attended session required (Tier C path). Playbook-update handoff written:
-  `supervisor/handoffs/INBOX/playbook-update-tick-handoff-consumption-gate-2026-04-17T04-47Z.md`
-- Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 1
-
-### Deploy gate: "pushed" ≠ "deployed" — tick prompt amendment pending
-
-- CLAUDE.md §Quality: Radical Truth updated with "Pushed is not deployed" rule (2026-04-17).
-- Remaining: `scripts/lib/supervisor-project-tick-prompt.md` still needs `Delivery state` section requirement.
-- Attended session required (Tier C). Playbook-update handoff written:
-  `supervisor/handoffs/INBOX/playbook-update-deploy-gate-2026-04-17T04-47Z.md`
-- Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 4
-
 ### Atlas claim_hash as canonical identity — ADR-class migration deferred
 
 - Atlas ingest uses `claim_hash[:16]` as hypothesis identity; all existing 40+ `.json` hypothesis files are keyed on this scheme.
@@ -167,6 +150,8 @@ model. Resolved items are removed; remaining items are tracked to an ADR.
 
 Previously-listed items that have been closed:
 
+- *Tick handoff consumption gate* (2026-04-17) — `supervisor-project-tick-prompt.md` L38–45 now contains the handoff-check step (commit `d29891b`). Handoff archived to `handoffs/ARCHIVE/2026-04/`. Next cycle's reflection measures whether the runtime handoff queue drains.
+- *Deploy gate: "pushed" ≠ "deployed"* (2026-04-17) — `supervisor-project-tick-prompt.md` L103 now contains the `Delivery state` section requirement (commit `d29891b`). CLAUDE.md §Quality: Radical Truth carries the matching rule.
 - *reflect-all.sh stdin bug* (2026-04-15) — fixed in commit 6c91398 by
   redirecting the `reflect.sh` subprocess's stdin from `/dev/null`. Next
   12h reflection cycle (14:17 UTC) will validate all 7 projects produce

@@ -100,8 +100,9 @@ if [[ ! -f "$PROMPT_TEMPLATE" ]]; then
 fi
 
 PROMPT_FILE="$(mktemp /tmp/project-tick-prompt-XXXXXX.md)"
+TICK_OUTPUT_LOG="$(mktemp /tmp/project-tick-output-XXXXXX.log)"
 # shellcheck disable=SC2064
-trap "rm -f '$PROMPT_FILE'" EXIT
+trap "rm -f '$PROMPT_FILE' '$TICK_OUTPUT_LOG'" EXIT
 
 # Export as env vars so the python heredoc can read them without quoting issues
 export TICK_PROJECT_NAME="$PROJECT_NAME"
@@ -185,7 +186,47 @@ claude -p "$(cat "$PROMPT_FILE")" \
     "Bash(npm publish:*)" \
     "Bash(gh release:*)" \
     "NotebookEdit" \
-  2>&1 | tail -n 200 || EXIT_CODE=$?
+  2>&1 | tee "$TICK_OUTPUT_LOG" | tail -n 200 || EXIT_CODE=$?
+
+# --- 6.5. 401 auth-failure escalation (ADR-0018 / URGENT-skillfoundry-401) ----
+# If the claude session emitted 401/auth-failure output, write an URGENT handoff
+# so the executive sees the failure instead of a silent tick exit.
+if grep -qiE 'Invalid authentication credentials|"status":[[:space:]]*401|\b401\b.*auth|authentication.*failed|Unauthorized' "$TICK_OUTPUT_LOG" 2>/dev/null; then
+  AUTH_FAIL_HANDOFF="$SUP/handoffs/INBOX/URGENT-${PROJECT_NAME}-tick-auth-failure-${ISO_NOW}.md"
+  mkdir -p "$SUP/handoffs/INBOX"
+  {
+    echo "# URGENT — ${PROJECT_NAME} tick auth failure (401)"
+    echo
+    echo "- **Project**: ${PROJECT_NAME}"
+    echo "- **Handoff being processed**: ${HANDOFF_BASENAME}"
+    echo "- **Timestamp**: ${ISO_NOW}"
+    echo "- **Claude exit code**: ${EXIT_CODE}"
+    echo
+    echo "## Detection"
+    echo
+    echo "The claude session emitted 401 / authentication-failure output during"
+    echo "this tick. Prior cycles exited silently without escalation; this"
+    echo "handoff is the mitigation from"
+    echo "\`URGENT-skillfoundry-401-auth-mitigation-2026-04-17T14-25-28Z.md\`."
+    echo
+    echo "## Last 40 lines of tick output"
+    echo
+    echo '```'
+    tail -40 "$TICK_OUTPUT_LOG"
+    echo '```'
+    echo
+    echo "## Required investigation"
+    echo
+    echo "- Anthropic API key health and quota (billing, revoked key, rate-limit)"
+    echo "- \`/root/.claude/settings.json\` credential config"
+    echo "- systemd unit environment forwarding for session supervisor"
+    echo "- Was the session sandbox revoking creds? (check harness config drift)"
+  } > "$AUTH_FAIL_HANDOFF"
+  emit_event "project_tick_auth_failed" \
+    "401 auth failure detected — escalated via URGENT handoff" \
+    "$AUTH_FAIL_HANDOFF"
+  echo "supervisor-project-tick[$PROJECT_NAME]: AUTH FAILED — URGENT handoff: $AUTH_FAIL_HANDOFF" >&2
+fi
 
 # --- 7. emit completion or escalation event -----------------------------------
 COMPLETION_FILE="${WORKSPACE_HANDOFF_DIR}/general-${PROJECT_NAME}-tick-complete-${ISO_NOW}.md"

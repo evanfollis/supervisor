@@ -345,6 +345,20 @@ if [[ -d "$fric" ]]; then
   else
     say_ok "friction/: $total total, $recent in last 7d"
   fi
+
+  # FR Status discipline (synthesis 2026-04-17: FR-0015/0019/0020 missing Status)
+  missing_status=()
+  while IFS= read -r -d '' f; do
+    if ! grep -qE '^(\*\*)?Status(\*\*)?:' "$f" 2>/dev/null; then
+      missing_status+=("$(basename "$f")")
+    fi
+  done < <(find "$fric" -maxdepth 1 -name 'FR-*.md' -print0 2>/dev/null)
+  if (( ${#missing_status[@]} > 0 )); then
+    say_warn "FR files missing Status line (${#missing_status[@]}): ${missing_status[*]}"
+    note "every FR-NNNN-*.md must have 'Status: open|mitigated|resolved|promoted-to-<ref>' per friction/README.md"
+  else
+    say_ok "FR Status discipline: all $total files have a Status line"
+  fi
 else
   say_fail "friction/ surface missing at $fric"
 fi

@@ -1,5 +1,7 @@
 # FR-0015 — Partial front door sold as finished control plane
 
+Status: open
+
 ## What happened
 
 The executive/operator split was introduced correctly, but the follow-through

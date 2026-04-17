@@ -1,7 +1,8 @@
 # FR-0019: PM handoffs lacked acceptance criteria — PMs stalled or produced wrong artifacts
 
 **Observed**: 2026-04-16  
-**Source**: command session handoff archaeology
+**Source**: command session handoff archaeology  
+Status: open
 
 ## What happened
 
