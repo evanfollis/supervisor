@@ -1,6 +1,25 @@
 # FR-0015 — Partial front door sold as finished control plane
 
-Status: open
+Status: closed 2026-04-17
+
+## Closure evidence
+
+Layer-1 (code landed) and Layer-2 (service live) were proven end-to-end
+server-side 2026-04-17: Claude thread via CLI `--resume <uuid>` recalled the
+exact phrase from the web-UI-created session; Codex equivalent via
+`codex exec resume <uuid>` did the same. Smoke suite expanded to 20 checks
+all passing.
+
+Layer-3 (daily workflow replaced) was confirmed by the principal on
+2026-04-17: they opened `command.synaplex.ai` on their own device, saw
+the per-project metrics tables render in expanded portfolio cards, and
+confirmed the front door is usable for real inspection + steering work
+without terminal relay.
+
+The three layers are now distinct in practice as well as in spec. Future
+front-door or control-plane work should continue to be described in those
+three layers; this record is the reference case for how to do it honestly.
+
 
 ## What happened
 

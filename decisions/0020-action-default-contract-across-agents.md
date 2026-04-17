@@ -110,6 +110,30 @@ diagnostically without forcing action.
 - The "thoughtful advisor" posture as a default for any workspace agent.
   Thoughtfulness remains; the posture no longer stops at diagnosis.
 
+## Amendment 2026-04-17 (post-first-run)
+
+First real PM dispatch (4 targets, 3 ship clean, 1 pauses) surfaced one
+boundary-ask shape that the original contract did not address: when
+reversible work inherently crosses a repo boundary, PMs read the existing
+workspace rules ("supervisor never leaves a project repo dirty";
+"executive does not edit project code") as applying to them and ask for
+permission to cross. See FR-0026.
+
+Clarification: those existing rules are scoped to the executive at the
+top of the stack, not to PMs doing in-scope work that happens to require
+a cross-repo touch. A PM fixing a harness bug that originates in a
+supervisor config ships both diffs, both commits, with proper
+why-messages. Same for cross-repo test additions, cross-repo telemetry
+schema corrections, cross-repo docs updates when the handoff work
+requires it.
+
+The thread-opening frame was updated in lockstep:
+`projects/command/src/lib/threadConversation.ts::THREAD_OPENING_FRAME`
+now explicitly names cross-repo and cross-boundary cases as still
+shipping. When the executive writes a handoff whose acceptance
+requires a cross-repo touch, the handoff should name the boundary
+scope explicitly so the PM doesn't have to infer it.
+
 ## Alternatives considered
 
 - **Per-surface contracts.** More tuning knobs, same failure class at higher
