@@ -1,3 +1,12 @@
+---
+type: friction
+id: FR-0015
+slug: partial-front-door-sold-as-finished-control-plane
+date: 2026-04-16
+severity: medium
+status: open
+---
+
 # FR-0015 — Partial front door sold as finished control plane
 
 ## What happened

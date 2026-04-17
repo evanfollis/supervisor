@@ -40,9 +40,13 @@
 - `events.jsonl` has no required-fields contract. Command floods
   `sessions.listed`; atlas emits nothing. Meta-scan produces false
   positives because it can't distinguish smoke vs. real traffic.
-- Proposal 2 from cross-cutting-2026-04-14 (minimum event schema with
-  `sourceType` field) is the next highest-leverage workspace-level
-  change. Not yet acted on.
+- **S1-P2 implemented but not deployed**: command tick eb18e35 added `sourceType` as
+  required field to `TelemetryEvent` with all 16 call sites updated; build clean, pushed
+  to GitHub. Runtime still serving pre-change binary — `sourceType` will appear in events
+  only after next deploy. Disposition: `accepted-not-fully-verified` (code verified, runtime not).
+- Telemetry rotation: command shipped `scripts/rotate-telemetry.sh` (eb18e35) as a
+  project-specific script. A shared workspace-level rotation primitive + systemd timer
+  (`supervisor/scripts/lib/telemetry-rotate.sh`) is still needed (S4-P3 from synthesis).
 
 ### Command is still too close to its mechanism
 
@@ -77,6 +81,16 @@
   lane.
 - See friction record:
   `/opt/workspace/supervisor/friction/FR-0018-executive-relapsed-into-project-implementation.md`
+
+### Synthesis proposals pending attended action (cross-cutting-2026-04-16T15-25-24Z)
+
+Reviewed in tick 2026-04-17T02-49Z. All require scripts/lib or hook changes (Tier C).
+
+- **S5-P1 — Dispositions verified field**: schema change on `dispositions.jsonl` + reflect/synthesize prompt update. Dispositions need separate `verified` / `verified_evidence` fields so `accepted-not-verified` items continue to surface. Requires attended session to update reflect/synthesize prompts in `scripts/lib/`.
+- **S5-P2 — ADR acceptance gate**: pre-commit hook on supervisor repo blocking `status: accepted` without a review artifact. Requires scripts/lib edit (Tier C). Highest urgency — 3 ADRs already bypassed.
+- **S5-P3 — Shared telemetry rotation primitive**: workspace-level `scripts/lib/telemetry-rotate.sh` + systemd timer (separate from command's project-specific script). S4-P3 partially addressed by command tick; shared primitive still missing.
+- **S5-P5 — Disposition stalled event**: if `verified:false` >2 reflection cycles after acceptance, emit `disposition_stalled` + URGENT handoff to owner. Requires supervisor-tick.sh amendment.
+- **S5-P4 — CLAUDE.md carry-forward escalation**: DONE — landed in bd5a854.
 
 ## Structural (supervisor self-alignment)
 

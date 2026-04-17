@@ -1,3 +1,12 @@
+---
+type: friction
+id: FR-0019
+slug: pm-handoffs-lacked-acceptance-criteria
+date: 2026-04-16
+severity: medium
+status: open
+---
+
 # FR-0019: PM handoffs lacked acceptance criteria — PMs stalled or produced wrong artifacts
 
 **Observed**: 2026-04-16  
