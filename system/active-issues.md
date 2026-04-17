@@ -2,14 +2,32 @@
 
 ## Immediate
 
-### `/review` EROFS broken — adversarial review path defeated
+### Skillfoundry deployment credentials blocked — principal decision required
+
+Three deploy blockers require Evan's credentials or decisions (escalated 2026-04-17T20:38Z):
+
+- **Preflight landing page + sourceType deploy**: `wrangler deploy` required. `wrangler` not installed; needs Cloudflare API token. Commands once available: `npm install -g wrangler && CLOUDFLARE_API_TOKEN=<token> wrangler deploy` from `skillfoundry-products/products/preflight/`.
+- **Watcher IGNORE_RE restart**: `systemctl restart preflight-watcher` blocked by sandbox. Needs Evan or attended session with sudo.
+- **LCI intake form + hosting**: Evan must choose intake tool (Tally/Typeform/Cal.com), set price ($49/$99/contact), and decide hosting path (nginx route vs Cloudflare Pages). Once decided, agent can build + deploy in one tick.
+- **Launchpad-lint**: Confirm Render auto-deploy is active; if so, agent can add landing page route and push to trigger deploy.
+- **Blog publishing**: Content ready for all 3 probes. Publish path needs Medium Integration Token (agent-executable) or Cloudflare Pages (one-time setup).
+
+Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed by tick 2026-04-17T22-48-12Z).
+
+### ADR review debt — unblocked, awaiting attended batch run
+
+- ADR-0015 (executive/supervisor/operator split): **5 cycles** unreviewed. `adversarial-review.sh` workaround is now available and validated (atlas ingest review ran successfully via Codex). EROFS no longer blocks this.
+- ADR-0016 (autonomous project tick): **3 cycles** unreviewed.
+- ADR-0017 (radical truth): **2 cycles** unreviewed.
+- Next action: attended session runs `./scripts/lib/adversarial-review.sh decisions/00{15,16,17}-*.md` and writes review artifacts. Then flip FR-0025 status.
+
+### `/review` EROFS broken — adversarial review path partially mitigated
 
 - The `/review` skill fails with `EROFS: read-only file system, open '/root/.claude.json'` in all project sessions.
 - Root cause: sandboxed sessions mount `/root/` read-only; the skill writes `.claude.json`.
-- **5+ items unreviewed**: ADR-0015 (4 cycles), ADR-0016 (2 cycles), ADR-0017 (1 cycle), atlas 5076ba0 (5 cycles), atlas dedup/telemetry (1 cycle).
-- **URGENT handoff was written and archived 2026-04-17T02-49Z. No attended action yet.**
-- Next action: test `codex exec --skip-git-repo-check --sandbox read-only "..."` as fallback; if it works, use it to batch the 5 pending reviews.
-- If codex fallback also fails, open an ADR for the review-path gap.
+- **Workaround available**: `adversarial-review.sh` wrapping `codex exec --sandbox read-only` is validated (atlas ingest review ran cleanly via this path, 2026-04-17). Tick sessions should use this for substantial commits.
+- **ADR review debt now actionable** — see ADR review debt item above.
+- **Remaining unreviewed**: atlas dedup/telemetry (1 cycle), cross-cutting Proposal 1 (tick prompt wiring).
 - See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
 
 ### Atlas claim_hash as canonical identity — ADR-class migration deferred
@@ -134,6 +152,7 @@ model. Resolved items are removed; remaining items are tracked to an ADR.
 
 Previously-listed items that have been closed:
 
+- *Command terminal 16ms false alarm* (closed 2026-04-17T16:56Z) — root cause was telemetry misidentification: smoke test connections tagged `sourceType: 'user'` made 21ms smoke sessions look like broken user sessions. Fixed in `c2eb4f2`: server reads `X-Source-Type: smoke` header; smoke events now correctly tagged. Real terminal verified working over both localhost and cloudflared WS. SMOKE PASSED (15/15).
 - *Telemetry schema gap — `sourceType` field* (closed 2026-04-17) —
   S1-P2 deployed in both command (`src/lib/telemetry.ts`) and atlas
   (`runner.py::_emit_telemetry`); CLAUDE.md reconciled to the epoch-ms
