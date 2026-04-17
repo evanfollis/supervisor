@@ -303,10 +303,14 @@ def window_bounds(window: str) -> tuple[datetime | None, datetime | None]:
     if window == "today":
         start = now.replace(hour=0, minute=0, second=0, microsecond=0)
         return start, now
+    if window == "1h":
+        return now - timedelta(hours=1), now
     if window == "24h":
         return now - timedelta(hours=24), now
     if window == "7d":
         return now - timedelta(days=7), now
+    if window == "30d":
+        return now - timedelta(days=30), now
     if window == "all":
         return None, None
     raise SystemExit(f"unknown window: {window}")
@@ -321,7 +325,7 @@ def compute_downtime_ms(rollup: dict[str, ProjectRollup], start: datetime | None
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--window", default="today", choices=["today", "24h", "7d", "all"])
+    ap.add_argument("--window", default="today", choices=["1h", "today", "24h", "7d", "30d", "all"])
     ap.add_argument("--out", default="/opt/workspace/runtime/.metrics")
     ap.add_argument("--print", action="store_true", help="print summary to stdout")
     args = ap.parse_args()
