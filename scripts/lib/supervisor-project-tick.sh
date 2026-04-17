@@ -192,8 +192,8 @@ claude -p "$(cat "$PROMPT_FILE")" \
 # If the claude session emitted 401/auth-failure output, write an URGENT handoff
 # so the executive sees the failure instead of a silent tick exit.
 if grep -qiE 'Invalid authentication credentials|"status":[[:space:]]*401|\b401\b.*auth|authentication.*failed|Unauthorized' "$TICK_OUTPUT_LOG" 2>/dev/null; then
-  AUTH_FAIL_HANDOFF="$SUP/handoffs/INBOX/URGENT-${PROJECT_NAME}-tick-auth-failure-${ISO_NOW}.md"
-  mkdir -p "$SUP/handoffs/INBOX"
+  AUTH_FAIL_HANDOFF="$WORKSPACE_SUPERVISOR_HANDOFF_INBOX/URGENT-${PROJECT_NAME}-tick-auth-failure-${ISO_NOW}.md"
+  mkdir -p "$WORKSPACE_SUPERVISOR_HANDOFF_INBOX"
   {
     echo "# URGENT — ${PROJECT_NAME} tick auth failure (401)"
     echo
@@ -225,6 +225,11 @@ if grep -qiE 'Invalid authentication credentials|"status":[[:space:]]*401|\b401\
   emit_event "project_tick_auth_failed" \
     "401 auth failure detected — escalated via URGENT handoff" \
     "$AUTH_FAIL_HANDOFF"
+  # S1-P2 compliant telemetry to standard workspace telemetry channel
+  mkdir -p "$WORKSPACE_TELEMETRY_DIR"
+  printf '{"project":"%s","source":"%s.tick","eventType":"tick.escalated","level":"error","sourceType":"system","timestamp":%s,"details":{"reason":"401_auth_failure","handoff":"%s","exitCode":%d}}\n' \
+    "$PROJECT_NAME" "$PROJECT_NAME" "$(date -u +%s%3N)" "$HANDOFF_BASENAME" "$EXIT_CODE" \
+    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl"
   echo "supervisor-project-tick[$PROJECT_NAME]: AUTH FAILED — URGENT handoff: $AUTH_FAIL_HANDOFF" >&2
 fi
 
