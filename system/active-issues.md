@@ -58,15 +58,6 @@
   commits of real history. The "no git repo" blocker is resolved; the
   gate applies to command like any other project.
 
-### Telemetry schema gap
-
-- `events.jsonl` has no required-fields contract. Command floods
-  `sessions.listed`; atlas emits nothing. Meta-scan produces false
-  positives because it can't distinguish smoke vs. real traffic.
-- Proposal 2 from cross-cutting-2026-04-14 (minimum event schema with
-  `sourceType` field) is the next highest-leverage workspace-level
-  change. Not yet acted on.
-
 ### Command — consolidation pass 2026-04-17
 
 - `command.synaplex.ai` was consolidated down to three things: executive chat
@@ -145,6 +136,15 @@ model. Resolved items are removed; remaining items are tracked to an ADR.
 
 Previously-listed items that have been closed:
 
+- *Telemetry schema gap — `sourceType` field* (closed 2026-04-17) —
+  S1-P2 deployed in both command (`src/lib/telemetry.ts`) and atlas
+  (`runner.py::_emit_telemetry`); CLAUDE.md reconciled to the epoch-ms
+  `timestamp` shape. Verified live: recent `events.jsonl` entries from
+  both projects carry `sourceType`, atlas has emitted 35+ events, and
+  `command.api.sessions.listed` is tagged `sourceType:"system"` so
+  meta-scan can now filter self-traffic. Older pre-deployment events in
+  the file lack the field by design (append-only). Proposal 2 of
+  cross-cutting-2026-04-14 is satisfied.
 - *Tick handoff consumption gate* (2026-04-17) — `supervisor-project-tick-prompt.md` L38–45 now contains the handoff-check step (commit `d29891b`). Handoff archived to `handoffs/ARCHIVE/2026-04/`. Next cycle's reflection measures whether the runtime handoff queue drains.
 - *Deploy gate: "pushed" ≠ "deployed"* (2026-04-17) — `supervisor-project-tick-prompt.md` L103 now contains the `Delivery state` section requirement (commit `d29891b`). CLAUDE.md §Quality: Radical Truth carries the matching rule.
 - *reflect-all.sh stdin bug* (2026-04-15) — fixed in commit 6c91398 by
