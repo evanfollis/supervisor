@@ -58,21 +58,19 @@
   commits of real history. The "no git repo" blocker is resolved; the
   gate applies to command like any other project.
 
-### Command — consolidation pass 2026-04-17
+### Command — consolidation + thread frame complete (2026-04-17)
 
-- `command.synaplex.ai` was consolidated down to three things: executive chat
-  (native Claude/Codex threads resumable from CLI via `--resume <uuid>`),
-  portfolio cards rendering each project's `CURRENT_STATE.md` front door at
-  full fidelity, and collapsed operator tools. Deleted: `/orchestrate`,
-  `/terminal`, `/telemetry`, `/meta`, `/sessions` index.
-- The homepage conversation surface now returns real conversational responses
-  (verified end-to-end server-side; CLI resume confirmed for both models).
-  The prior "says sent, no response" failure is closed.
-- **Remaining live pressure**: the front door is still more mechanism-adjacent
-  than it should be — chats are good at inspection but not yet at steering.
-  The advice-vs-action gap (agents diagnose but don't commit to action) is
-  the next shape to break. See: FR-0016 remains open pending that shift.
-- Friction record: `/opt/workspace/supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`
+- `command.synaplex.ai` consolidated to three jobs: executive chat, portfolio,
+  operator tools. Deleted: `/orchestrate`, `/terminal`, `/telemetry`, `/meta`,
+  `/sessions` index. Native Claude/Codex session threading with CLI resumability.
+- Thread-opening frame (ADR-0020) closes the advice-vs-action gap: agents in
+  executive threads now default to reversible action. Two self-tests confirmed
+  (Claude commit `90c6b64`, Codex commits `47f4fab`/`3eade29`).
+- Adversarial review (Codex, 2026-04-17T19:24Z): no architectural or security
+  failures. Findings (Codex session ID race, no failed-turn marker,
+  in-process-only lock) are accepted single-process tradeoffs.
+- **FR-0016 closed.** All three named symptoms addressed. See closure evidence
+  in `supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`.
 
 ### Executive relapsed into implementation instead of shaping the `command` PM
 
