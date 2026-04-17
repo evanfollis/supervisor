@@ -2,6 +2,40 @@
 
 ## Immediate
 
+### `timestamp` vs `ts` field naming — human decision required (3 cycles)
+
+- Two independent projects (command and atlas) emit `timestamp` (epoch ms integer).
+- Workspace CLAUDE.md specifies `ts` (ISO 8601 string).
+- Any meta-scan or synthesis consumer that filters on `ts` silently drops all events.
+- **Human decision required**: update spec to match reality (Option A, zero code changes), or migrate both projects to `ts` (Option B, cleaner interop).
+- Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 2
+- See: FR-0022 (proposed — timestamp/ts field naming ambiguity)
+
+### Tick handoff consumption gate — prompt change needed
+
+- Tick sessions run prescribed loops without checking `runtime/.handoff/<project>-*` first.
+- Result: preflight evidence handoff (28h unread) and command homepage handoff (38h unread) sat through 2 cycles each.
+- Fix: add handoff-check step to `scripts/lib/supervisor-project-tick-prompt.md`.
+- Attended session required (Tier C path). Playbook-update handoff written:
+  `supervisor/handoffs/INBOX/playbook-update-tick-handoff-consumption-gate-2026-04-17T04-47Z.md`
+- Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 1
+
+### Deploy gate: "pushed" ≠ "deployed"
+
+- Tick completion reports conflate git push with production deployment.
+- S1-P2 dispositioned `verified:true` after eb18e35, but command was never redeployed. Events.jsonl has 0 `sourceType` records.
+- Fix: amend tick prompt and CLAUDE.md to require explicit `deployed: true/false` in completion reports.
+- Attended session required. Playbook-update handoff written:
+  `supervisor/handoffs/INBOX/playbook-update-deploy-gate-2026-04-17T04-47Z.md`
+- Source: cross-cutting-2026-04-17T03-23-27Z.md §Proposal 4
+
+### Tick branch governance gap — FR-0020
+
+- Tick sessions commit friction/ and system/ changes to tick branches, not main.
+- Friction records and active-issues.md updates from tick sessions are invisible to subsequent main-branch sessions.
+- ADR-class decision: merge tick branches, or move governance surfaces to runtime (not git).
+- See: `supervisor/friction/FR-0020-tick-branch-governance-gap.md`
+
 ### Context repository mismatch
 
 - The `context-repository` project is currently chartered as an abstract spec
