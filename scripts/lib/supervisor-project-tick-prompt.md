@@ -35,15 +35,25 @@ do not hover in the middle.
 
 1. Read the current project state above. Understand what's already done, what's
    broken, what's in progress — **before touching anything**.
-2. Read the handoff below. If it conflicts with what you know about the project's
+2. **Check for other pending handoffs addressed to this project**:
+   ```
+   ls /opt/workspace/runtime/.handoff/{{PROJECT_NAME}}-* 2>/dev/null
+   ```
+   If any exist beyond the one triggering this tick, read them. Execute them
+   before running the normal tick agenda unless they conflict with the
+   triggering handoff (in which case escalate). Delete each handoff file after
+   completing it. If a handoff is blocked (requires permissions you don't have,
+   depends on external action, out of scope), note the blocker in your
+   completion report but do not delete the file.
+3. Read the handoff below. If it conflicts with what you know about the project's
    current state, resolve that conflict or escalate. Don't execute blindly.
-3. Execute the handoff completely against the *real* codebase. Read and verify —
+4. Execute the handoff completely against the *real* codebase. Read and verify —
    don't assume.
-4. Run applicable tests, type checks, and build steps. Paste their output in
+5. Run applicable tests, type checks, and build steps. Paste their output in
    your completion report. Not a summary — the actual output.
-5. Commit your changes with a clear message (imperative mood, explain why).
-6. Push to origin.
-7. **Update your context repository.** Your front-door file (`CONTEXT.md` or
+6. Commit your changes with a clear message (imperative mood, explain why).
+7. Push to origin.
+8. **Update your context repository.** Your front-door file (`CONTEXT.md` or
    `CURRENT_STATE.md` — whichever you use) must be updated to reflect what
    changed. This is the primary breadcrumb for the next agent. A short accurate
    file beats a long stale one.
@@ -56,10 +66,10 @@ do not hover in the middle.
 
    At minimum update: what changed, what's now known broken, what bit you,
    what the next agent should read first.
-8. Write a completion report to:
+9. Write a completion report to:
    `{{WORKSPACE_HANDOFF_DIR}}/general-{{PROJECT_NAME}}-tick-complete-{{ISO_NOW}}.md`
    using the **required format** below.
-9. Delete the input handoff file: `{{HANDOFF_FILE}}`
+10. Delete the input handoff file: `{{HANDOFF_FILE}}`
 
 ## If you hit a blocker
 
@@ -89,6 +99,16 @@ partial completion.
 ```markdown
 ## What I did
 One paragraph. What changed, why, and how it addresses the handoff.
+
+## Delivery state
+<!-- Required. "Pushed" is not "deployed." If the project has a running service
+     (command, mentor, launchpad-lint, etc.), you must distinguish these: -->
+- `code_landed`: true | false — committed and pushed to remote
+- `deployed`: true | false | not-applicable — running in the production
+  environment (for projects with a deployed service)
+- If `code_landed: true` and `deployed: false`, state the deployment step
+  that is needed (e.g., "awaiting webhook", "needs `npm run deploy`",
+  "blocked on sudo").
 
 ## Evidence
 <!-- This section is non-negotiable. Paste commit SHAs, test output, build
