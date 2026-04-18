@@ -103,7 +103,18 @@ cannot violate it even if you tried. But do not try.
    SLA and nobody had caught it), write `friction/FR-NNNN-*.md`.
    Number by looking at the highest existing FR-NNNN and adding 1.
 
-8. **Write the report** to `{{REPORT}}`. Format:
+8. **Governance sync**. Before writing the report, cross-reference your
+   work against `{{SUPERVISOR_ROOT}}/system/active-issues.md`:
+   - If this tick resolved or materially advanced an entry, update that
+     entry (mark Resolved, strike to the Closed section, or update
+     status). Do not leave closed items sitting in the Immediate list.
+   - If this tick consumed an INBOX handoff, move it to
+     `{{SUPERVISOR_ROOT}}/handoffs/ARCHIVE/YYYY-MM/`.
+   - Do not leave governance surfaces stale. A tick that closes work
+     without touching active-issues leaves the next session misallocating
+     attention for 12h+.
+
+9. **Write the report** to `{{REPORT}}`. Format:
    ```markdown
    # Supervisor tick — {{ISO_NOW}}
 
@@ -126,9 +137,9 @@ cannot violate it even if you tried. But do not try.
    - <anything load-bearing the next run should know>
    ```
 
-9. **Emit the session_reflected event**. The wrapper script will also
-   emit one if you forget, but you should emit yours with a richer
-   note: frictions captured, handoffs routed, doctor status.
+10. **Emit the session_reflected event**. The wrapper script will also
+    emit one if you forget, but you should emit yours with a richer
+    note: frictions captured, handoffs routed, doctor status.
 
 ## What NOT to do
 

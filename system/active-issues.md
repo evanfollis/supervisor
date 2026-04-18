@@ -21,17 +21,11 @@ Three deploy blockers require Evan's credentials or decisions (escalated 2026-04
 
 Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed by tick 2026-04-17T22-48-12Z).
 
-### Supervisor repo has unpushed commits — push needed
+### Aged tick branches and push backlog — CLOSED 2026-04-18 attended
 
-- **12 commits unpushed** (confirmed 2026-04-18T04:48Z synthesis). Doctor WARN. Synthesis flags this as most critical standing rec: blocks cross-session visibility, remote backup, and adversarial-review path that reads `origin/main`.
-- Synthesis P1 proposes adding conditional `git push` after commit in `supervisor-autocommit.sh` (Tier C — attended session required). INBOX handoff written.
-- Next attended session: `git push` from `/opt/workspace/supervisor` immediately.
-
-### Aged tick branches need attended merge
-
-- `ticks/2026-04-16-12`: **39h** old (doctor 2026-04-18T04:48Z). Governance surfaces committed here are invisible to main-branch sessions until merged. See FR-0020.
-- `ticks/2026-04-17-02`: **25h** old — newly aged past the 24h threshold this tick.
-- Next attended session: merge both branches to main, then push.
+- 15-commit main backlog pushed to origin 2026-04-18T~11Z.
+- `ticks/2026-04-16-12` and `ticks/2026-04-17-02` merged to main (2 merge commits, conflicts in FR-0021 + active-issues.md resolved in favor of HEAD — tick-branch content was stale).
+- **P1 (push guard) not implemented as proposed.** The synthesis targeted `scripts/lib/supervisor-autocommit.sh`, but that script's contract is Tier-A rewind-main (never pushes main). The 15-commit backlog was attended-session commits, not tick commits. Automation target needs rethinking: either a post-commit hook in the repo, a periodic reconcile job, or accept that attended sessions own the push. Flagged to principal for decision — see notes below.
 
 ### `/review` EROFS broken — adversarial review path partially mitigated
 
