@@ -1,0 +1,145 @@
+# ADR-0021: Session-start context-repo read enforcement
+
+Date: 2026-04-18
+Status: proposed
+
+## Context
+
+The `context-repository` pattern spec (`projects/context-repository/docs/agent-context-repo-pattern.md`)
+now codifies **Required Mechanics** including M4 (session-start reads enforced,
+not discretionary) and M5 (session-end updates enforced). The spec intentionally
+defers the enforcement mechanism to this ADR.
+
+The motivating incident: on 2026-04-18 the executive session failed to read
+`skillfoundry-harness/CURRENT_STATE.md` before advising the principal on a paid
+third-party service setup. The spec already said to read it. The memory system
+already had an entry saying to read it. Neither survived contact with a busy
+session. The failure class is discipline-only — no structural gate exists to
+catch it.
+
+Three candidate mechanisms have emerged:
+
+- **Option A — SessionStart hook** in `~/.claude/settings.json` (or `hooks/`)
+  that reads the cwd's `CLAUDE.md` for a `context-always-load:` block and
+  injects the listed files' contents into the starting session.
+- **Option B — CLAUDE.md directive** at project root stating "if asked about
+  this project, read `CURRENT_STATE.md` first." Codifies discipline without
+  mechanical enforcement.
+- **Option C — `workspace.sh context` wrapper** that hard-fails a session if
+  the cwd's always-load files haven't been read in the current session. Less
+  universal than a hook (only fires when explicitly invoked).
+
+## Decision
+
+**Proposed**: Option A (SessionStart hook) as the primary enforcement mechanism,
+with Option B (CLAUDE.md directive) retained as a fallback for sessions where
+the hook cannot fire (Codex sessions, headless agent subagents, container
+execution). Option C is rejected in favor of A.
+
+Specifics of the hook:
+
+1. Lives at `~/.claude/hooks/session-start-context-load.sh` (host-level) and
+   is registered in `~/.claude/settings.json` under the `SessionStart` hook
+   surface (or the closest Claude Code hook type that fires on session init).
+2. On fire, the hook reads `$CWD/CLAUDE.md` looking for a YAML block:
+   ```yaml
+   context-always-load:
+     - CURRENT_STATE.md
+     - index.md
+     - docs/<repo-specific-spec>.md
+   ```
+3. For each listed file, the hook emits the file's contents (with a header
+   separator) into the session's initial context. Files that don't exist are
+   emitted as a visible warning — fail loud, don't silently skip.
+4. Max injection size: configurable cap (default ~30 KB aggregate) to prevent
+   runaway always-load lists from blowing out context budgets. If the list
+   exceeds the cap, truncate with a visible marker and emit a `friction/`
+   record that the always-load is too large.
+5. The hook fires on every Claude Code session rooted at a path with a
+   `CLAUDE.md` carrying `context-always-load:`. Sessions without the declaration
+   are unaffected (no performance cost, no behavior change).
+
+Session-end update enforcement (M5) is **deferred to a follow-on ADR**. The
+read-side is higher-leverage and easier to enforce; write-side enforcement
+is a harder design and benefits from the writer/retriever separation proposal
+(`projects/context-repository/docs/writer-retriever-separation-proposal.md`).
+A single ADR covering both read and write enforcement risks coupling two
+decisions that should move independently.
+
+## Consequences
+
+**Positive:**
+
+- Session-start read becomes structural, not discipline-dependent. The
+  2026-04-18 Render incident failure class closes at the entry point.
+- Context repos with a declared always-load list become self-activating
+  domains — a fresh agent in the cwd has the right context in its prompt
+  by the time it starts reasoning.
+- Projects that haven't yet adopted the mechanics are unaffected (opt-in
+  via the CLAUDE.md declaration).
+
+**Negative:**
+
+- Context budget consumption on every session start. A 5-file always-load
+  averaging 3 KB each = 15 KB floor on every session. Acceptable per the
+  injection cap, but measurable.
+- Hook failures become a new failure class. The hook must fail-loud so that
+  a silently-broken hook doesn't produce silently-uncontexted sessions.
+- Host-level hook = host-level dependency. Transfer to a new host requires
+  re-installation of `~/.claude/hooks/`. Manageable; document in
+  `supervisor/playbooks/install-skills.md` or a sibling playbook.
+
+**Risks:**
+
+- Codex sessions don't share Claude Code's hook surface. The fallback
+  (CLAUDE.md directive + written policy in `supervisor/CLAUDE.md`) is
+  discipline-only for Codex. Accept this for now; revisit when Codex hook
+  surfaces become available.
+- Subagent execution (Agent tool) may or may not inherit the hook. Must be
+  tested before accepting as part of implementation.
+
+## Alternatives considered
+
+**Option B alone (CLAUDE.md directive + textual policy):** rejected. This is
+what the workspace already has via `supervisor/CLAUDE.md` §Context-repo
+discipline. It's discipline-dependent by construction. The 2026-04-18 incident
+is primary evidence that this doesn't hold under pressure.
+
+**Option C (workspace.sh wrapper):** rejected. Requires explicit invocation
+every session. Sessions that forget the wrapper enter the same uncontexted
+state as today. Doesn't close the failure class.
+
+**Hybrid A+C:** considered. The wrapper becomes a foreground helper that any
+agent can invoke to refresh context mid-session. That's useful but orthogonal
+to session-start enforcement — tracked as a separate follow-on, not part of
+this ADR.
+
+**Session-end write enforcement in the same ADR:** rejected. Separate decision;
+see §Decision above.
+
+## Implementation path (for the accepting session)
+
+1. Write `~/.claude/hooks/session-start-context-load.sh`. Bash, no deps.
+   Parses YAML block via awk (same pattern as `build-index.sh` in
+   `context-repository`).
+2. Register in `~/.claude/settings.json` under the correct hook key.
+   Consult the Claude Code harness docs (or `claude-code-guide` agent) for
+   the exact hook name — `SessionStart` is the working assumption but may
+   need adjustment.
+3. Add an always-load declaration to each governed project's CLAUDE.md,
+   starting with `supervisor`, `context-repository`, and `skillfoundry-harness`.
+   Rollout is per-project and idempotent.
+4. Test: open a fresh Claude Code session in each governed cwd, verify the
+   always-load files appear in the initial context. Test with a deliberately
+   missing file to verify fail-loud behavior.
+5. Document in `supervisor/playbooks/context-repo-session-enforcement.md`.
+6. After 1 week of operation, review friction logs for hook-related issues
+   before considering this ADR closed/accepted.
+
+## References
+
+- `projects/context-repository/docs/agent-context-repo-pattern.md` §Required mechanics (M4, M5)
+- `projects/context-repository/docs/writer-retriever-separation-proposal.md`
+- `supervisor/decisions/0014-supervisor-tick-and-pm-pattern.md` (tick already demonstrates hook-style enforcement for a related surface)
+- Inspiration: Letta `system/` pinning (https://www.letta.com/blog/context-repositories), DiffMem `[ALWAYS_LOAD]` tags (https://github.com/Growth-Kinetics/DiffMem)
+- Incident that motivated this: 2026-04-18 Render-walkthrough failure (discussed in session transcript; memory entries `feedback_verify_deploy_state_first.md`, `feedback_state_cost_before_signup.md`, `feedback_current_state_canonical.md`)
