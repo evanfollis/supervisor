@@ -1,7 +1,58 @@
 # ADR-0021: Session-start context-repo read enforcement
 
 Date: 2026-04-18
-Status: proposed
+Status: accepted
+Accepted: 2026-04-18 (principal directive: "build the whole thing")
+Supersedes-proposal: original proposed version (same file, this commit)
+Amended-in-acceptance: adds 7-day freshness gate (KL2 mitigation) and pairs with ADR-0022 (M5 phase-1 detect-and-report) shipped in the same attended session.
+
+## Acceptance amendments
+
+Accepted with two amendments to the originally-proposed text:
+
+**A1. 7-day freshness gate in the M4 hook.** Partially mitigates KL2
+("stale-context amplification"): any file in `context-always-load` whose
+YAML frontmatter `updated:` value is older than 7 days is still injected —
+but wrapped in a loud "STALE — do not trust" banner with the calculated
+age in days, instead of being laundered into trusted context. The banner
+tells the agent to re-read from disk and verify before acting. This does
+not eliminate KL2 but converts silent trust into a visible warning class.
+
+**A2. Paired with ADR-0022 (M5 phase-1 detect-and-report).** M5 ships in
+the same session as a SessionEnd hook that detects when a session with
+substantial activity ended without touching `CURRENT_STATE.md` and routes
+a low-priority handoff to `general`. This is not a full writer/retriever
+implementation — it's a detection surface that makes drift visible rather
+than silent. Full M5 enforcement still couples to the writer/retriever
+separation proposal and remains future work.
+
+Together, A1 + A2 close the worst-case path warned against in KL2:
+(a) a stale file auto-injected with appearance of ground truth (A1 catches
+this), and (b) a session that should have updated CURRENT_STATE leaving
+silently without a signal (A2 catches this).
+
+## Implementation (shipped)
+
+- `/root/.claude/hooks/session-start-context-load.sh` — the M4 hook.
+- `/root/.claude/hooks/session-end-current-state-check.sh` — the M5 phase-1 hook.
+- `/root/.claude/settings.json` — `SessionStart` and `SessionEnd` registered.
+- `context-always-load:` declarations added to:
+  - `/opt/workspace/CLAUDE.md` (workspace root executive cwd)
+  - `/opt/workspace/supervisor/AGENT.md` (via the CLAUDE.md symlink)
+  - `/opt/workspace/projects/atlas/CLAUDE.md`
+  - `/opt/workspace/projects/command/CLAUDE.md`
+  - (already present before this session: context-repository, skillfoundry root)
+
+Deferred (not blocking acceptance):
+- Retrofit of `context-always-load:` to mentor and recruiter CLAUDE.md —
+  blocked on those projects getting a CURRENT_STATE.md front door first
+  (tracked in `system/active-issues.md` as the pass-2 retrofit).
+- A dedicated `supervisor/playbooks/context-repo-session-enforcement.md` —
+  low priority given the hook is self-describing in its banner.
+
+## Original decision (unmodified below)
+
+
 
 ## Context
 

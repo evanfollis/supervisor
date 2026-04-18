@@ -9,26 +9,42 @@
 - Maintenance report: `/opt/workspace/runtime/.meta/server-maintenance-2026-04-18T01-24-45Z.md`
 - Source: `runtime/.handoff/general-server-maintenance-2026-04-18T01-24-45Z.md` (consumed 2026-04-18T02:49Z)
 
-### Context-repository mechanics retrofit — pass 2 (attended, spread across sessions)
+### Context-repository mechanics — M4 + M5 SHIPPED 2026-04-18 attended (ADR-0021 accepted, ADR-0022 accepted)
 
-Pass 1 landed 2026-04-18 attended: `context-repository` spec extended with a
-§Required mechanics section (frontmatter schema, auto-generated `index.md`,
-CLAUDE.md-declared `context-always-load:` list). Reference implementation
-reconciled (context-repository commits `9e1effd`, `804ca69`, `e7cdbd1`).
-Writer/retriever separation drafted as a proposal
-(`context-repository/docs/writer-retriever-separation-proposal.md`, status
-proposed). Session-start read enforcement drafted as ADR-0021
-(`supervisor/decisions/0021-*`, status proposed).
+**M4 (session-start context auto-load)** shipped 2026-04-18 attended.
+`/root/.claude/hooks/session-start-context-load.sh` reads `$CWD/CLAUDE.md`
+for `context-always-load:` and injects listed files as `additionalContext`.
+Freshness gate: files whose `updated:` frontmatter is older than 7 days are
+injected with a loud STALE banner. Registered in `/root/.claude/settings.json`.
+Tested end-to-end on 4 cwds. See `supervisor/decisions/0021-*` (accepted).
 
-**Pass 2 is retrofit per project.** Each project PM retrofits their own
-context repos: add frontmatter to all markdown files, regenerate index.md
-via the pattern's script (or write an equivalent), declare
-`context-always-load:` in the project CLAUDE.md.
+**M5 phase-1 (session-end CURRENT_STATE detect-and-report)** shipped in
+the same session. `/root/.claude/hooks/session-end-current-state-check.sh`
+fires on SessionEnd; if cwd opted into always-load, had ≥20 transcript
+lines, and `CURRENT_STATE.md` mtime is >24h old, it routes a low-priority
+handoff to `general` and emits a telemetry event. No auto-commit —
+phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
+`supervisor/decisions/0022-*` (accepted).
 
-- **skillfoundry root front door**: handoff routed 2026-04-18 to skillfoundry PM (`runtime/.handoff/skillfoundry-root-front-door-synthesis-2026-04-18.md`). Closes the cold-orientation gap that caused the 2026-04-18 Render walkthrough failure.
-- **Other projects to retrofit**: atlas, command, mentor (no CURRENT_STATE yet), recruiter (no CURRENT_STATE yet), skillfoundry sub-repo context lineages. Routed via individual PM handoffs as bandwidth allows — don't try to retrofit all in one pass.
-- **Spec itself needs adversarial review.** `docs/agent-context-repo-pattern.md` was extended without `/review` (FR-0021 EROFS workaround via `adversarial-review.sh` is available). Next attended session should run: `./scripts/lib/adversarial-review.sh /opt/workspace/projects/context-repository/docs/agent-context-repo-pattern.md`.
-- **ADR-0021 acceptance**: proposed, needs test pass on Claude Code SessionStart hook behavior before flipping to accepted. Hook surface specifics need verification (subagent inheritance, Codex session parity, injection size cap behavior).
+**context-always-load declarations added**:
+- `/opt/workspace/CLAUDE.md` (workspace root)
+- `/opt/workspace/supervisor/AGENT.md` (supervisor)
+- `/opt/workspace/projects/atlas/CLAUDE.md`
+- `/opt/workspace/projects/command/CLAUDE.md`
+- (pre-existing) context-repository, skillfoundry root
+
+**Still open for pass 2 (deferred, not blocking)**:
+- Mentor and recruiter need a `CURRENT_STATE.md` before they can declare
+  always-load. Handoffs exist for the stale-reference cleanup
+  (`runtime/.handoff/recruiter-stale-*`, atlas equivalent). Retrofit of
+  frontmatter+index+always-load for those two repos stays the pass-2
+  target but is lower priority now that the hook is catching the
+  failure class where the front doors do exist.
+- Skillfoundry sub-repos (researcher, valuation, builder, designer,
+  growth, pricing, products, agents) — 7 of 9 lack `CURRENT_STATE.md`.
+  Skillfoundry PM-owned retrofit; tracked separately.
+- `docs/agent-context-repo-pattern.md` adversarial review via
+  `adversarial-review.sh` — still owed.
 
 ### Skillfoundry deployment credentials blocked — principal decision required
 

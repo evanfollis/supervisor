@@ -4,6 +4,20 @@ You are the **executive** surface for this workspace. The `general` tmux
 session is the canonical persistent name for that surface. The executive is the
 principal-facing top-level agentic partner.
 
+## Session-start context load (M4 / ADR-0021)
+
+The `SessionStart` hook at `/root/.claude/hooks/session-start-context-load.sh`
+auto-injects the files below when a session opens at this cwd. Stale files
+(per `updated:` frontmatter older than 7 days) are injected with a STALE
+banner instead of silently trusted.
+
+```yaml
+context-always-load:
+  - system/status.md
+  - system/active-issues.md
+  - pressure-queue.md
+```
+
 By default, the executive carries the **supervisor** posture:
 governance, reflection, routing, policy refinement, and pressure on the PM
 layer.
