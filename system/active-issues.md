@@ -23,30 +23,23 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
 
 ### Supervisor repo has unpushed commits — push needed
 
-- **3+ cycles unpushed.** Doctor WARN and synthesis standing rec both flag this. `git log origin/main..HEAD` in supervisor will show the gap.
-- Next attended session or tick with push capability should run `git push` from `/opt/workspace/supervisor`.
-- Blocks: cross-session visibility, remote backup, and the adversarial-review path that reads `origin/main`.
+- **12 commits unpushed** (confirmed 2026-04-18T04:48Z synthesis). Doctor WARN. Synthesis flags this as most critical standing rec: blocks cross-session visibility, remote backup, and adversarial-review path that reads `origin/main`.
+- Synthesis P1 proposes adding conditional `git push` after commit in `supervisor-autocommit.sh` (Tier C — attended session required). INBOX handoff written.
+- Next attended session: `git push` from `/opt/workspace/supervisor` immediately.
 
-### Aged tick branch needs attended merge — ticks/2026-04-16-12 at 35h+
+### Aged tick branches need attended merge
 
-- `workspace.sh doctor` WARN: `ticks/2026-04-16-12` is 35h old and unmerged.
-- Governance surfaces (friction/, system/) committed to tick branches are invisible to main-branch sessions until merged. This is the concrete instance of FR-0020.
-- Next attended session: `git merge ticks/2026-04-16-12` from main (or rebase if needed), then push.
-
-### ADR review debt — unblocked, awaiting attended batch run
-
-- ADR-0015 (executive/supervisor/operator split): **5 cycles** unreviewed. `adversarial-review.sh` workaround is now available and validated (atlas ingest review ran successfully via Codex). EROFS no longer blocks this.
-- ADR-0016 (autonomous project tick): **3 cycles** unreviewed.
-- ADR-0017 (radical truth): **2 cycles** unreviewed.
-- Next action: attended session runs `./scripts/lib/adversarial-review.sh decisions/00{15,16,17}-*.md` and writes review artifacts. Then flip FR-0025 status.
+- `ticks/2026-04-16-12`: **39h** old (doctor 2026-04-18T04:48Z). Governance surfaces committed here are invisible to main-branch sessions until merged. See FR-0020.
+- `ticks/2026-04-17-02`: **25h** old — newly aged past the 24h threshold this tick.
+- Next attended session: merge both branches to main, then push.
 
 ### `/review` EROFS broken — adversarial review path partially mitigated
 
 - The `/review` skill fails with `EROFS: read-only file system, open '/root/.claude.json'` in all project sessions.
 - Root cause: sandboxed sessions mount `/root/` read-only; the skill writes `.claude.json`.
 - **Workaround available**: `adversarial-review.sh` wrapping `codex exec --sandbox read-only` is validated (atlas ingest review ran cleanly via this path, 2026-04-17). Tick sessions should use this for substantial commits.
-- **ADR review debt now actionable** — see ADR review debt item above.
-- **Remaining unreviewed**: atlas dedup/telemetry (1 cycle), cross-cutting Proposal 1 (tick prompt wiring).
+- **ADR review debt resolved** — artifacts at `.reviews/adr-review-001{5,6,7}-2026-04-17T14-55Z.md`. FR-0025 still needs `Status: resolved`.
+- **Remaining unreviewed**: atlas dedup/telemetry (1 cycle).
 - See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
 
 ### Atlas claim_hash as canonical identity — ADR-class migration deferred
