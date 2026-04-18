@@ -19,7 +19,6 @@ Project attribution comes from session cwd:
   /opt/workspace                          -> admin
   /opt/workspace/supervisor               -> admin
   /opt/workspace/projects/<name>          -> <name>
-  /opt/workspace/projects/career-os/<x>   -> x  (mentor, recruiter)
   /opt/workspace/projects/skillfoundry/*  -> skillfoundry
   /opt/workspace/projects/context-*       -> context-repo
   /opt/projects/*                         -> same mapping (legacy symlinks)
@@ -60,10 +59,6 @@ def project_for_cwd(cwd: str | None) -> str:
         return "admin"
     if c.startswith("/opt/workspace/runtime"):
         return "admin"
-    if c.startswith("/opt/workspace/projects/career-os/mentor"):
-        return "mentor"
-    if c.startswith("/opt/workspace/projects/career-os/recruiter"):
-        return "recruiter"
     if c.startswith("/opt/workspace/projects/skillfoundry"):
         return "skillfoundry"
     if c.startswith("/opt/workspace/projects/context-repository"):
@@ -111,10 +106,6 @@ def project_from_claude_dir(dir_name: str) -> str:
         "-opt-projects-atlas": "atlas",
         "-opt-workspace-projects-context-repository": "context-repo",
         "-opt-projects-context-repository": "context-repo",
-        "-opt-workspace-projects-career-os-mentor": "mentor",
-        "-opt-projects-mentor": "mentor",
-        "-opt-workspace-projects-career-os-recruiter": "recruiter",
-        "-opt-projects-recruiter": "recruiter",
         "-opt-workspace-projects-skillfoundry-skillfoundry-harness": "skillfoundry",
         "-opt-projects-skillfoundry-skillfoundry-harness": "skillfoundry",
         "-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context": "skillfoundry",

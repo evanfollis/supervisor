@@ -34,17 +34,15 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
 - (pre-existing) context-repository, skillfoundry root
 
 **Still open for pass 2 (deferred, not blocking)**:
-- Mentor and recruiter need a `CURRENT_STATE.md` before they can declare
-  always-load. Handoffs exist for the stale-reference cleanup
-  (`runtime/.handoff/recruiter-stale-*`, atlas equivalent). Retrofit of
-  frontmatter+index+always-load for those two repos stays the pass-2
-  target but is lower priority now that the hook is catching the
-  failure class where the front doors do exist.
 - Skillfoundry sub-repos (researcher, valuation, builder, designer,
   growth, pricing, products, agents) — 7 of 9 lack `CURRENT_STATE.md`.
   Skillfoundry PM-owned retrofit; tracked separately.
 - `docs/agent-context-repo-pattern.md` adversarial review via
   `adversarial-review.sh` — still owed.
+- Mentor and recruiter are no longer pass-2 targets — demoted to
+  personal side projects and removed from this server 2026-04-18
+  (ADR-0023). Any `mentor` / `recruiter` references elsewhere in this
+  file should be treated as historical.
 
 ### Skillfoundry deployment credentials blocked — principal decision required
 
