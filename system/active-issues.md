@@ -44,17 +44,26 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
   (ADR-0023). Any `mentor` / `recruiter` references elsewhere in this
   file should be treated as historical.
 
-### Skillfoundry deployment credentials blocked — principal decision required
+### Skillfoundry deployment — decisions captured 2026-04-18, token rotation in flight
 
-Three deploy blockers require Evan's credentials or decisions (escalated 2026-04-17T20:38Z):
+**Decisions recorded** (ADR-0024, captured from principal paste at 2026-04-18T12:32:24Z that was dropped by the receiving session):
+- LCI intake stack: **Tally form + $99 price + Cloudflare Pages hosting**
+- Blog publishing host: **Cloudflare Pages** (Medium no longer issues tokens)
 
-- **Preflight landing page + sourceType deploy**: `wrangler deploy` required. `wrangler` not installed; needs Cloudflare API token. Commands once available: `npm install -g wrangler && CLOUDFLARE_API_TOKEN=<token> wrangler deploy` from `skillfoundry-products/products/preflight/`.
-- **Watcher IGNORE_RE restart**: `systemctl restart preflight-watcher` blocked by sandbox. Needs Evan or attended session with sudo.
-- **LCI intake form + hosting**: Evan must choose intake tool (Tally/Typeform/Cal.com), set price ($49/$99/contact), and decide hosting path (nginx route vs Cloudflare Pages). Once decided, agent can build + deploy in one tick.
-- **Launchpad-lint**: NOT a deploy blocker. Already live on Hetzner at `https://skillfoundry.synaplex.ai/products/launchpad-lint/` (systemd `launchpad-lint.service`, uvicorn :8010 behind CF tunnel). Canonical deploy target per `deploy/REMOTE_DEPLOY.md` is Hetzner. The `render.yaml` / `railway.toml` / `fly.toml` in that directory are portability artifacts, not the active deploy. Earlier "confirm Render auto-deploy" framing was based on stale assumption — corrected 2026-04-18T12:48Z.
-- **Blog publishing**: Content ready for all 3 probes. Publish path needs Medium Integration Token (agent-executable) or Cloudflare Pages (one-time setup).
+**Credential state:**
+- **Cloudflare API token** — principal pasted `cfut_cAt4F3J…9994b` at 12:32Z into session `40788ae9`. Token is **burned**: it sat plaintext in `/root/.claude/projects/-opt-workspace/40788ae9-*.jsonl` for 11h+ and is readable by every session and reflection job on this host. Rotation handoff routed to principal 2026-04-18T23:~15Z. Awaiting: principal revokes at CF dashboard and writes new token to `/opt/workspace/runtime/.secrets/cloudflare_api_token` (0600, gitignored). Do NOT install wrangler or deploy with the compromised token.
+- **Watcher IGNORE_RE restart** — done. `preflight-watcher.service` active since 2026-04-18T12:21:37Z (10h+ uptime).
 
-Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed by tick 2026-04-17T22-48-12Z).
+**Deploy work still blocked on the rotated token:**
+- Preflight landing page + sourceType deploy (`wrangler deploy` from `skillfoundry-products/products/preflight/`).
+- LCI intake deploy (Tally embed → CF Pages).
+- Blog publishing (3 probe posts → CF Pages).
+
+**Launchpad-lint deploy state — two live targets, both real:**
+- **Hetzner**: `https://skillfoundry.synaplex.ai/products/launchpad-lint/`, `launchpad-lint.service` uvicorn :8010 behind CF tunnel. Canonical per `deploy/REMOTE_DEPLOY.md`.
+- **agenticmarket (Render)**: principal confirmed 2026-04-18T12:47Z "I already have launchpad-lint on agenticmarket". This is a **paid Render account** provisioned last week to reach the MCP marketplace audience. The earlier tick-generated line calling `render.yaml` a "portability artifact, not the active deploy" was wrong — the Render deploy is live on agenticmarket and serves a different audience than the Hetzner target.
+
+Code is landed and tested. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed 2026-04-17T22-48-12Z), ADR-0024 (decisions), FR-0032 (principal-input capture failure).
 
 ### Aged tick branches and push backlog — CLOSED 2026-04-18 attended
 
