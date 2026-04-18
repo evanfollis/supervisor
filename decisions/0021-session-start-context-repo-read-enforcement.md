@@ -36,28 +36,39 @@ with Option B (CLAUDE.md directive) retained as a fallback for sessions where
 the hook cannot fire (Codex sessions, headless agent subagents, container
 execution). Option C is rejected in favor of A.
 
-Specifics of the hook:
+Specifics of the hook (verified 2026-04-18 against Claude Code docs at
+https://code.claude.com/docs/en/hooks.md via the claude-code-guide agent):
 
 1. Lives at `~/.claude/hooks/session-start-context-load.sh` (host-level) and
    is registered in `~/.claude/settings.json` under the `SessionStart` hook
-   surface (or the closest Claude Code hook type that fires on session init).
-2. On fire, the hook reads `$CWD/CLAUDE.md` looking for a YAML block:
+   key (verified exact name).
+2. The hook receives JSON on stdin with a `cwd` field (plus `session_id` and
+   `source` — one of `startup | resume | clear | compact`). No CLI args needed.
+3. On fire, the hook reads `$CWD/CLAUDE.md` looking for a YAML block:
    ```yaml
    context-always-load:
      - CURRENT_STATE.md
      - index.md
      - docs/<repo-specific-spec>.md
    ```
-3. For each listed file, the hook emits the file's contents (with a header
-   separator) into the session's initial context. Files that don't exist are
-   emitted as a visible warning — fail loud, don't silently skip.
-4. Max injection size: configurable cap (default ~30 KB aggregate) to prevent
+4. Injection mechanism: hook emits JSON on stdout with a
+   `hookSpecificOutput.additionalContext` field containing the concatenated
+   file contents (with path-prefix headers so the agent sees which file each
+   block came from). Multiple hooks' `additionalContext` values concatenate —
+   this hook coexists with any others the user has installed.
+5. Files that don't exist are emitted as a visible inline warning inside
+   `additionalContext` — fail loud, don't silently skip.
+6. Max injection size: configurable cap (default ~30 KB aggregate) to prevent
    runaway always-load lists from blowing out context budgets. If the list
    exceeds the cap, truncate with a visible marker and emit a `friction/`
    record that the always-load is too large.
-5. The hook fires on every Claude Code session rooted at a path with a
-   `CLAUDE.md` carrying `context-always-load:`. Sessions without the declaration
-   are unaffected (no performance cost, no behavior change).
+7. **Subagent scope**: verified SessionStart does NOT fire when subagents are
+   spawned via the Agent tool. The hook runs exactly once per session (on
+   startup/resume/clear/compact). Long-running sessions with many subagents
+   pay the cost once, not N times.
+8. **Graceful no-op** on sessions without `context-always-load:` in CLAUDE.md
+   (or without a CLAUDE.md at all): exit 0 with empty stdout. No performance
+   cost, no behavior change for sessions that haven't opted in.
 
 Session-end update enforcement (M5) is **deferred to a follow-on ADR**. The
 read-side is higher-leverage and easier to enforce; write-side enforcement
@@ -95,8 +106,68 @@ decisions that should move independently.
   (CLAUDE.md directive + written policy in `supervisor/CLAUDE.md`) is
   discipline-only for Codex. Accept this for now; revisit when Codex hook
   surfaces become available.
-- Subagent execution (Agent tool) may or may not inherit the hook. Must be
-  tested before accepting as part of implementation.
+- Subagent execution (Agent tool): confirmed 2026-04-18 to NOT re-fire the
+  hook. Any always-load content the main session received is already in its
+  context when it spawns a subagent; subagents operate on their own prompts
+  and don't inherit the injected content automatically. This is load-bearing
+  only for subagents that need repo orientation — those should receive it
+  via their Agent-tool prompt.
+
+## Known limitations (surfaced by adversarial review, 2026-04-18)
+
+Codex review of this ADR (`supervisor/.reviews/adr-0021-2026-04-18T13-20Z.md`)
+flagged three failure modes this ADR does not fully address. Documenting them
+here so an accepting session has honest input.
+
+### KL1. Injection ≠ enforced reading
+
+The hook puts content in the session's context. It does not force the agent
+to *attend to* that content. An agent under pressure can still skim past
+injected CURRENT_STATE content and fail the same way it did on 2026-04-18.
+The hook changes the prior probability of reading, not the posterior. Declaring
+"structural enforcement" on this basis risks replacing a silent failure mode
+(no injection) with a louder one (injection believed to guarantee reading).
+
+**Partial mitigation**: the injected content is prefixed with explicit headers
+("this is your project's CURRENT_STATE — read it before answering about
+this project"). A session that ignores this is visibly failing the pattern,
+not silently. Full mitigation requires a downstream gate (e.g., a pre-tool-use
+hook that checks whether CURRENT_STATE was referenced in the response before
+allowing substantive tool calls) — out of scope for this ADR.
+
+### KL2. Stale-context amplification (M4 without M5)
+
+Read enforcement (this ADR) ships before write enforcement (deferred ADR).
+A CURRENT_STATE that hasn't been updated in two weeks will be auto-injected
+into every session for that cwd, where it will be *trusted more* than an
+un-injected file would be. The net effect of read-without-write enforcement
+may be worse than no enforcement at all in the interval between them.
+
+**Partial mitigation**: the injected content shows the `updated:` frontmatter
+field visibly. Agents can see "this file is 14 days old" and weight it
+accordingly. This is not enforcement. It's a hint.
+
+**Not fully mitigated**: this is a known reason to not let this ADR's hook
+implementation run in production for long without M5 also shipping. Accepting
+this ADR should be paired with a commitment to the M5 ADR within N sessions,
+not "eventually."
+
+### KL3. Repo-local declaration vs host-local enforcement
+
+The `context-always-load:` block lives in repo CLAUDE.md. The hook that reads
+it lives in `~/.claude/hooks/` on this one host. Portability to a new host,
+a new workstation, a container, or a Codex session all silently break the
+guarantee. Agents reading a project's CLAUDE.md will see the declaration and
+may assume it's universally honored.
+
+**Partial mitigation**: `supervisor/playbooks/context-repo-session-enforcement.md`
+(to be written as part of implementation) documents the host-local dependency.
+The install step is part of workspace setup, not per-project onboarding.
+
+**Not fully mitigated**: this is an inherent property of hook-based enforcement.
+A repo-level enforcement mechanism (e.g., a git hook, a build-time check)
+would be universal but has its own costs. Considered not worth the complexity
+for now; revisit if multi-host operation becomes common.
 
 ## Alternatives considered
 
