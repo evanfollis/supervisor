@@ -1,5 +1,5 @@
 ---
-id: FR-0020
+id: FR-0030
 title: Supervisor repo drifts ahead of remote without push
 date: 2026-04-16
 severity: low
@@ -35,3 +35,5 @@ WARN) after 24h of drift, so the escalation path is more automatic.
 
 - `workspace.sh doctor` output 2026-04-16T12:48Z: `⚠ branch 'main' is 3 commit(s) ahead of origin/main`
 - Prior ticks also showed warning but no automated remediation
+
+**Status**: Open — renamed from FR-0020 collision on 2026-04-18; no fix yet for unpushed-commits reminder gap.

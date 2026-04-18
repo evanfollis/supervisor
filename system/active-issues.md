@@ -68,19 +68,14 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
 - Root cause: sandboxed sessions mount `/root/` read-only; the skill writes `.claude.json`.
 - **Workaround available**: `adversarial-review.sh` wrapping `codex exec --sandbox read-only` is validated (atlas ingest review ran cleanly via this path, 2026-04-17). Tick sessions should use this for substantial commits.
 - **ADR review debt resolved** — artifacts at `.reviews/adr-review-001{5,6,7}-2026-04-17T14-55Z.md`. FR-0025 marked `Status: resolved` (tick 2026-04-18T06-48Z).
-- **Remaining unreviewed**: atlas dedup/telemetry (1 cycle).
+- **Remaining unreviewed**: atlas dedup/telemetry (2 cycles) + atlas claim-hash migration commit `040c053` (1 cycle). Command `84b38dc` review completed 2026-04-18T16:54Z — artifact at `.reviews/84b38dc-review-2026-04-18T16-54Z.md`.
 - See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
 
-### Atlas — two URGENT escalations (3rd-cycle carry-forward) — principal decisions required
+### Atlas — URGENT escalations — CLOSED 2026-04-18
 
-**Escalated 2026-04-18T02:26Z** by reflection job after 3 consecutive cycles without resolution. Both sat unconsumed for 6.5h until tick 2026-04-18T08-49Z surfaced them (see FR-0028).
-
-**1. Claim-hash identity: migrate or reset?** Atlas ingest uses `claim_hash[:16]` as hypothesis identity; case/whitespace drift silently forks hypotheses. Migration script is ready (`scripts/migrate_claim_hash.py`). Principal must decide: migrate (re-link 42 hypotheses) or reset. Both paths are low-risk. Silence is the risk.
-
-**2. Live autonomous path unvalidated.** `atlas run --once` has never executed under the current evidence-ID contract. Zero atlas telemetry events in workspace events.jsonl. Requires `ATLAS_EXCHANGE_API_KEY` + `ATLAS_EXCHANGE_SECRET`. If credentials available, run from atlas session. If blocked, record explicitly in atlas `CURRENT_STATE.md`.
-
-- INBOX handoff: `handoffs/INBOX/URGENT-2026-04-18T08-49Z-atlas-escalations.md`
-- Source handoffs: `runtime/.handoff/URGENT-atlas-claim-hash-decision-needed.md`, `runtime/.handoff/URGENT-atlas-live-path-unvalidated.md`
+Both items resolved:
+- **Claim-hash migration complete** — principal decided "migrate"; `040c053` re-keyed 42→47 hypotheses under canonical form (tick 2026-04-18T12:14Z). Review artifact still owed (see EROFS section above).
+- **Live path validated** — `ea44220` ran `atlas run --once`; all hypotheses returned "continue" (4h data too short for signal). Path is exercised; next step is switch to 1h data window.
 
 ### Tick branch governance gap — FR-0020
 
@@ -133,6 +128,7 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
   in-process-only lock) are accepted single-process tradeoffs.
 - **FR-0016 closed.** All three named symptoms addressed. See closure evidence
   in `supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`.
+- **4-cycle carry-forwards cleared 2026-04-18T17:00Z** (command PM tick `c3aac72`): deploy gap closed (20/20 smoke), `84b38dc` adversarial review done, `page.tsx` confirm dialog committed, `check-patterns.ts` stale carry-forward was already covered (line 16 `EXTRA_FILES`). Remaining open: FR-0015 Layer-3 real-device proof, metrics producer key scheme doc.
 
 ### S3-P1: Supervisor dirty-tree escalation writes to INBOX (not yet implemented)
 
@@ -141,13 +137,13 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
   same-reason skips, but events are invisible to attended sessions. An INBOX handoff
   is needed so the escalation is actually seen.
 - Blocked on `scripts/lib/supervisor-tick.sh` edit — requires attended session.
-- Tracked in: `/opt/workspace/supervisor/handoffs/INBOX/2026-04-16T13-00Z-pending-supervisor-items.md`
+- Tracked in: `handoffs/ARCHIVE/2026-04/2026-04-16T13-00Z-pending-supervisor-items.md` (archived; requires attended `scripts/lib/` edit)
 
 ### S4-P3: Telemetry rotation script not yet implemented
 
 - Accepted in dispositions. `events.jsonl` and `session-trace.jsonl` have no rotation.
 - Requires new `scripts/lib/` rotation script + systemd timer.
-- Tracked in: `/opt/workspace/supervisor/handoffs/INBOX/2026-04-16T13-00Z-pending-supervisor-items.md`
+- Tracked in: `handoffs/ARCHIVE/2026-04/2026-04-16T13-00Z-pending-supervisor-items.md` (archived; requires attended `scripts/lib/` edit)
 
 ### Executive relapsed into implementation instead of shaping the `command` PM
 
@@ -161,6 +157,26 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
   lane.
 - See friction record:
   `/opt/workspace/supervisor/friction/FR-0018-executive-relapsed-into-project-implementation.md`
+
+### Synthesis proposals (cross-cutting-2026-04-18T15-26Z) — pending acceptance
+
+Three proposals from the 15:26Z synthesis await principal decision:
+
+- **P1 — Post-commit review check hook** (`PostToolUse(Bash)` soft gate): fires when a commit touches ≥3 files or ≥100 lines; prints ⚠ reminder that `/review` is required. Draft at synthesis. Blast radius: all sessions. Low risk (display-only). Requires attended `update-config` / hook install.
+- **P2 — Tick trivial carry-forward closure**: CLAUDE.md addition permitting tick sessions to fix items that are (a) unblocked, (b) fixable in ≤5 min single commit, (c) open 2+ cycles. Requires CLAUDE.md amendment (attended session).
+- **P3 — ADR acceptance gate**: supervisor-tick.sh check — when an ADR lands at `Status: accepted` in the last 48h git log, verify a `.reviews/adr-<NNNN>-*.md` exists; warn to active-issues if absent. Requires `scripts/lib/` edit (attended session).
+
+All three are Tier-B drafts; tick cannot accept or implement.
+
+### Aged tick branches — attended merge needed
+
+- `ticks/2026-04-16-12`: 53h as of 18:49Z tick (>24h threshold)
+- `ticks/2026-04-17-02`: 39h as of 18:49Z tick (>24h threshold)
+- Both flagged by `workspace.sh doctor` (WARN, not FAIL). Attended session should merge or confirm branches are stale and delete.
+
+### Breach detector false positives on concurrent sessions — FR-0031
+
+Two URGENT handoffs in the same window were false positives (tick 16:49Z boundary breach, reflection 14:32Z HEAD advance). Root cause: the detector does not distinguish the session's own commits from concurrent attended-session commits. See `friction/FR-0031-breach-detector-false-positive-concurrent-sessions.md`. Fix requires `scripts/lib/` edit (attended session).
 
 ## Structural (supervisor self-alignment)
 
@@ -211,6 +227,7 @@ model. Resolved items are removed; remaining items are tracked to an ADR.
 
 Previously-listed items that have been closed:
 
+- *FR-0020 naming collision* (closed tick 2026-04-18T18:49Z) — three files shared the `FR-0020` prefix after tick-branch merge conflict. Renamed: `FR-0020-ghost-fr-claimed-in-events.md` → FR-0029, `FR-0020-supervisor-remote-drift.md` → FR-0030. `FR-0020-tick-branch-governance-gap.md` remains canonical FR-0020.
 - *Supervisor 401 escalation hook dead code* (closed 2026-04-17T19:28Z) — `$SUP` was undefined under `set -u`; hook was inert. Fixed with correct `$WORKSPACE_SUPERVISOR_HANDOFF_INBOX` variable + S1-P2 `tick.escalated` event. 8-assertion test added. S3-P1 fully landed.
 - *Command terminal 16ms false alarm* (closed 2026-04-17T16:56Z) — root cause was telemetry misidentification: smoke test connections tagged `sourceType: 'user'` made 21ms smoke sessions look like broken user sessions. Fixed in `c2eb4f2`: server reads `X-Source-Type: smoke` header; smoke events now correctly tagged. Real terminal verified working over both localhost and cloudflared WS. SMOKE PASSED (15/15).
 - *Telemetry schema gap — `sourceType` field* (closed 2026-04-17) —

@@ -1,13 +1,13 @@
 ---
 type: friction
-id: FR-0020
+id: FR-0029
 slug: ghost-fr-claimed-in-events
 date: 2026-04-16
 severity: high
 status: open
 ---
 
-# FR-0020: Friction record claimed in events.jsonl but file never written
+# FR-0029: Friction record claimed in events.jsonl but file never written
 
 ## What happened
 
