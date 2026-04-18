@@ -105,6 +105,21 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
 - **FR-0016 closed.** All three named symptoms addressed. See closure evidence
   in `supervisor/friction/FR-0016-command-still-behaves-like-ui-over-sessions.md`.
 
+### S3-P1: Supervisor dirty-tree escalation writes to INBOX (not yet implemented)
+
+- Accepted in dispositions (`/opt/workspace/runtime/.meta/dispositions.jsonl`).
+- Current state: `skip_with_reason()` emits an `escalated` event after 3 consecutive
+  same-reason skips, but events are invisible to attended sessions. An INBOX handoff
+  is needed so the escalation is actually seen.
+- Blocked on `scripts/lib/supervisor-tick.sh` edit — requires attended session.
+- Tracked in: `/opt/workspace/supervisor/handoffs/INBOX/2026-04-16T13-00Z-pending-supervisor-items.md`
+
+### S4-P3: Telemetry rotation script not yet implemented
+
+- Accepted in dispositions. `events.jsonl` and `session-trace.jsonl` have no rotation.
+- Requires new `scripts/lib/` rotation script + systemd timer.
+- Tracked in: `/opt/workspace/supervisor/handoffs/INBOX/2026-04-16T13-00Z-pending-supervisor-items.md`
+
 ### Executive relapsed into implementation instead of shaping the `command` PM
 
 - The principal correctly called out that the executive was still trying to be
