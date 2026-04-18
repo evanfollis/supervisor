@@ -6,6 +6,8 @@ captured: 2026-04-17T12:48Z
 source: supervisor tick 2026-04-17T12-48-47Z
 ---
 
+Status: open
+
 ## Observation
 
 `URGENT-review-skill-broken-2026-04-17T02-49Z.md` was written, then archived

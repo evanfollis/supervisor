@@ -2,7 +2,7 @@
 
 Captured: 2026-04-17
 Source: supervisor/.reviews/adr-review-001{5,6,7}-2026-04-17T14-55Z.md
-Status: open
+Status: resolved
 
 ## What happened
 

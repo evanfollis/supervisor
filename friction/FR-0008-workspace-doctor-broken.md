@@ -7,6 +7,8 @@ severity: high
 status: open
 ---
 
+Status: resolved
+
 # FR-0008: workspace.sh doctor fails — workspace-paths.sh path mismatch
 
 ## What happened

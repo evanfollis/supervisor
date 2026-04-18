@@ -7,6 +7,8 @@ severity: high
 status: open
 ---
 
+Status: resolved
+
 # FR-0009: Scheduled maintenance window passed without execution
 
 ## What happened

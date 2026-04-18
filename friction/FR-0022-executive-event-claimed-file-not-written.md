@@ -6,6 +6,8 @@ detected: 2026-04-17T06:49Z
 source: supervisor tick 2026-04-17T06:49Z
 ---
 
+Status: open
+
 ## Observation
 
 The 2026-04-17T06:10Z executive session emitted a `delegated` event:

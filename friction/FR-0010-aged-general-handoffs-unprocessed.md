@@ -7,6 +7,8 @@ severity: medium
 status: open
 ---
 
+Status: mitigated
+
 # FR-0010: Seven general runtime handoffs aged >20h without supervisor action
 
 ## What happened

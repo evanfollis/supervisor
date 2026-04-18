@@ -6,6 +6,8 @@ date: 2026-04-17
 source: supervisor-tick-2026-04-17T10-49-44Z
 ---
 
+Status: open
+
 ## What happened
 
 The workspace mandate (S1-P2, CLAUDE.md) requires all active runtime systems to emit

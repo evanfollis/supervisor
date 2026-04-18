@@ -38,7 +38,7 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
 - The `/review` skill fails with `EROFS: read-only file system, open '/root/.claude.json'` in all project sessions.
 - Root cause: sandboxed sessions mount `/root/` read-only; the skill writes `.claude.json`.
 - **Workaround available**: `adversarial-review.sh` wrapping `codex exec --sandbox read-only` is validated (atlas ingest review ran cleanly via this path, 2026-04-17). Tick sessions should use this for substantial commits.
-- **ADR review debt resolved** — artifacts at `.reviews/adr-review-001{5,6,7}-2026-04-17T14-55Z.md`. FR-0025 still needs `Status: resolved`.
+- **ADR review debt resolved** — artifacts at `.reviews/adr-review-001{5,6,7}-2026-04-17T14-55Z.md`. FR-0025 marked `Status: resolved` (tick 2026-04-18T06-48Z).
 - **Remaining unreviewed**: atlas dedup/telemetry (1 cycle).
 - See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
 

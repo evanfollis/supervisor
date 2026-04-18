@@ -6,6 +6,8 @@ status: resolved-workaround
 resolved_ts: 2026-04-17T06:02Z
 ---
 
+Status: mitigated
+
 The `/review` skill fails with `EROFS: read-only file system, open '/root/.claude.json'` in every sandboxed project session context. This is a system-level filesystem constraint, not a project bug.
 
 **First detected**: atlas reflection 2026-04-16T14:21Z.

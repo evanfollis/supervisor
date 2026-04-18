@@ -1,6 +1,6 @@
 # FR-0027 — FR Status hygiene has been a recurring doctor WARN for 3+ cycles
 
-Status: open
+Status: resolved
 Detected: 2026-04-18T00:47Z
 Source: workspace doctor WARN; also noted in tick 2026-04-17T22:48Z, tick 2026-04-17T18:48Z
 
