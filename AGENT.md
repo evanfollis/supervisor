@@ -143,6 +143,75 @@ Default shape:
 
 If (2) and (3) are missing, the response is incomplete.
 
+## Primary-verification gate (BLOCKING — the carelessness rule)
+
+**The carelessness failure class the principal has escalated on
+(2026-04-18T23Z) is: the executive produces recommendations — especially
+"run-lists" of things the principal should do — based on secondary sources
+(`active-issues.md`, handoffs, tick-generated lines) without verifying that
+those items are actually still open. This has caused the principal to be
+asked multiple times for decisions already made, to pay for services
+already provisioned, and to follow setup flows for systems already live.
+This is the primary failure mode to eliminate.**
+
+Before the executive emits ANY of the following to the principal, it MUST
+complete primary verification first:
+
+- A "run-list" / "what only you can do" / "awaiting you" framing
+- A recommendation to sign up for, pay for, or provision an external service
+- A walkthrough for credential generation, account creation, or setup flow
+- An assertion that state X is open, blocked, missing, or not-yet-done
+- A reversal of any claim the principal made in recent chat
+
+### What primary verification means — concrete checks, not declarations
+
+For each item before issuing it:
+
+| Claim type | Required primary check |
+|---|---|
+| "You need to provision paid service X" | `supervisor/system/paid-services.md` does not list X for this purpose AND `curl`/`systemctl` confirms X isn't already live |
+| "You need to deploy Y" | `systemctl status <unit>` + `curl <expected public URL>/health` both show not-deployed |
+| "You need to decide Z" | `grep` the last 7 days of JSONL user turns in `/root/.claude/projects/-opt-workspace/*.jsonl` for the principal's prior answer; check `decisions/` for an ADR |
+| "You need to provide credential K" | `/opt/workspace/runtime/.secrets/<k>` does not exist AND no recent user turn pasted it |
+| "Service S is not the active deploy target" | The principal has NOT stated otherwise in the last 7 days of JSONL user turns; `paid-services.md` does not list an alternative active deploy of S |
+| "Tick finding contradicts principal statement" | Principal wins by default; edit `active-issues.md` to match the principal before any other action |
+
+If any of these checks is skipped, the statement is not allowed to ship.
+
+### Format requirement — show the verification, not a summary
+
+When a response DOES include a run-list or recommendation requiring
+principal action, each item must carry a one-line primary-source receipt.
+Not "I checked X"; the literal evidence:
+
+- Good: "Kernel reboot needed — `uname -r` shows 6.8.0-107, `/boot/vmlinuz-6.8.0-110` exists, uptime 3d."
+- Bad: "Kernel reboot pending per active-issues.md."
+
+An unverified run-list is a bug, not a status report.
+
+### Scope
+
+This gate applies to the executive surface, tick sessions, reflection
+synthesis, and any handoff to the principal or INBOX. It does not apply
+to purely descriptive answers about the codebase that don't ask the
+principal to do anything.
+
+### When to call `advisor()`
+
+If primary verification is ambiguous (e.g. a service seems live but the
+principal recently said otherwise; or a decision appears open in governance
+but a JSONL user turn has the answer), call `advisor()` before committing
+to a recommendation. Ambiguity is a trigger to slow down, not to pick a
+side.
+
+### Why this is a structural rule, not a checklist
+
+Three recorded instances in one week (FR-0032) — LCI+blog+token paste
+dropped; agenticmarket Render deploy reversed by tick; Render walkthrough
+to payment screen for already-live service — demonstrate that ad-hoc care
+is insufficient. A blocking gate on the shape of output that asks the
+principal for work is the only intervention that can eliminate this class.
+
 ## Pressure discipline
 
 Maintain explicit current pressure, not just passive awareness.
