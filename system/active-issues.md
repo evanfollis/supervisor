@@ -42,13 +42,16 @@ Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skill
 - **Remaining unreviewed**: atlas dedup/telemetry (1 cycle).
 - See: FR-0021 `supervisor/friction/FR-0021-review-skill-broken-erofs.md`
 
-### Atlas claim_hash as canonical identity — ADR-class migration deferred
+### Atlas — two URGENT escalations (3rd-cycle carry-forward) — principal decisions required
 
-- Atlas ingest uses `claim_hash[:16]` as hypothesis identity; all existing 40+ `.json` hypothesis files are keyed on this scheme.
-- The adversarial review (Codex, 2026-04-17) flagged this as a fragile identity: case/whitespace drift in the `claim:` field silently creates duplicate hypotheses.
-- The fix requires a migration script, new ID scheme, and a re-key of existing files — ADR-class work.
-- Migration plan documented in atlas `CURRENT_STATE.md`. Do not attempt inline.
-- Source: atlas tick completion 2026-04-17T09-10-35Z, Finding 1.
+**Escalated 2026-04-18T02:26Z** by reflection job after 3 consecutive cycles without resolution. Both sat unconsumed for 6.5h until tick 2026-04-18T08-49Z surfaced them (see FR-0028).
+
+**1. Claim-hash identity: migrate or reset?** Atlas ingest uses `claim_hash[:16]` as hypothesis identity; case/whitespace drift silently forks hypotheses. Migration script is ready (`scripts/migrate_claim_hash.py`). Principal must decide: migrate (re-link 42 hypotheses) or reset. Both paths are low-risk. Silence is the risk.
+
+**2. Live autonomous path unvalidated.** `atlas run --once` has never executed under the current evidence-ID contract. Zero atlas telemetry events in workspace events.jsonl. Requires `ATLAS_EXCHANGE_API_KEY` + `ATLAS_EXCHANGE_SECRET`. If credentials available, run from atlas session. If blocked, record explicitly in atlas `CURRENT_STATE.md`.
+
+- INBOX handoff: `handoffs/INBOX/URGENT-2026-04-18T08-49Z-atlas-escalations.md`
+- Source handoffs: `runtime/.handoff/URGENT-atlas-claim-hash-decision-needed.md`, `runtime/.handoff/URGENT-atlas-live-path-unvalidated.md`
 
 ### Tick branch governance gap — FR-0020
 
