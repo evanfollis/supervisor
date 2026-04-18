@@ -26,6 +26,10 @@ REPORT="$WORKSPACE_META_DIR/supervisor-tick-${ISO_NOW}.md"
 EVENT_FILE="$WORKSPACE_SUPERVISOR_EVENTS_FILE"
 mkdir -p "$LOCK_DIR" "$WORKSPACE_META_DIR" "$(dirname "$EVENT_FILE")"
 
+# Refresh verified-state.md so the tick reasons from current host reality,
+# not a stale snapshot. Best-effort; never blocks the tick.
+"$LIB_DIR/verify-state.sh" >/dev/null 2>&1 || true
+
 emit_event() {
   local type="$1" note="$2" ref="${3:-$REPORT}"
   printf '{"ts":"%s","agent":"%s","type":"%s","ref":"%s","note":"%s"}\n' \

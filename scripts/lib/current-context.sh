@@ -21,9 +21,17 @@ print_capabilities() {
 }
 
 print_capabilities
+
+# Refresh verified-state.md before emitting. Best-effort; never blocks.
+if [[ -x "$ROOT/scripts/lib/verify-state.sh" ]]; then
+  "$ROOT/scripts/lib/verify-state.sh" >/dev/null 2>&1 || true
+fi
+
 print_file "$ROOT/AGENT.md"
+print_file "$ROOT/system/verified-state.md"
 print_file "$ROOT/system/status.md"
 print_file "$ROOT/system/active-issues.md"
+print_file "$ROOT/system/paid-services.md"
 print_file "$ROOT/system/active-ideas.md"
 
 for path in "$ROOT"/projects/*.md; do
