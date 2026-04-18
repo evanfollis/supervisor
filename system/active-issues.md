@@ -14,6 +14,18 @@ Three deploy blockers require Evan's credentials or decisions (escalated 2026-04
 
 Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed by tick 2026-04-17T22-48-12Z).
 
+### Supervisor repo has unpushed commits — push needed
+
+- **3+ cycles unpushed.** Doctor WARN and synthesis standing rec both flag this. `git log origin/main..HEAD` in supervisor will show the gap.
+- Next attended session or tick with push capability should run `git push` from `/opt/workspace/supervisor`.
+- Blocks: cross-session visibility, remote backup, and the adversarial-review path that reads `origin/main`.
+
+### Aged tick branch needs attended merge — ticks/2026-04-16-12 at 35h+
+
+- `workspace.sh doctor` WARN: `ticks/2026-04-16-12` is 35h old and unmerged.
+- Governance surfaces (friction/, system/) committed to tick branches are invisible to main-branch sessions until merged. This is the concrete instance of FR-0020.
+- Next attended session: `git merge ticks/2026-04-16-12` from main (or rebase if needed), then push.
+
 ### ADR review debt — unblocked, awaiting attended batch run
 
 - ADR-0015 (executive/supervisor/operator split): **5 cycles** unreviewed. `adversarial-review.sh` workaround is now available and validated (atlas ingest review ran successfully via Codex). EROFS no longer blocks this.
@@ -152,6 +164,7 @@ model. Resolved items are removed; remaining items are tracked to an ADR.
 
 Previously-listed items that have been closed:
 
+- *Supervisor 401 escalation hook dead code* (closed 2026-04-17T19:28Z) — `$SUP` was undefined under `set -u`; hook was inert. Fixed with correct `$WORKSPACE_SUPERVISOR_HANDOFF_INBOX` variable + S1-P2 `tick.escalated` event. 8-assertion test added. S3-P1 fully landed.
 - *Command terminal 16ms false alarm* (closed 2026-04-17T16:56Z) — root cause was telemetry misidentification: smoke test connections tagged `sourceType: 'user'` made 21ms smoke sessions look like broken user sessions. Fixed in `c2eb4f2`: server reads `X-Source-Type: smoke` header; smoke events now correctly tagged. Real terminal verified working over both localhost and cloudflared WS. SMOKE PASSED (15/15).
 - *Telemetry schema gap — `sourceType` field* (closed 2026-04-17) —
   S1-P2 deployed in both command (`src/lib/telemetry.ts`) and atlas
