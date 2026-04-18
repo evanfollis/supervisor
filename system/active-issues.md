@@ -2,6 +2,13 @@
 
 ## Immediate
 
+### Kernel reboot needed — kernel 6.8.0-110 pending activation
+
+- Nightly maintenance (2026-04-18T01:24Z) reports a new kernel (6.8.0-110) installed but not yet booted.
+- **Action**: Schedule one planned reboot during next maintenance window.
+- Maintenance report: `/opt/workspace/runtime/.meta/server-maintenance-2026-04-18T01-24-45Z.md`
+- Source: `runtime/.handoff/general-server-maintenance-2026-04-18T01-24-45Z.md` (consumed 2026-04-18T02:49Z)
+
 ### Skillfoundry deployment credentials blocked — principal decision required
 
 Three deploy blockers require Evan's credentials or decisions (escalated 2026-04-17T20:38Z):
