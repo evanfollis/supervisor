@@ -4,7 +4,7 @@ id: FR-0008
 slug: workspace-doctor-broken
 date: 2026-04-15
 severity: high
-status: open
+status: resolved
 ---
 
 Status: resolved

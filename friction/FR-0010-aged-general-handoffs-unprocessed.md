@@ -5,6 +5,7 @@ slug: aged-general-handoffs-unprocessed
 date: 2026-04-15
 severity: medium
 status: open
+resolved_note: Recurring pattern; currently tracked via tick age-check gate (added ADR-0014). Not structurally closed.
 ---
 
 Status: mitigated

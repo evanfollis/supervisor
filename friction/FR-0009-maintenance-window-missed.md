@@ -4,7 +4,7 @@ id: FR-0009
 slug: maintenance-window-missed
 date: 2026-04-15
 severity: high
-status: open
+status: resolved
 ---
 
 Status: resolved
