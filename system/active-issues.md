@@ -16,7 +16,7 @@ Three deploy blockers require Evan's credentials or decisions (escalated 2026-04
 - **Preflight landing page + sourceType deploy**: `wrangler deploy` required. `wrangler` not installed; needs Cloudflare API token. Commands once available: `npm install -g wrangler && CLOUDFLARE_API_TOKEN=<token> wrangler deploy` from `skillfoundry-products/products/preflight/`.
 - **Watcher IGNORE_RE restart**: `systemctl restart preflight-watcher` blocked by sandbox. Needs Evan or attended session with sudo.
 - **LCI intake form + hosting**: Evan must choose intake tool (Tally/Typeform/Cal.com), set price ($49/$99/contact), and decide hosting path (nginx route vs Cloudflare Pages). Once decided, agent can build + deploy in one tick.
-- **Launchpad-lint**: Confirm Render auto-deploy is active; if so, agent can add landing page route and push to trigger deploy.
+- **Launchpad-lint**: NOT a deploy blocker. Already live on Hetzner at `https://skillfoundry.synaplex.ai/products/launchpad-lint/` (systemd `launchpad-lint.service`, uvicorn :8010 behind CF tunnel). Canonical deploy target per `deploy/REMOTE_DEPLOY.md` is Hetzner. The `render.yaml` / `railway.toml` / `fly.toml` in that directory are portability artifacts, not the active deploy. Earlier "confirm Render auto-deploy" framing was based on stale assumption — corrected 2026-04-18T12:48Z.
 - **Blog publishing**: Content ready for all 3 probes. Publish path needs Medium Integration Token (agent-executable) or Cloudflare Pages (one-time setup).
 
 Code is landed and tested. Deploy gap only. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed by tick 2026-04-17T22-48-12Z).
