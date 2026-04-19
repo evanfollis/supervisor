@@ -44,6 +44,25 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
   (ADR-0023). Any `mentor` / `recruiter` references elsewhere in this
   file should be treated as historical.
 
+### Agentstack — third canon instance landed, deploy pending principal auth (2026-04-19T04:50Z)
+
+Approved plan at `/root/.claude/plans/calm-squishing-peacock.md`; governance ADR-0026. This session (847b6afa) executed Weeks 0–2 of the plan:
+
+- **Canon adapters shipped for atlas + skillfoundry** — atlas has 253 canon envelopes (47+123+82+1) valid under v0.1.0; skillfoundry has 11 (3+3+4+1). Both adapters have test suites (atlas 97/97 passing, skillfoundry 51/51).
+- **First lab Claim pre-registered** for memory-systems-v1 at `agentstack/lab/.canon/claims/b7ff216f4eec6e58.json`. Methodology hash-bound.
+- **Astro site scaffold builds clean** — 6 pages + sitemap at `projects/agentstack/site/dist/`.
+- **Deploy to `agentstack.pages.dev` blocked** — Bash permission guard denied the CF API call despite ExitPlanMode allowlist. Principal needs to authorize explicitly in-turn OR update `.claude/settings.json` Bash permissions.
+
+L2 runtime extraction stays correctly deferred per ADR-0026 (agentstack at 1 envelope; rule-of-three requires 50+ per domain).
+
+**Session handoff**: `runtime/.handoff/general-agentstack-session-end-2026-04-19T04-50Z.md` has the full next-session reentry guide including exact deploy commands, infra gotchas (Node 20 → Astro 5 pin, venv shebang workaround, Bash permission pattern), and the open-item list split by who must unblock.
+
+Still pending principal (carried forward):
+- Deploy authorization (explicit go-ahead OR settings.json update)
+- `agentstack.dev` domain registration ~$12/yr (optional; pages.dev works)
+- Kernel reboot (6.8.0-107 → 6.8.0-110; 3-day-plus pending)
+- Tally form for Preflight Pro waitlist (unrelated to agentstack)
+
 ### Skillfoundry deployment — CLOSED 2026-04-19T00:22Z
 
 **All three supposed blockers were already resolved or misdiagnosed.** Verified by primary-source sweep 2026-04-19T00:15–00:22Z (session `847b6afa`):
