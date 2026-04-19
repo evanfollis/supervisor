@@ -1,0 +1,30 @@
+{
+  "id": "IDEA-0005",
+  "slug": "knowledge-system-physical-home",
+  "title": "Physical home and artifact shape for synaplex.ai knowledge system",
+  "summary": "ADR-0027 names the knowledge system as a load-bearing layer of synaplex.ai — the accumulating body of validated invariants that persists across pod lifecycles, with provenance back to pod evidence and forward pointers to consuming pods/reviews. Physical home is deliberately left open by ADR-0027. Candidates: (a) new artifact type inside projects/context-repository/ (formal, spec-adjacent), (b) top-level directory inside projects/synaplex/ (operational, project-adjacent), (c) hybrid — context-repository hosts formal invariant definitions, synaplex hosts editorially-projected versions + cross-references + review methodologies. Artifact shape likely extends the canon type system (new Invariant type, or projection onto Policy). Requires context-repository adversarial review before any canon spec bump.",
+  "proposer": "executive",
+  "created_at": "2026-04-19T14:10:00Z",
+  "updated_at": "2026-04-19T14:10:00Z",
+  "status": "proposed",
+  "priority": "high",
+  "scope": "architecture",
+  "target_layer": "synaplex",
+  "compoundability": "high",
+  "risk": "medium",
+  "review_after": "2026-05-03",
+  "artifacts": [
+    "/opt/workspace/supervisor/decisions/0027-synaplex-is-the-system.md",
+    "/opt/workspace/projects/context-repository/spec/discovery-framework/canon.md",
+    "/opt/workspace/supervisor/projects/products/synaplex.md"
+  ],
+  "evidence": [
+    "ADR-0027 §Open design questions explicitly defers the physical-home decision pending a design pass.",
+    "Principal articulation (2026-04-19) names 'synaplex.ai's knowledge system' as a durable layer distinct from canon (formal methodology) and publication (communication)."
+  ],
+  "disturbs": [
+    "canon v0.1.0 (frozen) — adding a new type requires a spec bump to v0.2.0+ through the context-repository adversarial-review path"
+  ],
+  "next_step": "Design pass examining the three candidate homes against (a) self-learning feedback loop requirements, (b) pod-graduation persistence, (c) pedagogical projection suitability, (d) strange-loop self-reference (knowledge system contains claims about itself). Produce a short design note + target ADR within two weeks. Do not bump canon spec until the design pass converges; block on context-repository adversarial review before any spec change.",
+  "disposition_rationale": "Deferred from ADR-0027 because the architecture commit does not require this decision. First lab evaluation (memory-systems-v1) can execute and emit canon envelopes under the existing spec; invariants extracted from it can be stored initially inside projects/synaplex/lab/.canon/ and migrated once the design pass completes. Premature commitment to one of the candidates would anchor on the wrong abstraction; creative-pragmatism discipline per ADR-0027 prefers ship-then-shape over over-design."
+}

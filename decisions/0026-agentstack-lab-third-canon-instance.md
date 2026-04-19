@@ -1,9 +1,23 @@
 # ADR-0026: Agentstack as the third canon instance (publication + evaluation lab)
 
 Date: 2026-04-19
-Status: accepted
+Status: superseded-by-0027
 Author: executive, session 847b6afa-1693-46c8-948d-af85a892017a
 References: approved plan `/root/.claude/plans/calm-squishing-peacock.md`
+
+> **SUPERSEDED 2026-04-19 by ADR-0027.** The principal articulated, in a
+> workspace-root session on 2026-04-19, that `synaplex.ai` is not a parent
+> brand over portfolio products but the system itself — a self-evolving
+> feedback system whose public surface is synaplex.ai. The "agentstack as
+> third-instance sub-brand" framing in this ADR is wrong at the architectural
+> level: the lab is not a product alongside atlas and skillfoundry; it is a
+> load-bearing layer **of** synaplex. Work landed under this ADR (canon
+> adapters on atlas + skillfoundry, first lab Claim pre-registration, Astro
+> site scaffold) is preserved as canonical work under ADR-0027. Naming
+> retires: `agentstack` / `agentstack.dev` / `agentstack.pages.dev` are not
+> used; synaplex.ai is the deploy target. See ADR-0027 §Context for the
+> verbatim articulation that forced the supersession.
+
 
 ## Context
 

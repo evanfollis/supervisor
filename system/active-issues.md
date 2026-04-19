@@ -44,24 +44,35 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
   (ADR-0023). Any `mentor` / `recruiter` references elsewhere in this
   file should be treated as historical.
 
-### Agentstack — third canon instance landed, deploy pending principal auth (2026-04-19T04:50Z)
+### synaplex.ai — architecture locked (ADR-0027 proposed 2026-04-19T14:xxZ); deploy pending
 
-Approved plan at `/root/.claude/plans/calm-squishing-peacock.md`; governance ADR-0026. This session (847b6afa) executed Weeks 0–2 of the plan:
+**Supersedes the "agentstack" framing.** In a workspace-root session on 2026-04-19, the principal articulated that synaplex.ai is not a parent brand over portfolio products but **the system itself** — a self-evolving knowledge system with a public face at `synaplex.ai` and an operator face at `command.synaplex.ai`. Atlas and skillfoundry are pods (exploratory probes) with bidirectional obligations to the knowledge system. The lab is a load-bearing layer of synaplex, not a third sibling product. The publication is topology-not-timeline; education is a natural projection surface; strange-loop structure is architectural. See `decisions/0027-synaplex-is-the-system.md` (proposed, adversarial review pending).
 
-- **Canon adapters shipped for atlas + skillfoundry** — atlas has 253 canon envelopes (47+123+82+1) valid under v0.1.0; skillfoundry has 11 (3+3+4+1). Both adapters have test suites (atlas 97/97 passing, skillfoundry 51/51).
-- **First lab Claim pre-registered** for memory-systems-v1 at `agentstack/lab/.canon/claims/b7ff216f4eec6e58.json`. Methodology hash-bound.
-- **Astro site scaffold builds clean** — 6 pages + sitemap at `projects/agentstack/site/dist/`.
-- **Deploy to `agentstack.pages.dev` blocked** — Bash permission guard denied the CF API call despite ExitPlanMode allowlist. Principal needs to authorize explicitly in-turn OR update `.claude/settings.json` Bash permissions.
+**Work preserved from the retired agentstack framing (all landed 2026-04-19):**
+- **Canon adapters on atlas + skillfoundry** — atlas 253 envelopes (47+123+82+1) valid under canon v0.1.0; skillfoundry 11 (3+3+4+1). Tests: atlas 97/97, skillfoundry 51/51.
+- **First lab Claim pre-registered** for memory-systems-v1 at `projects/agentstack/lab/.canon/claims/b7ff216f4eec6e58.json` (path will migrate with the project-dir rename).
+- **Astro site scaffold** builds clean at `projects/agentstack/site/dist/` (6 pages + sitemap). Needs rebrand from agentstack → synaplex and IA reshape away from default-blog toward concept-map topology before V1 deploy.
 
-L2 runtime extraction stays correctly deferred per ADR-0026 (agentstack at 1 envelope; rule-of-three requires 50+ per domain).
+**Retired in ADR-0027:**
+- `agentstack` as a brand name (any external reference retires).
+- `agentstack.dev` / `agentstack.pages.dev` as deploy targets.
+- `projects/agentstack/` directory name (rename to `projects/synaplex/` pending; handoff written to project PM).
+- `supervisor/projects/products/agentstack.md` shaping file (superseded by `products/synaplex.md`; old file archived as `.superseded`).
+- `handoff/synaplex-*.md` naming convention (formerly `agentstack-*`).
 
-**Session handoff**: `runtime/.handoff/general-agentstack-session-end-2026-04-19T04-50Z.md` has the full next-session reentry guide including exact deploy commands, infra gotchas (Node 20 → Astro 5 pin, venv shebang workaround, Bash permission pattern), and the open-item list split by who must unblock.
+**Open in the synaplex architecture (ADR-0027 §Open design questions):**
+1. Knowledge system physical home (IDEA-0004 to be created).
+2. Site IA beyond "not default-blog" — minimum-viable topology shape for V1.
+3. First publication piece editorial voice.
+4. Education surface shape.
+5. Review methodologies as first-class canon artifacts (requires context-repository adversarial review before spec bump).
 
-Still pending principal (carried forward):
-- Deploy authorization (explicit go-ahead OR settings.json update)
-- `agentstack.dev` domain registration ~$12/yr (optional; pages.dev works)
-- Kernel reboot (6.8.0-107 → 6.8.0-110; 3-day-plus pending)
-- Tally form for Preflight Pro waitlist (unrelated to agentstack)
+**Still pending principal (carried forward, reframed):**
+- Deploy authorization for `synaplex.ai` (V1 to CF Pages; reversible).
+- Kernel reboot (6.8.0-107 → 6.8.0-110; 3-day-plus pending; unchanged).
+- Tally form for Preflight Pro waitlist (unchanged; unrelated to synaplex).
+
+**Adversarial review owed**: ADR-0027 is `proposed`, not `accepted`. Must route through `supervisor/scripts/lib/adversarial-review.sh` before status transition.
 
 ### Skillfoundry deployment — CLOSED 2026-04-19T00:22Z
 
