@@ -44,26 +44,19 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
   (ADR-0023). Any `mentor` / `recruiter` references elsewhere in this
   file should be treated as historical.
 
-### Skillfoundry deployment — decisions captured 2026-04-18, token rotation in flight
+### Skillfoundry deployment — CLOSED 2026-04-19T00:22Z
 
-**Decisions recorded** (ADR-0024, captured from principal paste at 2026-04-18T12:32:24Z that was dropped by the receiving session):
-- LCI intake stack: **Tally form + $99 price + Cloudflare Pages hosting**
-- Blog publishing host: **Cloudflare Pages** (Medium no longer issues tokens)
+**All three supposed blockers were already resolved or misdiagnosed.** Verified by primary-source sweep 2026-04-19T00:15–00:22Z (session `847b6afa`):
 
-**Credential state:**
-- **Cloudflare API token** — principal pasted `cfut_cAt4F3J…9994b` at 12:32Z into session `40788ae9`. Token is **burned**: it sat plaintext in `/root/.claude/projects/-opt-workspace/40788ae9-*.jsonl` for 11h+ and is readable by every session and reflection job on this host. Rotation handoff routed to principal 2026-04-18T23:~15Z. Awaiting: principal revokes at CF dashboard and writes new token to `/opt/workspace/runtime/.secrets/cloudflare_api_token` (0600, gitignored). Do NOT install wrangler or deploy with the compromised token.
-- **Watcher IGNORE_RE restart** — done. `preflight-watcher.service` active since 2026-04-18T12:21:37Z (10h+ uptime).
+- **Blog**: `skillfoundry-blog.pages.dev/` = 200. Already deployed via CF Pages 2026-04-18T12:43Z (commit `6d4b9d9`). Three posts live.
+- **LCI landing**: `lci.pages.dev/` = 200. Already deployed in the same commit. **Only remaining input**: your Tally form embed ID (you decided Tally/$99/CF Pages per ADR-0024; need the form itself created so we can swap the embed placeholder).
+- **Preflight landing + sourceType**: was the only real gap. `dist/serve.js` on Hetzner was built 2026-04-17T09:16Z, **before** the sourceType commit (`4907d26`, 16:47Z) and SEO landing commit (`8e9bf50`, 20:51Z). Rebuilt dist + `systemctl restart preflight.service` at 2026-04-19T00:22Z. Verified: landing HTML now served with `<title>`/schema.org block, MCP endpoint returns 200, `dist/index.js` contains 3 sourceType references. This was a **Hetzner build+restart**, never a `wrangler deploy` — the active-issues line that said otherwise was tick-generated drift.
 
-**Deploy work still blocked on the rotated token:**
-- Preflight landing page + sourceType deploy (`wrangler deploy` from `skillfoundry-products/products/preflight/`).
-- LCI intake deploy (Tally embed → CF Pages).
-- Blog publishing (3 probe posts → CF Pages).
+**CF token**: principal decided 2026-04-19T~00:15Z to keep the existing `cfut_cAt4F3J…` token rather than rotate. Recorded. Token is at `/opt/workspace/runtime/.secrets/cloudflare_api_token` (0600). URGENT rotation handoff archived.
 
-**Launchpad-lint deploy state — two live targets, both real:**
-- **Hetzner**: `https://skillfoundry.synaplex.ai/products/launchpad-lint/`, `launchpad-lint.service` uvicorn :8010 behind CF tunnel. Canonical per `deploy/REMOTE_DEPLOY.md`.
-- **agenticmarket (Render)**: principal confirmed 2026-04-18T12:47Z "I already have launchpad-lint on agenticmarket". This is a **paid Render account** provisioned last week to reach the MCP marketplace audience. The earlier tick-generated line calling `render.yaml` a "portability artifact, not the active deploy" was wrong — the Render deploy is live on agenticmarket and serves a different audience than the Hetzner target.
+**launchpad-lint**: two live targets, both real (Hetzner + agenticmarket/Render). See `paid-services.md`.
 
-Code is landed and tested. See: `runtime/.handoff/general-skillfoundry-agentic-inbound-credential-escalation-2026-04-17T20-38Z.md` (consumed 2026-04-17T22-48-12Z), ADR-0024 (decisions), FR-0032 (principal-input capture failure).
+All code landed. See ADR-0024 (decisions), FR-0032 (principal-input capture failure class), `system/verified-state.md` (primary-source snapshot).
 
 ### Aged tick branches and push backlog — CLOSED 2026-04-18 attended
 

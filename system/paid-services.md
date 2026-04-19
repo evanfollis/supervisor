@@ -33,9 +33,12 @@ it's current-state, not a historical choice.
   (planned) Cloudflare Pages hosting for preflight landing + blog + LCI
   intake embed (per ADR-0024).
 - API token: `/opt/workspace/runtime/.secrets/cloudflare_api_token`
-  (0600, gitignored). **Currently being rotated** — the token pasted in chat
-  2026-04-18T12:32Z was burned by plaintext-transcript exposure; principal is
-  revoking and re-issuing. Do not use the old `cfut_cAt4F3J…9994b` token.
+  (0600, gitignored). Principal decided 2026-04-19T~00:15Z to keep the
+  existing `cfut_cAt4F3J…` token rather than rotate (risk accepted:
+  the token sat plaintext in JSONL transcripts). Future sessions: **do not
+  re-propose rotation**; principal has already weighed and declined. If you
+  think rotation is again warranted, surface evidence of actual misuse, not
+  the historical exposure.
 - Billed: pay-as-you-go (DNS is free; domain registration and Pages are paid).
 
 ### Namecheap — legacy domain registrar (migrating out)
