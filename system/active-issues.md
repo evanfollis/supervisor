@@ -2,13 +2,6 @@
 
 ## Immediate
 
-### Kernel reboot needed — kernel 6.8.0-110 pending activation
-
-- Nightly maintenance (2026-04-18T01:24Z) reports a new kernel (6.8.0-110) installed but not yet booted.
-- **Action**: Schedule one planned reboot during next maintenance window.
-- Maintenance report: `/opt/workspace/runtime/.meta/server-maintenance-2026-04-18T01-24-45Z.md`
-- Source: `runtime/.handoff/general-server-maintenance-2026-04-18T01-24-45Z.md` (consumed 2026-04-18T02:49Z)
-
 ### Context-repository mechanics — M4 + M5 SHIPPED 2026-04-18 attended (ADR-0021 accepted, ADR-0022 accepted)
 
 **M4 (session-start context auto-load)** shipped 2026-04-18 attended.
@@ -44,7 +37,7 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
   (ADR-0023). Any `mentor` / `recruiter` references elsewhere in this
   file should be treated as historical.
 
-### synaplex.ai — architecture locked (ADR-0027 proposed 2026-04-19T14:xxZ); deploy pending
+### synaplex.ai — architecture accepted (ADR-0027 accepted 2026-04-20); deploy pending
 
 **Supersedes the "agentstack" framing.** In a workspace-root session on 2026-04-19, the principal articulated that synaplex.ai is not a parent brand over portfolio products but **the system itself** — a self-evolving knowledge system with a public face at `synaplex.ai` and an operator face at `command.synaplex.ai`. Atlas and skillfoundry are pods (exploratory probes) with bidirectional obligations to the knowledge system. The lab is a load-bearing layer of synaplex, not a third sibling product. The publication is topology-not-timeline; education is a natural projection surface; strange-loop structure is architectural. See `decisions/0027-synaplex-is-the-system.md` (proposed, adversarial review pending).
 
@@ -72,7 +65,7 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
 - Kernel reboot (6.8.0-107 → 6.8.0-110; 3-day-plus pending; unchanged).
 - Tally form for Preflight Pro waitlist (unchanged; unrelated to synaplex).
 
-**Adversarial review owed**: ADR-0027 is `proposed`, not `accepted`. Must route through `supervisor/scripts/lib/adversarial-review.sh` before status transition.
+**Adversarial review complete**: Codex review artifact at `.reviews/adr-0027-2026-04-19T15-42Z.md`. Status promoted `proposed → accepted` 2026-04-20T12:xxZ.
 
 ### Skillfoundry deployment — CLOSED 2026-04-19T00:22Z
 

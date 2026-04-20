@@ -1,7 +1,9 @@
 # ADR-0027: synaplex.ai is the system
 
 Date: 2026-04-19
-Status: proposed
+Status: accepted
+Accepted: 2026-04-20
+Review: .reviews/adr-0027-2026-04-19T15-42Z.md
 Supersedes: ADR-0026
 Author: executive, workspace-root session 2026-04-19T14:xxZ
 References: ADR-0026 (superseded), ADR-0023 (project tier model)
