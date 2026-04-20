@@ -2,15 +2,18 @@
 
 ## Immediate
 
-### URGENT routing dead-letter bug — FR-0033 (fix requires attended scripts/lib/ edit)
+### URGENT routing dead-letter bug — FR-0033 + second-order dispatch overcapture FR-0034 (fix requires attended scripts/lib/ edit)
 
-`dispatch-handoffs.sh` silently marks `URGENT-*`-prefixed files as dispatched without delivering them, because no session name starts with `URGENT-`. 5 URGENT files were dead-lettered for 1–26h before the 2026-04-20T16:49Z tick re-routed them via properly-named copies. Executive reentry step 8 also only reads `general-*` globs — URGENTs are invisible there too.
+`dispatch-handoffs.sh` silently marks `URGENT-*`-prefixed files as dispatched without delivering them (FR-0033). The tick workaround of creating `<project>-urgent-*.md` copies introduced a second-order bug: `skillfoundry-valuation-*` handoffs are consumed by the harness session (named `skillfoundry`) because no `skillfoundry-valuation` session exists in `sessions.conf` (FR-0034).
+
+**Current state** (tick 2026-04-20T18:49Z): valuation carry-forward work (2 items, 3+ cycles) is still unactioned. INBOX escalation filed at `handoffs/INBOX/URGENT-skillfoundry-valuation-no-session-2026-04-20T18-49Z.md`.
 
 **Fix options** (both require attended `scripts/lib/` edit):
 1. `dispatch-handoffs.sh`: strip `URGENT-` prefix, extract project token, route to that session.
 2. Add `runtime/.handoff/URGENT-*` to executive reentry step 8 glob (simpler).
+3. Register a `skillfoundry-valuation` session in `sessions.conf` (fixes FR-0034 independently).
 
-See `friction/FR-0033-urgent-handoff-routing-dead-letter.md`. Workaround applied: tick now creates `<project>-urgent-*.md` copies when re-routing.
+See `friction/FR-0033-urgent-handoff-routing-dead-letter.md` and `friction/FR-0034-skillfoundry-dispatch-glob-overcapture.md`.
 
 ### Adversarial review owed on tick-fix commit 5618ef1
 
@@ -18,9 +21,9 @@ See `friction/FR-0033-urgent-handoff-routing-dead-letter.md`. Workaround applied
 - Run: `supervisor/scripts/lib/adversarial-review.sh 5618ef1` (Codex, read-only sandbox)
 - Non-blocking for daily operation; review is owed before next attended structural change.
 
-### ADR-0028 (command artifact inbox contract) — review required before accepting
+### ADR-0028 (command artifact inbox contract) — ready to accept
 
-Command PM self-marked `accepted` without adversarial review. Demoted to `proposed` (commit c894b40). Run `supervisor/scripts/lib/adversarial-review.sh` against `decisions/0028-*.md` before promoting to `accepted`.
+Review complete: `.reviews/4b5261c-artifacts-review-2026-04-20T16-49Z.md` (committed `8e63f97` by command PM; confirmed in command tick handoff 2026-04-20T16:47Z). No blocking findings. Attended session must flip `Status: proposed → accepted` in `supervisor/decisions/0028-command-artifact-inbox-read-contract.md` and add review artifact reference.
 
 ### Synaplex V1 rebrand + deploy — awaiting attended implementation session
 
@@ -206,6 +209,10 @@ Both items resolved:
   lane.
 - See friction record:
   `/opt/workspace/supervisor/friction/FR-0018-executive-relapsed-into-project-implementation.md`
+
+### CURRENT_STATE.md auto-commit in reflect.sh — Proposal 2, cross-cutting-2026-04-20T15-28-05Z (2nd cycle)
+
+`reflect.sh` updates `CURRENT_STATE.md` but cannot commit (--disallowedTools). Files sit as unstaged working-tree changes for 24–48h until an attended session commits them or `git checkout` discards them. Causes stale in-repo CURRENT_STATE content (verified: atlas reflection documented already-pushed branch as "2 ahead"). Fix: post-session `git add CURRENT_STATE.md && git commit` in `reflect.sh` (one-file scope; within supervisor authority). Requires attended `scripts/lib/` edit. See cross-cutting-2026-04-20T15-28-05Z Proposal 2.
 
 ### Synthesis proposals (cross-cutting-2026-04-18T15-26Z) — pending acceptance
 

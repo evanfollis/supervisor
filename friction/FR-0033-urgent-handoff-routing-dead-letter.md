@@ -1,7 +1,7 @@
 ---
 id: FR-0033
 title: URGENT-prefixed handoffs silently dead-lettered by dispatch-handoffs.sh
-status: Open
+Status: open
 opened: 2026-04-20T16:49Z
 source: synthesis cross-cutting-2026-04-20T15-28-05Z (Pattern #1)
 ---
