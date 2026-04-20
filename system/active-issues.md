@@ -2,7 +2,31 @@
 
 ## Immediate
 
-### Context-repository mechanics — M4 + M5 SHIPPED 2026-04-18 attended (ADR-0021 accepted, ADR-0022 accepted)
+### URGENT routing dead-letter bug — FR-0033 (fix requires attended scripts/lib/ edit)
+
+`dispatch-handoffs.sh` silently marks `URGENT-*`-prefixed files as dispatched without delivering them, because no session name starts with `URGENT-`. 5 URGENT files were dead-lettered for 1–26h before the 2026-04-20T16:49Z tick re-routed them via properly-named copies. Executive reentry step 8 also only reads `general-*` globs — URGENTs are invisible there too.
+
+**Fix options** (both require attended `scripts/lib/` edit):
+1. `dispatch-handoffs.sh`: strip `URGENT-` prefix, extract project token, route to that session.
+2. Add `runtime/.handoff/URGENT-*` to executive reentry step 8 glob (simpler).
+
+See `friction/FR-0033-urgent-handoff-routing-dead-letter.md`. Workaround applied: tick now creates `<project>-urgent-*.md` copies when re-routing.
+
+### Adversarial review owed on tick-fix commit 5618ef1
+
+`5618ef1` (supervisor tick reorder + reflect.sh CURRENT_STATE auto-commit, 2026-04-20) has not been adversarially reviewed. Per charter, code-touching supervisor commits need review.
+- Run: `supervisor/scripts/lib/adversarial-review.sh 5618ef1` (Codex, read-only sandbox)
+- Non-blocking for daily operation; review is owed before next attended structural change.
+
+### ADR-0028 (command artifact inbox contract) — review required before accepting
+
+Command PM self-marked `accepted` without adversarial review. Demoted to `proposed` (commit c894b40). Run `supervisor/scripts/lib/adversarial-review.sh` against `decisions/0028-*.md` before promoting to `accepted`.
+
+### Synaplex V1 rebrand + deploy — awaiting attended implementation session
+
+ADR-0027 accepted. Principal authorized V1 CF Pages deploy. Full spec at `runtime/.handoff/general-synaplex-rebrand-deploy-prep-2026-04-20T13-15Z.md`. Work is project-code territory — delegate to feature session or attended pass. Not blocking.
+
+### Context-repository mechanics — M4 + M5 SHIPPED 2026-04-18 attended (ADR-0021 accepted, ADR-0022 accepted) — M4 + M5 SHIPPED 2026-04-18 attended (ADR-0021 accepted, ADR-0022 accepted)
 
 **M4 (session-start context auto-load)** shipped 2026-04-18 attended.
 `/root/.claude/hooks/session-start-context-load.sh` reads `$CWD/CLAUDE.md`
