@@ -6,7 +6,7 @@
 
 `dispatch-handoffs.sh` silently marks `URGENT-*`-prefixed files as dispatched without delivering them (FR-0033). The tick workaround of creating `<project>-urgent-*.md` copies introduced a second-order bug: `skillfoundry-valuation-*` handoffs are consumed by the harness session (named `skillfoundry`) because no `skillfoundry-valuation` session exists in `sessions.conf` (FR-0034).
 
-**Current state** (tick 2026-04-20T18:49Z): valuation carry-forward work (2 items, 3+ cycles) is still unactioned. INBOX escalation filed at `handoffs/INBOX/URGENT-skillfoundry-valuation-no-session-2026-04-20T18-49Z.md`.
+**Current state** (tick 2026-04-20T22:49Z): valuation carry-forward work (2 items, 3+ cycles) still unactioned. INBOX escalation remains at `handoffs/INBOX/URGENT-skillfoundry-valuation-no-session-2026-04-20T18-49Z.md`. Harness-specific items (pyproject.toml, push, /review) routed to `runtime/.handoff/skillfoundry-harness-pyproject-push-review-2026-04-20T22-49Z.md`. Valuation items require attended session (Option A: open valuation session; Option B: register session in sessions.conf).
 
 **Fix options** (both require attended `scripts/lib/` edit):
 1. `dispatch-handoffs.sh`: strip `URGENT-` prefix, extract project token, route to that session.
@@ -210,6 +210,15 @@ Both items resolved:
 - See friction record:
   `/opt/workspace/supervisor/friction/FR-0018-executive-relapsed-into-project-implementation.md`
 
+### New FRs from tick 2026-04-20T22-49Z (FR-0035 through FR-0038)
+
+- **FR-0035** (resolved): `verify-state.sh` ordering caused tick self-blocking. Fixed in `5618ef1`. Filed + closed.
+- **FR-0036** (open): INBOX circular dependency — tick generates INBOX entries when blocked but no external escalation path exists. Principal cannot be reached when workspace is unattended. Fix: outbound notification on URGENT INBOX file creation.
+- **FR-0037** (open): FR candidates in reflections never promote to FR files without attended action. Proposed fix: add FR-candidate promotion step to tick prompt (already Tier A).
+- **FR-0038** (open): CURRENT_STATE.md uncommitted after reflection — same root cause as Proposal 2. FR captures the class-level record; Proposal 2 is the fix spec.
+
+All four FRs filed at `supervisor/friction/FR-003{5,6,7,8}-*.md`. FR-0035 is closed (mitigated). FR-0036/37/38 require attended `scripts/lib/` edit.
+
 ### CURRENT_STATE.md auto-commit in reflect.sh — Proposal 2, cross-cutting-2026-04-20T15-28-05Z (2nd cycle)
 
 `reflect.sh` updates `CURRENT_STATE.md` but cannot commit (--disallowedTools). Files sit as unstaged working-tree changes for 24–48h until an attended session commits them or `git checkout` discards them. Causes stale in-repo CURRENT_STATE content (verified: atlas reflection documented already-pushed branch as "2 ahead"). Fix: post-session `git add CURRENT_STATE.md && git commit` in `reflect.sh` (one-file scope; within supervisor authority). Requires attended `scripts/lib/` edit. See cross-cutting-2026-04-20T15-28-05Z Proposal 2.
@@ -223,6 +232,14 @@ Three proposals from the 15:26Z synthesis await principal decision:
 - **P3 — ADR acceptance gate**: supervisor-tick.sh check — when an ADR lands at `Status: accepted` in the last 48h git log, verify a `.reviews/adr-<NNNN>-*.md` exists; warn to active-issues if absent. Requires `scripts/lib/` edit (attended session).
 
 All three are Tier-B drafts; tick cannot accept or implement.
+
+### Reflect carry-forward self-verification gate — Proposal 4, cross-cutting-2026-04-20T15-28-05Z (4th cycle)
+
+Add to both `reflect-prompt.md` and `reflect-supervisor-prompt.md`: before re-filing any observation from a prior reflection, verify the claim is still present (read the named file, check the named line, grep for the missing rule). File as "RESOLVED (verified this pass)" with evidence if fixed.
+
+**Why this matters**: command project's self-correction on `check-patterns.ts` showed this works; formalizing prevents false carry-forwards. Atlas reflection does this informally already. Formalizing makes it systematic across all 7 projects.
+
+Requires attended `scripts/lib/` edit (playbook change or INBOX proposal). 4th synthesis cycle without action.
 
 ### Aged tick branches — attended merge needed
 
