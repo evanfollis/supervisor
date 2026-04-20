@@ -26,10 +26,6 @@ REPORT="$WORKSPACE_META_DIR/supervisor-tick-${ISO_NOW}.md"
 EVENT_FILE="$WORKSPACE_SUPERVISOR_EVENTS_FILE"
 mkdir -p "$LOCK_DIR" "$WORKSPACE_META_DIR" "$(dirname "$EVENT_FILE")"
 
-# Refresh verified-state.md so the tick reasons from current host reality,
-# not a stale snapshot. Best-effort; never blocks the tick.
-"$LIB_DIR/verify-state.sh" >/dev/null 2>&1 || true
-
 emit_event() {
   local type="$1" note="$2" ref="${3:-$REPORT}"
   printf '{"ts":"%s","agent":"%s","type":"%s","ref":"%s","note":"%s"}\n' \
@@ -144,6 +140,12 @@ if [[ -n "$PRE_SUP_DIRTY" ]]; then
 fi
 
 PRE_SUP_BRANCH=$(git -C "$SUP" symbolic-ref --short HEAD 2>/dev/null || echo detached)
+
+# Refresh verified-state.md so the tick reasons from current host reality,
+# not a stale snapshot. Safe to run only AFTER the dirty-tree gate above:
+# verify-state.sh writes system/verified-state.md, which would otherwise
+# make the tick fail its own dirty-tree check (FR-0038). Best-effort.
+"$LIB_DIR/verify-state.sh" >/dev/null 2>&1 || true
 
 # Snapshot project HEADs (never-write boundary for Tier C).
 PROJECT_HEAD_SNAPSHOT=""
