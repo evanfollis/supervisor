@@ -28,7 +28,9 @@ touch "$DISPATCHED_FILE"
 # Known PM sessions. Handoffs addressed to "general" are completion reports
 # flowing UP to the executive; the executive reads its own INBOX on reentry,
 # so no tmux nudge is needed.
-KNOWN_SESSIONS=(mentor skillfoundry recruiter context-repo command atlas)
+# synaplex added 2026-04-23 per ADR-0029 (session registration pending sessions.conf).
+# mentor/recruiter retained for backward compat with stale handoffs; repos removed 2026-04-18.
+KNOWN_SESSIONS=(mentor skillfoundry recruiter context-repo command atlas synaplex)
 
 emit_event() {
   local event_type="$1"
@@ -52,6 +54,12 @@ mark_dispatched() {
 target_session_for() {
   local filename="$1"
   local stem="${filename%.md}"
+  # Strip URGENT- prefix so urgencies route to the named session instead of
+  # landing in the unmatched bucket. Pre-2026-04-23 behavior: URGENT-* files
+  # failed to match any session prefix and sat undispatched indefinitely
+  # (5-cycle synthesis carry-forward; e.g. URGENT-skillfoundry-valuation-*
+  # sat 72h+ while the valuation deadline approached).
+  stem="${stem#URGENT-}"
   local best=""
   for sess in "${KNOWN_SESSIONS[@]}"; do
     if [[ "$stem" == "${sess}-"* ]]; then
