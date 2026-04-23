@@ -341,7 +341,8 @@ At the start of every workspace-root executive session, do this (in order):
 6. Check `/opt/workspace/runtime/.meta/LATEST_IDEA_FOCUS` — read the pointed-to idea-focus file if present.
 7. Check `/opt/workspace/runtime/.health-status.txt` for the latest host snapshot.
 8. List handoffs addressed to `general`: `ls /opt/workspace/runtime/.handoff/general-* 2>/dev/null`.
-9. Skim the last three entries in `decisions/` — these shape what you should and shouldn't touch.
+9. List project-level URGENTs in `runtime/.handoff/`: `ls /opt/workspace/runtime/.handoff/URGENT-* 2>/dev/null`. Project sessions write these when a project-specific urgency needs the executive's attention (e.g. deadline edits on an orphan project without `sessions.conf` registration). Act on them before routine reentry work.
+10. Skim the last three entries in `decisions/` — these shape what you should and shouldn't touch.
 
 Do not treat `ideas/`, `docs/`, `playbooks/`, transcript stores, or telemetry
 logs as default session-start reading. Open them only when the current-state
