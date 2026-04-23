@@ -1,8 +1,10 @@
 # ADR-0029: The synaplex loop — five-layer operational pipeline
 
 Date: 2026-04-23
-Status: proposed
+Status: accepted
+Accepted: 2026-04-23
 Author: executive, workspace-root session 2026-04-23
+Review: supervisor/.reviews/adr-0029-synaplex-loop-2026-04-23T17-27Z.md (Codex gpt-5.4, reasoning=high; 3 findings; all addressed in §Adversarial review response below)
 References: ADR-0027 (synaplex is the system), ADR-0026 (superseded by ADR-0027), ADR-0013 (self-reflection first class), ADR-0020 (action-default contract)
 
 ## Context
@@ -187,6 +189,45 @@ from `proposed` to `accepted`.
 Target artifact: `.reviews/adr-0029-<iso>.md`.
 
 Review scope: pressure-test (a) the five-layer decomposition (is the boundary between reasoning and validation load-bearing or arbitrary?); (b) the woven-validation claim (is this actually different from "validate at each step" or just rebranding?); (c) the friction-unification claim (do research and infra frictions actually share enough structure to be captured the same way?); (d) the cost envelope (are the per-beat reasoning costs realistic at scale?); (e) the dispatch obligation (does 24h create enough pressure without crowding out thoughtful deferral?); (f) whether this ADR's amendments to `/opt/workspace/CLAUDE.md` should have preceded this ADR or correctly follow it.
+
+## Adversarial review response (2026-04-23T17:27Z)
+
+Review artifact: `supervisor/.reviews/adr-0029-synaplex-loop-2026-04-23T17-27Z.md` (Codex gpt-5.4, reasoning=high, 91.4k tokens, read-only sandbox).
+
+Three findings, each addressed with a concrete operational control that becomes a required feature of the Layer 1/2 build rather than an open question:
+
+### Response to Finding 1 — "hallucination amplifier" risk from intake→reasoning producing low-quality candidates at scale
+
+**Operational controls:**
+
+- **Per-source trust tracking.** Each intake source accumulates a 14-day rolling `promotion_rate` (ratio of that source's scored items that produced an eventually-promoted Claim). Sources with <5% promotion rate over a rolling window enter a reduced-weight state; <2% triggers auto-pause and friction-escalation for principal review.
+- **Scoring-accuracy tracking.** If a per-beat Sonnet scorer's items fail downstream validation (Layer 3) at >30% over 7 days, the scorer config is auto-paused and the failure emits an FR candidate. The scoring prompt is treated as a reviewable artifact in `projects/synaplex/reasoning/` (under version control), not a runtime-tunable opaque config.
+- **Reasoning-layer sanity floor.** Layer 2 MUST emit a brief justification per candidate envelope (≤2 sentences in the envelope's `reasoning_note` field) tying it to at least one specific intake item. Candidates without justifications are rejected at write-time. This prevents "Sonnet generated a plausible-sounding claim with no source grounding" — a known failure mode of LLM pipelines at scale.
+- **Explicit low-volume bootstrap.** First 4 weeks of operation run at a throttled cap: max 5 candidates/beat/day into `.canon/candidates/`. The cap lifts only after the first full synthesis cycle demonstrates the validation layer is keeping up. This forces the failure mode to surface before it has scale to hide in.
+
+### Response to Finding 2 — backlog poisoning / stale-candidate accumulation
+
+**Operational controls:**
+
+- **Candidate TTL.** Every candidate envelope carries `expires_at` = creation_time + 30 days. A nightly integrity job moves expired candidates to `.canon/candidates/expired/` with a retention log. Expired candidates are not loaded by any downstream layer.
+- **Quarantine path.** Candidates that fail any validation step (Layer 3) are moved to `.canon/candidates/quarantine/` with a reason code, not silently dropped. The quarantine is inspectable but not consumed by default.
+- **Ownership.** The nightly integrity job is owned by the synaplex project session and reports via `runtime/friction/events.jsonl`. If the integrity job fails or skips, that is itself a friction event that synthesis will surface on the 3rd occurrence.
+- **Rate limits enforced at write-time.** Layer 1 raw-intake capped at 200 items/source/day; Layer 2 reasoning capped at the bootstrap level above, then 10 candidates/beat/day after the 4-week bootstrap. Rate-limit breaches produce friction events and throttle the offending layer.
+
+### Response to Finding 3 — Reasoning/Validation boundary collapse
+
+**Accepted with explicit boundary semantics:**
+
+- **Layer 2 MAY perform lightweight validation** (schema, referential integrity, deduplication against existing canon, basic sanity). This is not a boundary violation; it is basic hygiene every layer is expected to do.
+- **Layer 3 is the *canonical pressure surface* for claim promotion.** Adversarial review, counter-search, and integrity enforcement are its authoritative scope. Claims are not promoted to canon until they pass Layer 3.
+- **The distinction is amplitude, not kind.** Layer 2 validates enough to avoid emitting obvious junk; Layer 3 applies the pressure that gates promotion. Both touch validation-shaped work; only Layer 3 makes the promotion decision.
+- **Explicit supersession clause.** If the boundary fully erodes in practice (Layer 2 becomes a mini-Layer 3 in realized code), that is a signal to collapse them into a single layer in a future ADR, **not** to force the five-layer shape as a rule. The five-layer decomposition is a conjecture about legibility; its correctness is validated by its durability under real use, not its theoretical purity. ADR supersession is the correct response if the boundary proves unstable.
+
+### Status transition rationale
+
+The review verdict was "directionally strong but not yet safe to accept as-is" with the three findings as the specific gaps. Each finding is now addressed with a concrete operational control that becomes a required feature of the Layer 1/2 build (not an afterthought). The synaplex session's Layer 1/2 handoff is augmented to name these controls as acceptance criteria. Accepting this ADR with these responses in place is materially different from accepting the ADR the review critiqued.
+
+If Layer 1/2 implementation surfaces that any of these controls is wrong-shaped or unimplementable as specified, the correct response is a follow-on ADR refining them — the ADR remains in the conjecture/criticism loop per Invariant 5.
 
 ## Provenance
 
