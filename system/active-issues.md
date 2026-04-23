@@ -70,13 +70,13 @@ phase 2 (writer/retriever) is deferred pending C1/C2/C3 resolution. See
 
 **Work preserved from the retired agentstack framing (all landed 2026-04-19):**
 - **Canon adapters on atlas + skillfoundry** — atlas 253 envelopes (47+123+82+1) valid under canon v0.1.0; skillfoundry 11 (3+3+4+1). Tests: atlas 97/97, skillfoundry 51/51.
-- **First lab Claim pre-registered** for memory-systems-v1 at `projects/agentstack/lab/.canon/claims/b7ff216f4eec6e58.json` (path will migrate with the project-dir rename).
-- **Astro site scaffold** builds clean at `projects/agentstack/site/dist/` (6 pages + sitemap). Needs rebrand from agentstack → synaplex and IA reshape away from default-blog toward concept-map topology before V1 deploy.
+- **First lab Claim pre-registered** for memory-systems-v1 at `projects/synaplex/lab/.canon/claims/b7ff216f4eec6e58.json` (path moved from `projects/agentstack/` at 2026-04-23T17Z).
+- **Astro site scaffold** builds clean at `projects/synaplex/site/dist/` (6 pages + sitemap). In-project rebrand (CLAUDE.md, CURRENT_STATE.md, site MDX copy) dispatched as synaplex session handoff; IA reshape away from default-blog toward concept-map topology before V1 deploy.
 
-**Retired in ADR-0027:**
+**Retired in ADR-0027 (directory rename landed 2026-04-23):**
 - `agentstack` as a brand name (any external reference retires).
 - `agentstack.dev` / `agentstack.pages.dev` as deploy targets.
-- `projects/agentstack/` directory name (rename to `projects/synaplex/` pending; handoff written to project PM).
+- `projects/agentstack/` directory name (renamed to `projects/synaplex/` on 2026-04-23; git history preserved, sessions.conf + projects.conf updated).
 - `supervisor/projects/products/agentstack.md` shaping file (superseded by `products/synaplex.md`; old file archived as `.superseded`).
 - `handoff/synaplex-*.md` naming convention (formerly `agentstack-*`).
 
