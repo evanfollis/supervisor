@@ -1,0 +1,12 @@
+[Unit]
+Description=Run synaplex integrity job daily at 04:37 UTC
+Requires=synaplex-integrity.service
+
+[Timer]
+OnCalendar=*-*-* 04:37:00
+RandomizedDelaySec=180
+Persistent=true
+Unit=synaplex-integrity.service
+
+[Install]
+WantedBy=timers.target

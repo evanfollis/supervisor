@@ -1,0 +1,18 @@
+[Unit]
+Description=synaplex nightly integrity job (candidate TTL sweep, trust scores, quarantine audit)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/workspace/projects/synaplex
+Environment=PATH=/opt/workspace/projects/synaplex/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=-/opt/workspace/runtime/.secrets/synaplex.env
+ExecStart=/opt/workspace/projects/synaplex/.venv/bin/python -m integrity
+Nice=10
+TimeoutStartSec=10min
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
