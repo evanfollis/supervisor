@@ -30,7 +30,7 @@ touch "$DISPATCHED_FILE"
 # so no tmux nudge is needed.
 # synaplex added 2026-04-23 per ADR-0029 (session registration pending sessions.conf).
 # mentor/recruiter retained for backward compat with stale handoffs; repos removed 2026-04-18.
-KNOWN_SESSIONS=(mentor skillfoundry recruiter context-repo command atlas synaplex)
+KNOWN_SESSIONS=(mentor skillfoundry recruiter context-repo command atlas synaplex general-codex)
 
 emit_event() {
   local event_type="$1"
