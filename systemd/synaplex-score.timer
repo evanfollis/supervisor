@@ -1,0 +1,12 @@
+[Unit]
+Description=Run synaplex scoring hourly for the agent-platforms beat
+Requires=synaplex-score.service
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=120
+Persistent=true
+Unit=synaplex-score.service
+
+[Install]
+WantedBy=timers.target

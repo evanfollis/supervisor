@@ -1,0 +1,18 @@
+[Unit]
+Description=synaplex Layer 1 intake — per-beat scoring (agent-platforms)
+After=network-online.target synaplex-intake.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/workspace/projects/synaplex
+Environment=PATH=/opt/workspace/projects/synaplex/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EnvironmentFile=-/opt/workspace/runtime/.secrets/synaplex.env
+ExecStart=/opt/workspace/projects/synaplex/.venv/bin/python -m intake score --beat agent-platforms
+Nice=5
+TimeoutStartSec=20min
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

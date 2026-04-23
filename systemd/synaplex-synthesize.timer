@@ -1,0 +1,12 @@
+[Unit]
+Description=Run synaplex weekly synthesis Sunday 04:07 UTC for agent-platforms
+Requires=synaplex-synthesize.service
+
+[Timer]
+OnCalendar=Sun *-*-* 04:07:00
+RandomizedDelaySec=300
+Persistent=true
+Unit=synaplex-synthesize.service
+
+[Install]
+WantedBy=timers.target

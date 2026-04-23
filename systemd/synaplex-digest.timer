@@ -1,0 +1,12 @@
+[Unit]
+Description=Run synaplex daily digest for agent-platforms at 06:57 UTC
+Requires=synaplex-digest.service
+
+[Timer]
+OnCalendar=*-*-* 06:57:00
+RandomizedDelaySec=180
+Persistent=true
+Unit=synaplex-digest.service
+
+[Install]
+WantedBy=timers.target
