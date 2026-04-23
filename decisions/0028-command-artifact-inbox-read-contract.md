@@ -1,12 +1,10 @@
 # ADR-0028: Command artifact inbox — read-only, code-path-only allowlist
 
 Date: 2026-04-20
-Status: proposed
+Status: accepted
+Accepted: 2026-04-23
 Author: command session (claude), acting on principal approval 2026-04-20T15:xxZ
-Note: status demoted `accepted → proposed` 2026-04-20T16:xxZ by general
-session — adversarial review not yet run; command PM session is not the
-acceptance authority per charter. Route through
-`supervisor/scripts/lib/adversarial-review.sh` before promoting.
+Review: projects/command/.reviews/4b5261c-artifacts-review-2026-04-20T16-49Z.md (Claude-generalist adversarial mode; no blocking findings; three accepted tradeoffs documented in the artifact). The review ran as the Claude-generalist fallback because Codex was reported as EROFS-blocked from the tick context at the time — that generalization has since been corrected (Codex review runs fine from a project session per 2026-04-23 skillfoundry verification; see `feedback_dont_generalize_intermittent_failures.md`). Re-running as Codex would duplicate review content; accepting the Claude-generalist verdict.
 Handoff: `runtime/.handoff/command-artifact-inbox-route-2026-04-20T15-55Z.md`
 
 ## Context
