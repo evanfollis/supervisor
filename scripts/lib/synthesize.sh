@@ -63,6 +63,21 @@ else
   exit 2
 fi
 
+# Translate proposals → executable handoffs. Closes the "perfect diagnosis,
+# zero execution" failure class diagnosed in cross-cutting-2026-04-23T15-24-05Z.md
+# and the cowork-side claude handoff 2026-04-23T18:30Z. Before this hook,
+# synthesize.sh wrote .meta/ diagnostics that only an attended executive
+# could act on; the translator now emits handoffs that the dispatcher
+# routes to sessions autonomously. Non-fatal — synthesis output is primary;
+# translation is best-effort.
+if [[ -x "$LIB_DIR/synthesis-translator.sh" ]]; then
+  if ! "$LIB_DIR/synthesis-translator.sh" "$OUTPUT_FILE"; then
+    echo "synthesize: translator failed (non-fatal; synthesis output still stands)" >&2
+  fi
+else
+  echo "synthesize: translator missing or not executable; skipping translation step" >&2
+fi
+
 # Notify the 'general' tmux session if it's alive. Uses display-message so
 # we don't touch whatever's focused in the session (e.g. an open Claude prompt).
 if command -v tmux >/dev/null 2>&1 && tmux has-session -t general 2>/dev/null; then
