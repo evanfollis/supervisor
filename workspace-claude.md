@@ -63,13 +63,18 @@ The `SessionStart` hook at `/root/.claude/hooks/session-start-context-load.sh` a
 
 ```yaml
 context-always-load:
-  - supervisor/ESSENCE.md
-  - runtime/intake/synthesis/agent-platforms-latest.md
-  - supervisor/system/verified-state.md
-  - supervisor/system/status.md
-  - supervisor/system/active-issues.md
-  - supervisor/system/paid-services.md
-  - supervisor/pressure-queue.md
+  # Ordered stable → volatile for prompt-cache prefix stability.
+  # Claude API auto-caches the longest stable prefix; any file whose contents
+  # change invalidates the cache for everything *after* it. Keep the most
+  # dynamic files (verified-state, regenerated every tick) at the tail so
+  # they don't bust the cache on ESSENCE, synthesis, and pressure files.
+  - supervisor/ESSENCE.md                           # ~immutable (worldview)
+  - runtime/intake/synthesis/agent-platforms-latest.md  # weekly (Layer 1 intake)
+  - supervisor/system/paid-services.md              # monthly
+  - supervisor/pressure-queue.md                    # curated, weekly-ish
+  - supervisor/system/status.md                     # daily
+  - supervisor/system/active-issues.md              # daily, highest churn
+  - supervisor/system/verified-state.md             # regenerated every tick
 ```
 
 The synaplex intake synthesis sits second (right after ESSENCE) so the

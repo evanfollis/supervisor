@@ -26,12 +26,15 @@ banner instead of silently trusted.
 
 ```yaml
 context-always-load:
-  - ESSENCE.md
-  - system/verified-state.md
-  - system/status.md
-  - system/active-issues.md
-  - system/paid-services.md
-  - pressure-queue.md
+  # Ordered stable → volatile for prompt-cache prefix stability.
+  # verified-state regenerates every tick; keep it last so its churn doesn't
+  # invalidate the cache for ESSENCE and the pressure-surface files.
+  - ESSENCE.md                    # ~immutable (worldview)
+  - system/paid-services.md       # monthly
+  - pressure-queue.md             # curated, weekly-ish
+  - system/status.md              # daily
+  - system/active-issues.md       # daily, highest churn
+  - system/verified-state.md      # regenerated every tick
 ```
 
 `ESSENCE.md` is first because everything downstream is interpreted in its
