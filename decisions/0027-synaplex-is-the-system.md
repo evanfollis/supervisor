@@ -189,7 +189,7 @@ invariants to build the system. Hold both at every turn.
    `projects/synaplex/`; a hybrid with context-repository hosting formal
    invariants and synaplex hosting editorially-projected ones. Requires a
    small design pass + IDEA ledger entry before commitment. Tracked as
-   IDEA-0004 (to be created).
+   IDEA-0005.
 
 2. **Site IA beyond "not a blog."** Minimum-viable topology shape for V1
    deploy — topic map? conceptual taxonomy? "start here" entry node +
