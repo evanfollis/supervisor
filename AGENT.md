@@ -180,10 +180,13 @@ Queue hygiene is part of truthful executive state, not clerical cleanup.
 
 - `workspace.sh context` is the preferred executive reentry path. It
   auto-archives `session-summary-*` files in `supervisor/handoffs/INBOX/`
-  once they are older than 12h, then refreshes `system/verified-state.md`.
+  on every reentry, then refreshes `system/verified-state.md`.
 - Session summaries are continuity breadcrumbs, not backlog. Read them only
   when you need transcript recovery. Substantive INBOX items, synthesis
   outputs, and active project handoffs outrank them by default.
+- After reading substantive INBOX items, do one of three things in the same
+  session: dispatch, defer explicitly, or archive. INBOX is a live queue, not
+  a historical holding pen.
 
 ## External friction surfaces
 

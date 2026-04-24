@@ -25,7 +25,7 @@ print_capabilities
 # Reentry hygiene: keep low-priority session summaries out of the active queue
 # before we refresh verified state and print the current context bundle.
 if [[ -x "$ROOT/scripts/lib/archive-inbox-session-summaries.sh" ]]; then
-  "$ROOT/scripts/lib/archive-inbox-session-summaries.sh" >/dev/null 2>&1 || true
+  "$ROOT/scripts/lib/archive-inbox-session-summaries.sh" 0 >/dev/null 2>&1 || true
 fi
 
 # Refresh verified-state.md before emitting. Best-effort; never blocks.

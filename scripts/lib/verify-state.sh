@@ -25,6 +25,18 @@ q() { # quiet-fail command substitution
   eval "$@" 2>/dev/null || echo "(unavailable)"
 }
 
+inbox_actionable_count() {
+  find "$SUPERVISOR/handoffs/INBOX" -maxdepth 1 -type f \
+    ! -name '.gitkeep' \
+    ! -name 'session-summary-*.md' 2>/dev/null | wc -l
+}
+
+inbox_actionable_items() {
+  find "$SUPERVISOR/handoffs/INBOX" -maxdepth 1 -type f \
+    ! -name '.gitkeep' \
+    ! -name 'session-summary-*.md' -printf '%f\n' 2>/dev/null | sort | head -10 | sed 's/^/  - /'
+}
+
 http() {
   local code
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$1" 2>/dev/null)
@@ -127,8 +139,8 @@ Full register: \`supervisor/system/paid-services.md\`.
 
 - **Supervisor HEAD**: $(cd $SUPERVISOR && git rev-parse --short HEAD) — $(cd $SUPERVISOR && git log -1 --pretty=%s)
 - **Dirty tree**: $(cd $SUPERVISOR && [[ -z "\$(git status --short)" ]] && echo "clean" || echo "DIRTY — run git status")
-- **INBOX count**: $(ls $SUPERVISOR/handoffs/INBOX/ 2>/dev/null | wc -l) item(s)
-- **INBOX items**: $(ls $SUPERVISOR/handoffs/INBOX/ 2>/dev/null | sed 's/^/  - /' | head -10)
+- **INBOX count**: $(inbox_actionable_count) item(s)
+- **INBOX items**: $(inbox_actionable_items)
 - **general handoffs pending**: $(ls $RUNTIME/.handoff/general-*.md 2>/dev/null | wc -l)
 - **Aged tick branches (>24h)**: $(cd $SUPERVISOR && git for-each-ref --format='%(refname:short) %(committerdate:relative)' 'refs/heads/ticks/*' 2>/dev/null | awk '$0 ~ /day|week|month/ {print "  - "$0}' | head -5)
 

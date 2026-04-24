@@ -6,13 +6,17 @@ set -euo pipefail
 
 INBOX_DIR="/opt/workspace/supervisor/handoffs/INBOX"
 ARCHIVE_ROOT="/opt/workspace/supervisor/handoffs/ARCHIVE"
-AGE_MINUTES="${1:-720}"
+AGE_MINUTES="${1:-0}"
 ARCHIVE_DAY="$(date -u +%Y-%m-%d)"
 ARCHIVE_DIR="${ARCHIVE_ROOT}/${ARCHIVE_DAY}"
 
 [[ -d "$INBOX_DIR" ]] || exit 0
 
-mapfile -t summaries < <(find "$INBOX_DIR" -maxdepth 1 -type f -name 'session-summary-*.md' -mmin +"$AGE_MINUTES" | sort)
+if [[ "$AGE_MINUTES" -eq 0 ]]; then
+  mapfile -t summaries < <(find "$INBOX_DIR" -maxdepth 1 -type f -name 'session-summary-*.md' | sort)
+else
+  mapfile -t summaries < <(find "$INBOX_DIR" -maxdepth 1 -type f -name 'session-summary-*.md' -mmin +"$AGE_MINUTES" | sort)
+fi
 
 if [[ "${#summaries[@]}" -eq 0 ]]; then
   echo "archive-inbox-session-summaries: nothing to archive"
