@@ -37,6 +37,13 @@ inbox_actionable_items() {
     ! -name 'session-summary-*.md' -printf '%f\n' 2>/dev/null | sort | head -10 | sed 's/^/  - /'
 }
 
+general_actionable_count() {
+  find "$RUNTIME/.handoff" -maxdepth 1 -type f -name 'general-*.md' \
+    ! -name 'general-*-complete-*.md' \
+    ! -name 'general-*-tick-complete-*.md' \
+    ! -name 'general-cowork-loop-closed-confirmation-*.md' 2>/dev/null | wc -l
+}
+
 http() {
   local code
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$1" 2>/dev/null)
@@ -141,7 +148,7 @@ Full register: \`supervisor/system/paid-services.md\`.
 - **Dirty tree**: $(cd $SUPERVISOR && [[ -z "\$(git status --short)" ]] && echo "clean" || echo "DIRTY — run git status")
 - **INBOX count**: $(inbox_actionable_count) item(s)
 - **INBOX items**: $(inbox_actionable_items)
-- **general handoffs pending**: $(ls $RUNTIME/.handoff/general-*.md 2>/dev/null | wc -l)
+- **general handoffs pending**: $(general_actionable_count)
 - **Aged tick branches (>24h)**: $(cd $SUPERVISOR && git for-each-ref --format='%(refname:short) %(committerdate:relative)' 'refs/heads/ticks/*' 2>/dev/null | awk '$0 ~ /day|week|month/ {print "  - "$0}' | head -5)
 
 ## Recent principal statements (last 48h from JSONL)

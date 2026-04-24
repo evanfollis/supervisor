@@ -27,6 +27,9 @@ print_capabilities
 if [[ -x "$ROOT/scripts/lib/archive-inbox-session-summaries.sh" ]]; then
   "$ROOT/scripts/lib/archive-inbox-session-summaries.sh" 0 >/dev/null 2>&1 || true
 fi
+if [[ -x "$ROOT/scripts/lib/archive-runtime-executive-breadcrumbs.sh" ]]; then
+  "$ROOT/scripts/lib/archive-runtime-executive-breadcrumbs.sh" >/dev/null 2>&1 || true
+fi
 
 # Refresh verified-state.md before emitting. Best-effort; never blocks.
 if [[ -x "$ROOT/scripts/lib/verify-state.sh" ]]; then
