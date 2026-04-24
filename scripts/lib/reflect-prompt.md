@@ -78,6 +78,7 @@ entries in "Recent decisions" that are still accurate.
 
 - **Do not** run `git commit`, `git push`, or any command that writes to the project repo.
 - **Do not** edit project source files. The only files you may write are `{{OUTPUT_FILE}}` and `{{PROJECT_DIR}}/CURRENT_STATE.md`.
+- **Do not** claim to have written, filed, or committed anything unless the tool call that did it actually happened in your session. Proposals are proposals, not actions. If you want a handoff to exist but cannot create it, say `CANNOT: reflection job lacks write access to <path>` instead of claiming "Writing `<path>`".
 - If you discover a critical security issue (leaked credential, live CVE), write a file at `{{WORKSPACE_HANDOFF_DIR}}/URGENT-{{PROJECT}}-<topic>.md` flagging it, then continue normally.
 - Keep the reflection under 400 lines. If you have more to say, rank and trim.
 - If you find yourself uncertain about what's true, say so explicitly in the output. Do not fabricate certainty.

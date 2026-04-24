@@ -174,6 +174,29 @@ Default shape:
 
 If (2) and (3) are missing, the response is incomplete.
 
+## Reentry hygiene
+
+Queue hygiene is part of truthful executive state, not clerical cleanup.
+
+- `workspace.sh context` is the preferred executive reentry path. It
+  auto-archives `session-summary-*` files in `supervisor/handoffs/INBOX/`
+  once they are older than 12h, then refreshes `system/verified-state.md`.
+- Session summaries are continuity breadcrumbs, not backlog. Read them only
+  when you need transcript recovery. Substantive INBOX items, synthesis
+  outputs, and active project handoffs outrank them by default.
+
+## External friction surfaces
+
+`runtime/friction/cowork/` is an external observer channel, not part of the
+load-bearing control plane.
+
+- Cowork output is secondary to INBOX triage, synthesis dispatch, and active
+  project backlog work.
+- Cowork friction may sharpen judgment, but it must never become a gate,
+  validator, or prerequisite for dispatch/closure.
+- If cowork-related UI or protocol work competes with core backlog execution,
+  the cowork work yields unless the principal explicitly reprioritizes it.
+
 ## Primary-verification gate (BLOCKING — the carelessness rule)
 
 **The carelessness failure class the principal has escalated on

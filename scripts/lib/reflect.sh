@@ -119,6 +119,38 @@ else
   exit 2
 fi
 
+resolve_claim_path() {
+  local raw="$1"
+  if [[ "$raw" == /* ]]; then
+    printf '%s\n' "$raw"
+  elif [[ "$raw" == runtime/* || "$raw" == supervisor/* || "$raw" == projects/* ]]; then
+    printf '%s\n' "$WORKSPACE_ROOT/$raw"
+  else
+    printf '%s\n' "$PROJECT_DIR/$raw"
+  fi
+}
+
+# Reflection output feeds synthesis and executive reentry. Claims about
+# written handoffs/files must be real or they create false confidence.
+mapfile -t CLAIMED_FILES < <(grep -oP '(?:Writing|Filed handoff) `\K[^`]+' "$OUTPUT_FILE" 2>/dev/null | sort -u || true)
+MISSING_CLAIMS=()
+for raw_path in "${CLAIMED_FILES[@]}"; do
+  resolved_path="$(resolve_claim_path "$raw_path")"
+  if [[ ! -e "$resolved_path" ]]; then
+    MISSING_CLAIMS+=("$raw_path")
+  fi
+done
+
+if [[ "${#MISSING_CLAIMS[@]}" -gt 0 ]]; then
+  {
+    printf '\n## Verification warnings\n'
+    printf '\nThe reflection text claims actions that did not land on disk:\n'
+    for missing in "${MISSING_CLAIMS[@]}"; do
+      printf -- '- WARNING: claimed file `%s` does not exist.\n' "$missing"
+    done
+  } >> "$OUTPUT_FILE"
+fi
+
 # Safety net — verify the reflection session did not mutate the repo.
 if [[ -d "$PROJECT_DIR/.git" ]]; then
   AFTER_HEAD=$(git -C "$PROJECT_DIR" rev-parse HEAD 2>/dev/null || echo none)
