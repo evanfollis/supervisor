@@ -1,10 +1,18 @@
 [Unit]
-Description=Run synaplex scoring hourly for the agent-platforms beat
+Description=Run synaplex scoring at :20 each hour (lags intake's :17)
 Requires=synaplex-score.service
 
 [Timer]
-OnCalendar=hourly
-RandomizedDelaySec=120
+# Fire at :20 each hour, not top-of-hour. The intake timer fires at :17
+# every 4h (00:17, 04:17, 08:17, 12:17, 16:17, 20:17 UTC); intake takes
+# ~70s; scoring at top-of-hour caused a `score:stuck` event each midnight
+# (00:00) because today's raw didn't exist yet. Shifting score to :20
+# makes the 00:20 firing reliably lag the 00:17 intake by ~3 min.
+# (`After=synaplex-intake.service` on the .service alone doesn't help —
+# systemd ordering is only within a single startup transaction; timers
+# fire independently.)
+OnCalendar=*-*-* *:20:00
+RandomizedDelaySec=60
 Persistent=true
 Unit=synaplex-score.service
 
