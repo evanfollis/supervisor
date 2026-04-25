@@ -31,6 +31,11 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **ADR-0031 / ADR-0032 missing cross-agent reviews** — both accepted without review artifacts; 5 and 3 reflection windows past threshold. URGENT in INBOX (`URGENT-adr-review-gap-0031-0032-routed`). Write `.reviews/adr-0031-*.md` and `.reviews/adr-0032-*.md` in attended session.
+- **Synthesis job writing empty stubs (FR-0038)** — two consecutive synthesis runs (03:27 and 15:28 Apr 25) produced 67-byte output containing only the file path. Downstream translator filed INBOX proposals from the empty stub; provenance suspect. Root cause unknown; `scripts/lib/workspace-synthesize.sh` output capture likely culprit. URGENT in INBOX.
+- **Tick branches not merging to main** — `ticks/2026-04-20-22` (118h+, doctor FAIL) and `ticks/2026-04-25-16` / `ticks/2026-04-25-18` contain unmerged Tier-A Tier-B work. Active-issues updates and FR records from those ticks are invisible from main. FR-0038 collision: two branches each wrote a file with that name. Attended session must merge/rebase; URGENT in INBOX.
+- **Atlas frozen-loop escalation live** — strategy-readiness CLI deployed 2026-04-25T19:27Z; frozen-loop streak=3 means next `cycle.completed` event fires `cycle.escalated` URGENT. Expect URGENT-atlas-frozen-loop at next cycle unless a primitive is promoted.
+- **Command login auth noise — non-issue** — 57 fail/success pairs within 15ms median are autofill races, not double-submissions. Do not re-file login URGENTs. Option A (meta-scan autofill_race filter) available if telemetry noise matters.
 
 ---
 
