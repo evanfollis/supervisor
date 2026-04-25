@@ -1,26 +1,26 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/synaplex
-Session: 14fae39d-00f1-46d2-ba41-118e9fb48657
-CWD: /opt/workspace/projects/synaplex
-Transcript: /root/.claude/projects/-opt-workspace-projects-synaplex/14fae39d-00f1-46d2-ba41-118e9fb48657.jsonl
-Started: 2026-04-24T14:40:24.666Z
-Ended: 2026-04-24T14:45:37Z
+To: next executive session at /opt/workspace/projects/skillfoundry/skillfoundry-valuation-context
+Session: 076fec47-26b7-4673-80f0-03a5ca1a6650
+CWD: /opt/workspace/projects/skillfoundry/skillfoundry-valuation-context
+Transcript: /root/.claude/projects/-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context/076fec47-26b7-4673-80f0-03a5ca1a6650.jsonl
+Started: 2026-04-24T02:24:53.424Z
+Ended: 2026-04-24T02:29:09Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — synaplex @ 2026-04-24T14:45:37Z
+# Session summary — skillfoundry-valuation-context @ 2026-04-24T02:29:09Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 64
-- User turns: 20
-- Assistant turns: 30
-- Tool uses: 19
+- Transcript lines: 76
+- User turns: 23
+- Assistant turns: 38
+- Tool uses: 22
 
 ## Last user message (truncated)
 
@@ -30,7 +30,6 @@ Automatic end-of-session handoff. Read this before deep-reading the transcript
 
 ```
  M CURRENT_STATE.md
- M intake/beats.py
 ```
 
 If these are stray dirty state from a crashed session, inspect before
@@ -41,7 +40,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-synaplex/14fae39d-00f1-46d2-ba41-118e9fb48657.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context/076fec47-26b7-4673-80f0-03a5ca1a6650.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.

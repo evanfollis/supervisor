@@ -1,26 +1,26 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/command
-Session: f86b2707-e8ff-4783-86b0-f47c2468ba65
-CWD: /opt/workspace/projects/command
-Transcript: /root/.claude/projects/-opt-workspace-projects-command/f86b2707-e8ff-4783-86b0-f47c2468ba65.jsonl
-Started: 2026-04-24T14:30:19.070Z
-Ended: 2026-04-24T14:33:26Z
+To: next executive session at /opt/workspace/projects/synaplex
+Session: 42a9e1d3-e17c-4e5a-b71e-8dc2391140ec
+CWD: /opt/workspace/projects/synaplex
+Transcript: /root/.claude/projects/-opt-workspace-projects-synaplex/42a9e1d3-e17c-4e5a-b71e-8dc2391140ec.jsonl
+Started: 2026-04-24T02:40:53.402Z
+Ended: 2026-04-24T02:45:23Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — command @ 2026-04-24T14:33:26Z
+# Session summary — synaplex @ 2026-04-24T02:45:23Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 87
-- User turns: 28
-- Assistant turns: 43
-- Tool uses: 27
+- Transcript lines: 116
+- User turns: 41
+- Assistant turns: 56
+- Tool uses: 40
 
 ## Last user message (truncated)
 
@@ -40,7 +40,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-command/f86b2707-e8ff-4783-86b0-f47c2468ba65.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-projects-synaplex/42a9e1d3-e17c-4e5a-b71e-8dc2391140ec.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.
