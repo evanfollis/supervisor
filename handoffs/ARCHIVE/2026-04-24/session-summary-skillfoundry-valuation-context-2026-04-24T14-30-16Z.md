@@ -1,26 +1,26 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/command
-Session: b5ba7ef1-02c0-4030-8a2c-e6d8d1167693
-CWD: /opt/workspace/projects/command
-Transcript: /root/.claude/projects/-opt-workspace-projects-command/b5ba7ef1-02c0-4030-8a2c-e6d8d1167693.jsonl
-Started: 2026-04-24T02:29:11.283Z
-Ended: 2026-04-24T02:33:07Z
+To: next executive session at /opt/workspace/projects/skillfoundry/skillfoundry-valuation-context
+Session: 56952999-b656-4958-8c44-547cd0872452
+CWD: /opt/workspace/projects/skillfoundry/skillfoundry-valuation-context
+Transcript: /root/.claude/projects/-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context/56952999-b656-4958-8c44-547cd0872452.jsonl
+Started: 2026-04-24T14:26:41.686Z
+Ended: 2026-04-24T14:30:16Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — command @ 2026-04-24T02:33:07Z
+# Session summary — skillfoundry-valuation-context @ 2026-04-24T14:30:16Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 97
-- User turns: 32
-- Assistant turns: 49
-- Tool uses: 31
+- Transcript lines: 76
+- User turns: 24
+- Assistant turns: 36
+- Tool uses: 23
 
 ## Last user message (truncated)
 
@@ -30,13 +30,6 @@ Automatic end-of-session handoff. Read this before deep-reading the transcript
 
 ```
  M CURRENT_STATE.md
- M scripts/smoke.ts
- M server.ts
- M src/app/attach/[name]/page.tsx
- M src/lib/attachStream.ts
- M src/lib/tmux.ts
- M tsconfig.tsbuildinfo
-?? src/lib/attachLock.ts
 ```
 
 If these are stray dirty state from a crashed session, inspect before
@@ -47,7 +40,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-command/b5ba7ef1-02c0-4030-8a2c-e6d8d1167693.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context/56952999-b656-4958-8c44-547cd0872452.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.
