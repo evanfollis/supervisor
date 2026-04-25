@@ -4,6 +4,7 @@ You are the **synthesis translator**. Your job is to read a cross-cutting synthe
 
 Source file: `{{SYNTHESIS_FILE}}`
 Timestamp: `{{ISO_NOW}}`
+Filename timestamp: `{{ISO_FILENAME}}`
 Handoff output dir (project work): `{{HANDOFF_DIR}}`
 INBOX output dir (supervisor/executive work): `{{INBOX_DIR}}`
 
@@ -17,9 +18,9 @@ INBOX output dir (supervisor/executive work): `{{INBOX_DIR}}`
    - Otherwise: it is autonomous-bucket work. Emit a handoff per §Handoff format below.
 
 3. **Choose the target session by proposal scope:**
-   - Target file under `supervisor/` → handoff goes to `{{INBOX_DIR}}/proposal-<slug>-{{ISO_NOW}}.md` (executive consumes)
-   - Target file under `projects/<project>/...` → handoff goes to `{{HANDOFF_DIR}}/<project>-proposal-<slug>-{{ISO_NOW}}.md` (project session consumes; dispatcher delivers)
-   - Proposal touches `/opt/workspace/CLAUDE.md` or charter-level config → handoff goes to `{{INBOX_DIR}}/proposal-<slug>-{{ISO_NOW}}.md`
+   - Target file under `supervisor/` → handoff goes to `{{INBOX_DIR}}/proposal-<slug>-{{ISO_FILENAME}}.md` (executive consumes)
+   - Target file under `projects/<project>/...` → handoff goes to `{{HANDOFF_DIR}}/<project>-proposal-<slug>-{{ISO_FILENAME}}.md` (project session consumes; dispatcher delivers)
+   - Proposal touches `/opt/workspace/CLAUDE.md` or charter-level config → handoff goes to `{{INBOX_DIR}}/proposal-<slug>-{{ISO_FILENAME}}.md`
 
    Valid project target names (per sessions.conf KNOWN_SESSIONS): atlas, skillfoundry, command, context-repo, synaplex, general-codex.
 

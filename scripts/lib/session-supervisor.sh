@@ -35,7 +35,13 @@ fi
 
 case "$AGENT" in
   claude) LAUNCH="claude --remote-control \"$NAME\"" ;;
-  codex)  LAUNCH="codex" ;;
+  codex)
+    # systemd starts with a minimal PATH, so prefer the managed nvm install
+    # when present. This keeps persistent Codex sessions on the same Node/Codex
+    # runtime as the interactive root shell and preserves js_repl availability.
+    CODEX_NODE_BIN="${CODEX_NODE_BIN:-/root/.nvm/versions/node/v22.22.0/bin}"
+    LAUNCH="env PATH=\"$CODEX_NODE_BIN:\$PATH\" codex"
+    ;;
   *)      echo "session-supervisor[$NAME]: unknown agent '$AGENT'" >&2; exit 1 ;;
 esac
 

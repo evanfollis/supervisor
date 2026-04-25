@@ -1,7 +1,7 @@
 ---
 name: synaplex shaping surface
 description: Executive shaping file for synaplex.ai — the self-evolving knowledge system. Not a product in the portfolio; the system itself. See ADR-0027.
-updated: 2026-04-19
+updated: 2026-04-23
 tier: system
 owner: executive
 ---
@@ -18,11 +18,16 @@ for the canonical architecture commitment.
 
 Load-bearing layers:
 
+- **Agent context repos** — per-pod / per-agent operational front doors and
+  resumability surfaces. Local, mutable, not shared truth.
 - **Canon** — formal obligations model at
   `projects/context-repository/spec/discovery-framework/` (frozen at v0.1.0).
 - **Knowledge system** — accumulating validated invariants with provenance;
-  durable across pod lifecycles. Physical home: open design question
-  (IDEA-0004 when created).
+  durable across pod lifecycles and distinct from both canon and local context
+  repos. Physical home: open design question (IDEA-0005).
+- **Memory / retrieval surfaces** — MCP, file-memory, or managed-memory
+  interfaces that let agents consume context and knowledge. Replaceable
+  delivery layer, not source of truth.
 - **Lab** — methodology engine; pressures canon, validates pod claims,
   reviews external AI systems; produces findings **and** reusable review
   methodologies as first-class assets.
@@ -60,7 +65,7 @@ invariants and absorb them. Pod graduation is legitimate.
   AND produces a reusable review methodology artifact.
 - Atlas and skillfoundry CURRENT_STATE docs reframed as pods with explicit
   bidirectional knowledge-system obligations.
-- Knowledge system physical home decided (IDEA-0004 → ADR-00XX).
+- Knowledge system physical home decided (IDEA-0005 → ADR-00XX).
 - Review methodologies established as first-class artifacts in canon (new
   type or projection onto Policy — pending context-repository review).
 - Subdomain pattern for pods stable: `skillfoundry.synaplex.ai`,
@@ -96,6 +101,9 @@ invariants and absorb them. Pod graduation is legitimate.
 - Synaplex does not mutate pod-internal stores (atlas's `.atlas/`,
   skillfoundry's `memory/venture/`). Pod adapters produce canon envelopes;
   synaplex reads the knowledge system.
+- Synaplex does not treat any runtime memory product as a truth source by
+  itself. Retrieval surfaces are delivery mechanisms layered over local
+  context repos and/or knowledge-system projections.
 - Canon spec changes (v0.1.0 → v0.2.0+) route through context-repository
   adversarial review, not synaplex unilaterally.
 - 1:1-delivery revenue surfaces out of scope; any such proposal should
@@ -126,7 +134,7 @@ invariants and absorb them. Pod graduation is legitimate.
 
 - **Deploy authorization** — synaplex.ai root to Cloudflare Pages (first
   V1 deploy; reversible).
-- **Knowledge system physical home** — IDEA-0004 once created; ADR-class.
+- **Knowledge system physical home** — IDEA-0005; ADR-class.
 - **Legal entity for sponsor revenue** — defer to first sponsor invoice
   (month 5+).
 - **Paid tier / education surface monetization** — design-for; defer

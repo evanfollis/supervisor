@@ -37,10 +37,11 @@ fi
 
 LIB_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROMPT_TEMPLATE="$LIB_DIR/synthesis-translator-prompt.md"
-ISO_NOW="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+ISO_FILENAME="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+ISO_TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 HANDOFF_DIR="/opt/workspace/runtime/.handoff"
 INBOX_DIR="/opt/workspace/supervisor/handoffs/INBOX"
-LOG_FILE="/opt/workspace/runtime/.meta/synthesis-translator-${ISO_NOW}.log"
+LOG_FILE="/opt/workspace/runtime/.meta/synthesis-translator-${ISO_FILENAME}.log"
 
 mkdir -p "$HANDOFF_DIR" "$INBOX_DIR" "$(dirname "$LOG_FILE")"
 
@@ -51,7 +52,8 @@ fi
 
 PROMPT="$(sed \
   -e "s|{{SYNTHESIS_FILE}}|$SYNTHESIS_FILE|g" \
-  -e "s|{{ISO_NOW}}|$ISO_NOW|g" \
+  -e "s|{{ISO_NOW}}|$ISO_TS|g" \
+  -e "s|{{ISO_FILENAME}}|$ISO_FILENAME|g" \
   -e "s|{{HANDOFF_DIR}}|$HANDOFF_DIR|g" \
   -e "s|{{INBOX_DIR}}|$INBOX_DIR|g" \
   "$PROMPT_TEMPLATE")"
@@ -90,6 +92,6 @@ fi
 EVENTS_FILE="/opt/workspace/runtime/friction/events.jsonl"
 mkdir -p "$(dirname "$EVENTS_FILE")"
 printf '{"ts":"%s","layer":"validation","source":"synthesis-translator","eventType":"success","reason":"translation complete","ref":"%s"}\n' \
-  "$ISO_NOW" "$SYNTHESIS_FILE" >> "$EVENTS_FILE"
+  "$ISO_TS" "$SYNTHESIS_FILE" >> "$EVENTS_FILE"
 
-echo "synthesis-translator: complete at $ISO_NOW (log: $LOG_FILE)"
+echo "synthesis-translator: complete at $ISO_TS (log: $LOG_FILE)"

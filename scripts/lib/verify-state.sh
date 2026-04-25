@@ -20,6 +20,25 @@ STDOUT=0
 if [[ "${1:-}" == "--stdout" ]]; then STDOUT=1; fi
 
 TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+NOW_EPOCH=$(date -u +%s)
+STALE_THRESHOLD_SECONDS=900
+
+warn_if_existing_verified_state_stale() {
+  [[ -f "$OUT" ]] || return 0
+  local generated_ts generated_epoch age
+  generated_ts=$(grep '^generated:' "$OUT" 2>/dev/null | head -1 | awk '{print $2}')
+  [[ -n "$generated_ts" ]] || return 0
+  generated_epoch=$(date -u -d "$generated_ts" +%s 2>/dev/null || echo 0)
+  [[ "$generated_epoch" =~ ^[0-9]+$ ]] || generated_epoch=0
+  (( generated_epoch > 0 )) || return 0
+  age=$(( NOW_EPOCH - generated_epoch ))
+  if (( age > STALE_THRESHOLD_SECONDS )); then
+    printf 'WARN: verified-state.md content is %dm stale (generated: %s)\n' \
+      $(( age / 60 )) "$generated_ts" >&2
+  fi
+}
+
+warn_if_existing_verified_state_stale
 
 q() { # quiet-fail command substitution
   eval "$@" 2>/dev/null || echo "(unavailable)"

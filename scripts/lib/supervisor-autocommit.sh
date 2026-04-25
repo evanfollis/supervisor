@@ -3,9 +3,10 @@
 #
 # Runs every 2h (independent of the supervisor tick). If Tier-A governance
 # paths (friction/ handoffs/ system/ ideas/ decisions/) are dirty and no
-# attended session has been active in the last 10 minutes, commit them to an
-# autocommit/YYYY-MM-DD-HH branch and rewind main. This prevents a dirty
-# Tier-A state from blocking the tick's dirty-tree gate indefinitely.
+# attended session has been active in the last 10 minutes, commit them on the
+# current branch and mark the resulting commit with an autocommit/YYYY-MM-DD-HH
+# branch. This prevents a dirty Tier-A state from blocking the tick's
+# dirty-tree gate indefinitely without creating reset/replay churn.
 #
 # Scope: Tier-A paths ONLY. Never touches Tier-C (project code). Never pushes.
 # See decisions/0014-supervisor-tick-and-pm-pattern.md for branch/commit policy.
@@ -56,9 +57,7 @@ TIER_A_DIRTY=$(git -C "$SUP" status --porcelain \
 
 [[ -n "$TIER_A_DIRTY" ]] || skip "Tier-A paths clean — nothing to commit"
 
-# --- 5. stage Tier-A paths and commit to autocommit/ branch ---
-PRE_HEAD=$(git -C "$SUP" rev-parse HEAD 2>/dev/null || skip "cannot resolve HEAD")
-
+# --- 5. stage Tier-A paths and commit on current branch ---
 git -C "$SUP" add \
   friction/ handoffs/ system/ ideas/ decisions/ \
   2>/dev/null || true
@@ -81,7 +80,6 @@ agent: autocommit" || { log "commit failed"; emit_event "session_reflected" "aut
 
 NEW_SHA=$(git -C "$SUP" rev-parse HEAD)
 git -C "$SUP" branch -f "$BRANCH" "$NEW_SHA"
-git -C "$SUP" reset --hard "$PRE_HEAD" >/dev/null
 
-emit_event "session_reflected" "autocommit: Tier-A → $BRANCH (sha=${NEW_SHA:0:12})"
-log "committed Tier-A writes to $BRANCH (sha=${NEW_SHA:0:12}); main rewound to $PRE_HEAD"
+emit_event "session_reflected" "autocommit: committed Tier-A on current branch and marked $BRANCH (sha=${NEW_SHA:0:12})"
+log "committed Tier-A writes on current branch and marked $BRANCH (sha=${NEW_SHA:0:12})"
