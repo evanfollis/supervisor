@@ -18,8 +18,7 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas S3-P2 gate threshold — tuning decision** — gate fires ~daily (3-cycle threshold vs. 24h dataset cache). Options A/B/C/D in `friction/FR-0040-atlas-gate-cache-misalignment-daily-urgent.md`. Atlas PM session analysis archived at `handoffs/ARCHIVE/2026-04/general-atlas-frozen-loop-diagnosis-2026-04-25T21-40Z.md`. No code change until principal chooses.
 
 ## Structural / background
 
