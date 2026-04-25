@@ -31,6 +31,10 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **ADR-0031 / ADR-0032 missing cross-agent reviews** — both accepted without review artifacts; 5 and 3 reflection windows past threshold respectively. URGENT in INBOX (`URGENT-adr-review-gap-0031-0032-routed`). Attended session must write `.reviews/adr-0031-*.md` and `.reviews/adr-0032-*.md`. The workspace-doctor ADR-check proposal would automate detection going forward.
+- **Command login auth noise — non-issue, telemetry hygiene only** — 57 fail/success pairs within 15ms median are autofill races, not double-submissions. User successfully authenticates every time. Synthesis filed URGENT citing an empty cross-cutting stub; class-mismatched. Option A (meta-scan filter for autofill_race pairs) available if telemetry noise matters. Do not re-file login URGENTs from carry-forward escalation.
+- **Synthesis-gate reading empty stubs** — cross-cutting-2026-04-25T15-28-05Z.md was a 1-line stub; synthesis-translator filed URGENTs citing it as evidence. Gate must verify synthesis body is non-empty before filing. Structural issue; may need FR + script fix in attended session.
+- **Tick branch `ticks/2026-04-20-22` aged 113h** — doctor FAIL; merge or delete required. URGENT in INBOX (`URGENT-doctor-tick-branch-aged-2026-04-25T16-47Z`).
 
 ---
 
