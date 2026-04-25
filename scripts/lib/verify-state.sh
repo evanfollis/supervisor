@@ -63,6 +63,12 @@ general_actionable_count() {
     ! -name 'general-cowork-loop-closed-confirmation-*.md' 2>/dev/null | wc -l
 }
 
+supervisor_dirty_state() {
+  local dirty
+  dirty=$(cd "$SUPERVISOR" && git status --short -- . ':!system/verified-state.md' 2>/dev/null || true)
+  [[ -z "$dirty" ]] && echo "clean" || echo "DIRTY — run git status"
+}
+
 http() {
   local code
   code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$1" 2>/dev/null)
@@ -164,7 +170,7 @@ Full register: \`supervisor/system/paid-services.md\`.
 ## Governance
 
 - **Supervisor HEAD**: $(cd $SUPERVISOR && git rev-parse --short HEAD) — $(cd $SUPERVISOR && git log -1 --pretty=%s)
-- **Dirty tree**: $(cd $SUPERVISOR && [[ -z "\$(git status --short)" ]] && echo "clean" || echo "DIRTY — run git status")
+- **Dirty tree**: $(supervisor_dirty_state)
 - **INBOX count**: $(inbox_actionable_count) item(s)
 - **INBOX items**: $(inbox_actionable_items)
 - **general handoffs pending**: $(general_actionable_count)
