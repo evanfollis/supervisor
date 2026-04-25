@@ -1,26 +1,26 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/context-repository
-Session: c0b9d156-9285-4084-a983-e2ee3f0b3410
-CWD: /opt/workspace/projects/context-repository
-Transcript: /root/.claude/projects/-opt-workspace-projects-context-repository/c0b9d156-9285-4084-a983-e2ee3f0b3410.jsonl
-Started: 2026-04-24T02:33:09.259Z
-Ended: 2026-04-24T02:35:47Z
+To: next executive session at /opt/workspace/projects/synaplex
+Session: 7d6eb624-3a17-45fa-bde6-c5f4211169df
+CWD: /opt/workspace/projects/synaplex
+Transcript: /root/.claude/projects/-opt-workspace-projects-synaplex/7d6eb624-3a17-45fa-bde6-c5f4211169df.jsonl
+Started: 2026-04-25T02:42:58.932Z
+Ended: 2026-04-25T02:47:08Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — context-repository @ 2026-04-24T02:35:47Z
+# Session summary — synaplex @ 2026-04-25T02:47:08Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 76
-- User turns: 24
-- Assistant turns: 38
-- Tool uses: 23
+- Transcript lines: 91
+- User turns: 26
+- Assistant turns: 49
+- Tool uses: 25
 
 ## Last user message (truncated)
 
@@ -30,8 +30,6 @@ Automatic end-of-session handoff. Read this before deep-reading the transcript
 
 ```
  M CURRENT_STATE.md
- M README.md
- M docs/agent-context-repo-pattern.md
 ```
 
 If these are stray dirty state from a crashed session, inspect before
@@ -42,7 +40,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-context-repository/c0b9d156-9285-4084-a983-e2ee3f0b3410.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-projects-synaplex/7d6eb624-3a17-45fa-bde6-c5f4211169df.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.

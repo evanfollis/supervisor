@@ -1,25 +1,25 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/atlas
-Session: 4e43ee50-d25a-4f9f-b0ec-015e0c611933
-CWD: /opt/workspace/projects/atlas
-Transcript: /root/.claude/projects/-opt-workspace-projects-atlas/4e43ee50-d25a-4f9f-b0ec-015e0c611933.jsonl
-Started: 2026-04-24T14:19:27.583Z
-Ended: 2026-04-24T14:22:36Z
+To: next executive session at /opt/workspace/projects/synaplex
+Session: 14fae39d-00f1-46d2-ba41-118e9fb48657
+CWD: /opt/workspace/projects/synaplex
+Transcript: /root/.claude/projects/-opt-workspace-projects-synaplex/14fae39d-00f1-46d2-ba41-118e9fb48657.jsonl
+Started: 2026-04-24T14:40:24.666Z
+Ended: 2026-04-24T14:45:37Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — atlas @ 2026-04-24T14:22:36Z
+# Session summary — synaplex @ 2026-04-24T14:45:37Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 61
+- Transcript lines: 64
 - User turns: 20
-- Assistant turns: 27
+- Assistant turns: 30
 - Tool uses: 19
 
 ## Last user message (truncated)
@@ -30,7 +30,7 @@ Automatic end-of-session handoff. Read this before deep-reading the transcript
 
 ```
  M CURRENT_STATE.md
-?? .claude/
+ M intake/beats.py
 ```
 
 If these are stray dirty state from a crashed session, inspect before
@@ -41,7 +41,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-atlas/4e43ee50-d25a-4f9f-b0ec-015e0c611933.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-projects-synaplex/14fae39d-00f1-46d2-ba41-118e9fb48657.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.

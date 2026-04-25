@@ -1,47 +1,37 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/atlas
-Session: 8d1b5392-ea87-4497-8056-3462c788ba0b
-CWD: /opt/workspace/projects/atlas
-Transcript: /root/.claude/projects/-opt-workspace-projects-atlas/8d1b5392-ea87-4497-8056-3462c788ba0b.jsonl
-Started: 2026-04-24T02:18:07.344Z
-Ended: 2026-04-24T02:21:08Z
+To: next executive session at /opt/workspace
+Session: 8dc71b46-d2a0-46bf-8243-6eae9dd326bf
+CWD: /opt/workspace
+Transcript: /root/.claude/projects/-opt-workspace/8dc71b46-d2a0-46bf-8243-6eae9dd326bf.jsonl
+Started: 2026-04-25T03:27:29.037Z
+Ended: 2026-04-25T03:32:44Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — atlas @ 2026-04-24T02:21:08Z
+# Session summary — workspace @ 2026-04-25T03:32:44Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 73
-- User turns: 25
-- Assistant turns: 34
-- Tool uses: 24
+- Transcript lines: 65
+- User turns: 20
+- Assistant turns: 32
+- Tool uses: 19
 
 ## Last user message (truncated)
 
-> - **Radical truth applies here too.** If the project is in bad shape, say so. If the last session made poor decisions, name them. A reflection that flatters the project is useless.
-
-## Uncommitted changes at session end
-
-```
- M CURRENT_STATE.md
-?? .claude/
-```
-
-If these are stray dirty state from a crashed session, inspect before
-continuing. If intentional WIP, mention in the next session's opening turn.
+> - If the workspace is already handling a pattern well, say so — don't manufacture findings to justify the run.
 
 ## How to use this
 
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-atlas/8d1b5392-ea87-4497-8056-3462c788ba0b.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace/8dc71b46-d2a0-46bf-8243-6eae9dd326bf.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.

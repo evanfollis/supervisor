@@ -1,43 +1,37 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/supervisor
-Session: 6a99ec08-3f54-48fe-ad2a-1194920fa0c7
-CWD: /opt/workspace/supervisor
-Transcript: /root/.claude/projects/-opt-workspace/6a99ec08-3f54-48fe-ad2a-1194920fa0c7.jsonl
-Started: 2026-04-23T20:30:32.127Z
-Ended: 2026-04-23T21:54:30Z
+To: next executive session at /opt/workspace/projects/context-repository
+Session: ca774680-48de-4653-9541-5bb6ef2b39b2
+CWD: /opt/workspace/projects/context-repository
+Transcript: /root/.claude/projects/-opt-workspace-projects-context-repository/ca774680-48de-4653-9541-5bb6ef2b39b2.jsonl
+Started: 2026-04-24T14:33:28.319Z
+Ended: 2026-04-24T14:36:21Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — supervisor @ 2026-04-23T21:54:30Z
+# Session summary — context-repository @ 2026-04-24T14:36:21Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 259
-- User turns: 82
-- Assistant turns: 118
-- Tool uses: 68
+- Transcript lines: 75
+- User turns: 23
+- Assistant turns: 38
+- Tool uses: 22
 
 ## Last user message (truncated)
 
-> <local-command-stdout>Login interrupted</local-command-stdout>
-
-## Commits landed in this session
-
-- 17234f1 Automate context rotation so sessions don't need manual /clear (74 minutes ago)
+> - **Radical truth applies here too.** If the project is in bad shape, say so. If the last session made poor decisions, name them. A reflection that flatters the project is useless.
 
 ## Uncommitted changes at session end
 
 ```
- M decisions/0027-synaplex-is-the-system.md
- M ideas/IDEA-0005-knowledge-system-physical-home.json
- M projects/products/synaplex.md
- M system/verified-state.md
-?? decisions/0031-explicit-layer-separation-for-context-canon-knowledge-and-memory.md
+ M CURRENT_STATE.md
+ M README.md
+ M docs/agent-context-repo-pattern.md
 ```
 
 If these are stray dirty state from a crashed session, inspect before
@@ -48,7 +42,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace/6a99ec08-3f54-48fe-ad2a-1194920fa0c7.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-projects-context-repository/ca774680-48de-4653-9541-5bb6ef2b39b2.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.
