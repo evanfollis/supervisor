@@ -1,35 +1,39 @@
 ---
 From: SessionEnd auto-summary hook
-To: next executive session at /opt/workspace/projects/skillfoundry/skillfoundry-valuation-context
-Session: 56952999-b656-4958-8c44-547cd0872452
-CWD: /opt/workspace/projects/skillfoundry/skillfoundry-valuation-context
-Transcript: /root/.claude/projects/-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context/56952999-b656-4958-8c44-547cd0872452.jsonl
-Started: 2026-04-24T14:26:41.686Z
-Ended: 2026-04-24T14:30:16Z
+To: next executive session at /opt/workspace/supervisor
+Session: 9929ee1f-12bc-4792-a771-ad5e047f64d1
+CWD: /opt/workspace/supervisor
+Transcript: /root/.claude/projects/-opt-workspace-supervisor/9929ee1f-12bc-4792-a771-ad5e047f64d1.jsonl
+Started: 2026-04-24T02:35:49.589Z
+Ended: 2026-04-24T02:40:51Z
 Priority: low
 Type: auto-generated session summary
 ---
 
-# Session summary — skillfoundry-valuation-context @ 2026-04-24T14:30:16Z
+# Session summary — supervisor @ 2026-04-24T02:40:51Z
 
 Automatic end-of-session handoff. Read this before deep-reading the transcript
 — it tells you whether the transcript is worth the tokens.
 
 ## Shape
 
-- Transcript lines: 76
-- User turns: 24
+- Transcript lines: 83
+- User turns: 30
 - Assistant turns: 36
-- Tool uses: 23
+- Tool uses: 29
 
 ## Last user message (truncated)
 
-> - **Radical truth applies here too.** If the project is in bad shape, say so. If the last session made poor decisions, name them. A reflection that flatters the project is useless.
+> - If uncertain, say so. Do not fabricate certainty.
 
 ## Uncommitted changes at session end
 
 ```
- M CURRENT_STATE.md
+ M decisions/0027-synaplex-is-the-system.md
+ D decisions/0031-explicit-layer-separation-for-context-canon-knowledge-and-memory.md
+ M ideas/IDEA-0005-knowledge-system-physical-home.json
+ M projects/products/synaplex.md
+ M system/verified-state.md
 ```
 
 If these are stray dirty state from a crashed session, inspect before
@@ -40,7 +44,7 @@ continuing. If intentional WIP, mention in the next session's opening turn.
 1. **Skim this file** — it's cheap.
 2. Decide: does the current task need the transcript itself? If not, the
    summary + git log above is usually enough context to continue.
-3. If yes: `/root/.claude/projects/-opt-workspace-projects-skillfoundry-skillfoundry-valuation-context/56952999-b656-4958-8c44-547cd0872452.jsonl` holds the full JSONL. Grep for the specific
+3. If yes: `/root/.claude/projects/-opt-workspace-supervisor/9929ee1f-12bc-4792-a771-ad5e047f64d1.jsonl` holds the full JSONL. Grep for the specific
    decision/tool-result you need rather than replaying the whole thing.
 4. Delete this file once its information is absorbed into CURRENT_STATE.md
    or an ADR — these summaries are ephemeral breadcrumbs, not durable record.
