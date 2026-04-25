@@ -142,13 +142,12 @@ if [[ ! -d "$SUP/.git" ]]; then
 fi
 
 PRE_SUP_HEAD=$(git -C "$SUP" rev-parse HEAD 2>/dev/null || echo unknown)
-# Exclude untracked files (`??`) from the dirty check: untracked files cannot
-# produce merge conflicts or be committed by targeted `git add` calls further
-# down, so they're inert from the tick's perspective. The real concern is
-# modified/staged work from an attended session, which still blocks. Prior
-# behavior treated `??` as dirty and caused an 80h tick outage when an
-# uncommitted playbook sat on disk (2026-04-21 → 2026-04-23).
-PRE_SUP_DIRTY=$(git -C "$SUP" status --porcelain 2>/dev/null | grep -v '^??' || true)
+# Exclude untracked files (`??`) and the generated verified-state snapshot from
+# the dirty check: neither can produce merge conflicts with targeted tick edits.
+# The real concern is modified/staged attended-session work, which still
+# blocks. Prior behavior treated inert files as dirty and caused repeated tick
+# outages.
+PRE_SUP_DIRTY=$(git -C "$SUP" status --porcelain -- . ':!system/verified-state.md' 2>/dev/null | grep -v '^??' || true)
 
 # Refuse to run on a dirty working tree — an attended session may be in flight
 # with uncommitted work. Safer to skip than to risk committing partial state.
