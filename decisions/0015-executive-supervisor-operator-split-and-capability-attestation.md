@@ -57,6 +57,29 @@ continuing to imply full server control.
   fabric is back up; this ADR is accepted on principal direction and live
   evidence from the current harness.
 
+## 2026-04-25 Amendment: no recursive "full admin" routing
+
+The original split was necessary but incomplete. It correctly prevented an
+attached session from claiming host control, but it still allowed a circular
+failure mode: one attached session could tell Evan to open or tmux into another
+agent session that would supposedly have "full admin" authority. If the second
+session is launched through the same sandboxed harness, it has the same blocked
+host-control capability and repeats the instruction.
+
+Decision:
+
+- Operator posture is not inherited from tmux, session name, cwd, or role
+  label. It is granted only by live capability attestation.
+- A blocked attached session must not route the principal to another agent as
+  the remedy for missing host control.
+- The blocked session remains responsible for all reversible work its file and
+  repo permissions allow.
+- For genuine host-only actions, the correct output is an exact host command or
+  sanctioned operator bridge request, not an authority escalation.
+- Repeated host-only needs are operator-surface design bugs. They should be
+  promoted into scripts, command-surface tools, or another explicit bridge with
+  auditable execution semantics.
+
 ## Alternatives considered
 
 1. **Keep `supervisor` overloaded and document it better.**

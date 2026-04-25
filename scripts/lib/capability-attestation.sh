@@ -79,6 +79,11 @@ if [[ "$tmux_control" == "yes" || "$systemd_control" == "yes" ]]; then
   operator_available="yes"
 fi
 
+operator_handoff="none"
+if [[ "$operator_available" == "no" ]]; then
+  operator_handoff="no-agent-route"
+fi
+
 effective_role="project"
 if [[ "$posture" == "workspace-root" ]]; then
   effective_role="executive+supervisor"
@@ -104,6 +109,7 @@ print(json.dumps({
   "host_systemd_control": "${systemd_control}",
   "network_egress": "${network_egress}",
   "operator_available": "${operator_available}",
+  "operator_handoff": "${operator_handoff}",
 }, indent=2, sort_keys=True))
 PY
     ;;
@@ -119,6 +125,7 @@ PY
 - host systemd control: \`${systemd_control}\`
 - network egress: \`${network_egress}\`
 - operator available: \`${operator_available}\`
+- operator handoff: \`${operator_handoff}\`
 EOF
     ;;
 esac

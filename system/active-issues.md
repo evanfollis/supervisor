@@ -23,6 +23,10 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **Operator authority loop** — attached sessions can be executive/supervisor
+  with repo write but no tmux/systemd host control. ADR-0015 amendment now
+  forbids routing Evan to another "full admin" agent; repeated host-only needs
+  must become an explicit operator bridge/tool.
 - **Executive boundary discipline** — FR-0018 and follow-ons name the pattern where the executive session patches project code instead of shaping the PM layer. Ongoing; reinforced by ADR-0020 action-default + the people-or-money rubric memory.
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
