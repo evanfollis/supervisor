@@ -1,14 +1,14 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-24
+updated: 2026-04-25
 ---
 
 # Active issues
 
 ## Currently live
 
-- **Phase C command UX** — C1 read-only streaming attach live at `/attach/<name>`; C2 (write path + writer lock + reconnect) in flight per `runtime/.handoff/command-phase-c2-kickoff-2026-04-23T19-15Z.md`. C3 (ephemeral pool + reasoning UI + attach picker) follows. D (Cowork panels) parked until C lands and is used ≥3 days.
+- **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
 - **Skillfoundry agentic inbound deploy** — Preflight landing route + `sourceType` + watcher restart; Launchpad Lint + LCI landing + telemetry; ≥1 blog post/probe/week. In flight per the skillfoundry session (scope now spans `/opt/workspace/projects/skillfoundry/` root).
@@ -18,12 +18,13 @@ updated: 2026-04-24
 
 ## Pending principal (people-or-money only)
 
-- **Tally form embed for LCI** (~5 min; form creation is the blocker; cost unchanged at $99 listing price) — `runtime/.handoff/general-skillfoundry-tally-form-needed-2026-04-18.md`.
+- None currently. External-service setup should first be converted to a
+  machine-owned fallback path before being treated as principal work.
 
 ## Structural / background
 
 - **Executive boundary discipline** — FR-0018 and follow-ons name the pattern where the executive session patches project code instead of shaping the PM layer. Ongoing; reinforced by ADR-0020 action-default + the people-or-money rubric memory.
-- **ADR-0028 post-landing artifact hygiene** — stale `runtime/.handoff/URGENT-command-fr0015-principal-decision-needed.md` still on disk; command session to verify closure and delete OR escalate if genuinely open.
+- **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
 
