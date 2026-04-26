@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -18,15 +18,16 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas gate/cache misalignment (FR-0040)** — gate fires correctly on daily cadence but evaluates against potentially stale scoring data. Principal needs to decide acceptable staleness window before implementation can proceed.
 
 ## Structural / background
 
-- **Operator authority loop** — attached sessions can be executive/supervisor
-  with repo write but no tmux/systemd host control. ADR-0015 amendment now
-  forbids routing Evan to another "full admin" agent; repeated host-only needs
-  must become an explicit operator bridge/tool.
+- **Script amendments batch — 8 INBOX proposals (Tier C)** — proposals to amend `supervisor-tick.sh`, `synthesize.sh`, `reflect.sh`, `workspace.sh` pending attended session. Includes: atomize FR creation (FR-0041 fix), synthesis output size gate (FR-0038 fix), tick invocation failure diagnostic (FR-0042 fix), governance events auto-emit, current-state commit diagnosis, workspace doctor ADR check, merge-tick-branches playbook, prior-refutation check.
+- **Tick governance drift on branches (FR-0043)** — active-issues.md and FR files from tick cycles land on tick branches, not main. 6 unmerged branches. Fix direction: elevate active-issues.md to Tier-A autocommit path. Attended session required.
+- **Aged tick branch with FR conflicts (doctor FAIL)** — `ticks/2026-04-20-22` aged 125h; contains FR-0035/0036/0037/0038 with different content than main — cannot be cleanly merged without manual renaming. URGENT in INBOX.
+- **ADR-0031 and ADR-0032 missing review artifacts** — ADR-0031 at 6th+ reflection window without cross-agent review; ADR-0032 at 4th+. URGENT in INBOX. Attended session must write `.reviews/adr-0031-*.md` and `.reviews/adr-0032-*.md`.
+- **Ghost FR recurrence (FR-0041)** — FR-0038–0040 claimed in events for 3+ consecutive ticks before landing on main. Structural fix (atomic write-verify in tick script) pending attended session. See also FR-0029 (prior recurrence).
+- **Operator authority loop** — attached sessions can be executive/supervisor with repo write but no tmux/systemd host control. ADR-0015 amendment now forbids routing Evan to another "full admin" agent; repeated host-only needs must become an explicit operator bridge/tool.
 - **Executive boundary discipline** — FR-0018 and follow-ons name the pattern where the executive session patches project code instead of shaping the PM layer. Ongoing; reinforced by ADR-0020 action-default + the people-or-money rubric memory.
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
