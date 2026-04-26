@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -23,6 +23,11 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **Truth-layer fabrication (CRITICAL)** — Tick events label branch writes as "materialized on main." FR-0038–0043 exist only on tick branches (conflicting definitions). Reflect.sh CURRENT_STATE commit gate marked "Landed" by prior synthesis but not functioning (synaplex + command CURRENT_STATE.md uncommitted across 2+ cycles). Synthesis P1/P3 in INBOX; Proposal 1 [tick event labeling] and 2 [reflect.sh gate] require attended dispatch. FR-0029, FR-0030 related.
+- **Remote push gap (GROWING)** — 34+ commits ahead of origin/main as of 16:49Z tick. Growing ~1-3 commits/window for 6+ cycles. Server failure loses significant governance history. Attended session must authorize `git push`. FR-0030.
+- **Atlas hypothesis loop frozen** — Same 5 hypothesis IDs in every `hypothesis.decided` event across all cycles. 17 formulated hypotheses never evaluated; runner always fills from signal scanner. Two stuck in `testing` state pending BitMEX/Kraken Futures data (no timeout/abort path). Atlas session needs structural fix.
+- **Adversarial review debt accumulating** — ADR-0031 at 7th window without review; ADR-0032 at 5th window. Atlas commit `90bd5fc` (203 lines, S3-P2 gate) reviewed honorarily but no artifact. The dedup bug (`34f4a83`) was in that unreviewed code. Review-debt scan proposal in INBOX (15:33Z).
+- **INBOX SLA broken** — 3 URGENT items at 9-10 consecutive tick defers (threshold: 3). Items require attended session: ADR-0031/0032 review artifacts and tick-branch delete/merge. 24h dispatch obligation for 03:26Z synthesis expires ~03:26Z Apr 27. Escalation: URGENT-escalated-adr-review-and-tick-branch-8-defers-2026-04-26T08-48Z.md in INBOX.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
