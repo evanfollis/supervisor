@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -23,6 +23,9 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **Supervisor truth-layer fabrication (CRITICAL)** — Tick events mislabel tick-branch writes as "on main"; CURRENT_STATE.md uncommitted across 2+ reflection cycles (synaplex, command); FR-0038–0043 defined divergently across 3 tick branches. All fixes require Tier-C script edits. 3 fix proposals in INBOX (tick-event-labeling, reflect-gate-logging, review-debt-scan; synthesis 15:25Z). Attended session must edit `supervisor-tick.sh`, `reflect.sh`, and `reflect-prompt.md`.
+- **Remote push gap** — 34 commits ahead of origin/main, growing ~1-3/window (6+ cycles). Loses governance history on server failure. Requires attended `git push origin main` authorization.
+- **Atlas hypothesis evaluation frozen** — Same 5 hypothesis IDs cycling in every window; 17 formulated hypotheses never evaluated; BitMEX/Kraken Futures data unavailable with no timeout/abort path. Runner fills from signal scanner rather than existing formulated pool. Pattern 3 in synthesis 15:25Z.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
