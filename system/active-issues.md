@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -23,6 +23,11 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **CRITICAL: Truth-layer fabrication (FR-0038)** — tick events label tick-branch writes as "on main"; they're not. FR-0038/0039/0040 defined on 3+ tick branches with conflicting content; none on main until this tick (2026-04-26T20:48Z). Root cause unifies ghost FRs (FR-0029), branch stranding, and remote push gap. Fix: `proposal-tick-event-labeling-2026-04-26T15-33-43Z.md` in INBOX.
+- **Remote push gap growing (FR-0030)** — 34 commits ahead of origin/main as of 2026-04-26T20:48Z; growing 1-3 commits per 2h window. A server failure loses significant governance history. Requires attended `git push origin main` authorization.
+- **INBOX SLA broken** — 3 URGENT items in INBOX since 2026-04-25T16:47Z (>27h; SLA=24h); 5+ proposals also aged >29h. 8-defer URGENT escalation (`URGENT-escalated-adr-review-and-tick-branch-8-defers`) correctly fired. Items require attended judgment (ADR review, branch delete) that ticks cannot provide.
+- **Reflection-commit gate false closure** — `reflect.sh:186-202` exists but synaplex and command CURRENT_STATE.md remains uncommitted after 2+ reflection cycles. Prior synthesis incorrectly marked this as "Landed." Proposal `proposal-reflect-current-state-logging-2026-04-26T15-33-43Z.md` in INBOX.
+- **Atlas hypothesis loop frozen** — same 5 hypothesis IDs in every cycle; 17 formulated hypotheses never evaluated; 2 stuck in `testing` due to unavailable BitMEX/Kraken Futures data. S3-P2 gate fires correctly but no new epistemic state produced.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
