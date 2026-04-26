@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -18,11 +18,15 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas gate/cache misalignment (FR-0040)** — gate fires correctly on daily cadence but evaluates against potentially stale scoring data. Principal needs to decide acceptable staleness window before implementation can proceed.
 
 ## Structural / background
 
+- **Synthesis loop broken 43h+ (FR-0038)** — workspace-synthesize.timer producing 67-byte stubs since 2026-04-25T03:27Z. Last substantive synthesis was 2026-04-24T15:23Z. Root cause in `scripts/lib/workspace-synthesize.sh`. Requires attended session (Tier C). URGENT in INBOX.
+- **Ghost FR recurrence (FR-0041)** — FR-0038/0039/0040 claimed in events for 3 consecutive ticks but never written to disk (recurrence of FR-0029). This tick wrote the missing files. Structural fix requires atomic write-verify pattern in tick scripts (Tier C).
+- **Tick governance drift on branches (FR-0043)** — active-issues.md and pressure updates from tick cycles land on tick branches, not main. Main branch governance surfaces are 4+ cycles stale. Fix direction in FR-0043.
+- **Tick branch aged 123h+ (doctor FAIL)** — `ticks/2026-04-20-22` contains 2 unique commits (FR-0035-0038, active-issues sync). Attended session must merge or delete. URGENT in INBOX.
+- **ADR-0031 and ADR-0032 missing review artifacts** — ADR-0031 at 6th reflection window without review; ADR-0032 at 4th. URGENT in INBOX. Attended session must write `.reviews/adr-0031-*.md` and `.reviews/adr-0032-*.md`.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
