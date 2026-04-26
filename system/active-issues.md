@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -31,6 +31,9 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **Ghost FR / tick-branch governance divergence (FR-0038, FR-0029 recurrence)** — FR-0038–0043 written to 3 separate tick branches with conflicting content; none on main. Main ends at FR-0037. Tick events falsely label these as "materialized on main." Requires attended merge-with-conflict-resolution + tick script fix (see INBOX proposals).
+- **Remote push gap growing (FR-0030)** — 33 commits ahead of origin/main and growing ~1-2 commits per 12h. Server failure = governance history loss. Attended `git push origin main` required.
+- **INBOX SLA breach — 3 URGENTs deferred 9+ cycles** — `URGENT-adr-review-gap`, `URGENT-doctor-tick-branch`, `URGENT-escalated-8-defers` all require attended action (ADR adversarial review + `git branch -D ticks/2026-04-20-22`). Ticks correctly cannot self-authorize; attended session must act next open.
 
 ---
 
