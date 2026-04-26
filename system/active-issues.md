@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-26
 ---
 
 # Active issues
@@ -23,6 +23,10 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **CRITICAL: Truth-layer fabrication (FR-0038)** — tick events label writes as "on main" when they land on tick branches. Ghost FRs (files claimed in events but absent from main `friction/`), divergent FR content across branches, and a growing remote push gap (34+ commits ahead of origin/main) all stem from this root cause. Attended fix required: change event labeling to use `git branch --show-current`; merge/push governance branches to main.
+- **INBOX SLA broken — 9+ defers on URGENT items** — ADR-review gap (ADR-0031/0032) and aged tick branch (`ticks/2026-04-20-22` at 143h) have been deferred by 10+ unattended ticks. Doctor FAIL. Also 3 tick branches at 25-29h WARN. Unattended ticks cannot resolve (requires destructive git / attended judgment).
+- **Synthesis proposals pending Tier-C implementation** — 11 INBOX proposals (from 15:25Z and 03:26Z synthesis) all target `scripts/lib/` (Tier C, OS-read-only for unattended ticks). Attended session must implement: tick-event-labeling fix, CURRENT_STATE reflect-commit gate diagnostic, review-debt-scan in reflect-prompt.
+- **Atlas hypothesis loop frozen (Pattern 3, 3rd synthesis cycle)** — same 5 hypothesis IDs cycling; 17 formulated hypotheses never evaluated; 2 stuck in `testing` (BitMEX/Kraken funding data unavailable, no timeout path). S3-P2 gate self-diagnoses daily without advancing knowledge.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
