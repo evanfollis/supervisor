@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-27
 ---
 
 # Active issues
@@ -31,6 +31,10 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **Tick branch proliferation / doctor FAIL** — `ticks/2026-04-20-22` aged 167h is the hard FAIL; 11 additional tick branches aged >24h (WARNs). Doctor blocked until attended session runs `git branch -D ticks/2026-04-20-22`. Tick-branch work never merges to main — FR-0038..0041 and 4 active-issues structural entries exist on tick branches only, invisible to reflections and synthesis.
+- **INBOX proposal backlog (saturation)** — 12 Tier-C synthesis proposals (2d+ unprocessed) + 3 URGENT items (55h+ unprocessed, 8+ defers). INBOX saturation exception applies (>5 same root). Attended session must batch-process: accept/reject/archive all 15 items in one pass. Holding cost: synthesis dispatch deadline expired; cross-cutting proposals from Apr 25–27 not acted on.
+- **Tick event labeling integrity** — Tick events claim commits land "on main" when they land on tick branches. All unattended-tick self-reports of Tier-A writes landing on main are unreliable. Root cause: tick wrapper uses `--allow-empty` commit on main regardless of which branch the tick writes to.
+- **ADR-0031 / ADR-0032 review debt** — 5+ reflection windows without cross-agent adversarial review. INBOX URGENT since 2026-04-25T16:47Z. Attended session must write `.reviews/adr-0031-<iso>.md` and `.reviews/adr-0032-<iso>.md`.
 
 ---
 
