@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-27
 ---
 
 # Active issues
@@ -31,6 +31,11 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **Remote push gap** — origin/main is 35+ commits behind local main (growing each tick cycle). A server failure loses significant governance history. Requires attended `git push` authorization. No automated push path exists by design.
+- **INBOX saturation + suppression in effect** — 15 items in INBOX, 3 URGENT aged 8+ defers (ADR-0031/0032 review, tick branch cleanup). Per charter §saturation-exception, new URGENTs for the same root cause suppressed; synthesis file + LATEST_SYNTHESIS are the escalation surface. Attended session must act: write ADR reviews, delete/merge aged tick branch.
+- **Ghost FR / self-reporting fabrication** — FR-0038–0041 were created on tick branches, not main. Main's friction/ ends at FR-0037. Structural fix requires editing `scripts/lib/supervisor-tick.sh` (Tier C, proposals 1 and 6 in INBOX — attended session only). Pattern confirmed across 4 consecutive synthesis cycles.
+- **Reflection-commit gate failing** — `reflect.sh:186-202` silently fails to commit CURRENT_STATE.md. Command and Synaplex have uncommitted CURRENT_STATE across 3+ reflection cycles. Proposal `proposal-reflect-current-state-logging` in INBOX — Tier C, attended session only.
+- **Tick branch accumulation / doctor FAIL** — `ticks/2026-04-20-22` at 157h (doctor FAIL); 10 more branches aged 25-43h (WARN). Requires attended merge/delete. All tick branches are governance reports, not feature branches — safe to delete if superseded by later ticks on main.
 
 ---
 
