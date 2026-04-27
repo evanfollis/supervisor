@@ -1,13 +1,16 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-27
 ---
 
 # Active issues
 
 ## Currently live
 
+- **[CRITICAL] Synaplex arxiv adapter data destruction** — arxiv adapter overwrites existing daily file with 0 items on stuck runs; corpus lost 32 items at 16:17Z and again at 00:20Z Apr 27. Fix dispatched to synaplex session (`runtime/.handoff/synaplex-arxiv-data-destruction-2026-04-27T04-48Z.md`). Dedup bug also at 3-cycle URGENT threshold.
+- **[ATTENDED] Synthesis→execution pipeline stuck** — 8 unlanded proposals across 2 cycles (03:26Z Apr 26 + 15:25Z Apr 26). Deadline 15:25Z Apr 27 (~10h). 3 URGENT INBOX items 57h+ unactioned. Requires attended session to execute top proposals (Tier-C: `supervisor-tick.sh`, `reflect.sh`, `reflect-prompt.md`) and clear 149h-old tick branch `ticks/2026-04-20-22`. Dispatch handoff: `runtime/.handoff/general-synthesis-dispatch-2026-04-27T02-49Z.md`.
+- **[ATTENDED] Remote push gap growing** — 35 commits ahead of `origin/main`, increasing each tick. Governance history at risk. Requires attended `git push` authorization.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
