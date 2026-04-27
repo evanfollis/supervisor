@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-27
 ---
 
 # Active issues
@@ -22,6 +22,13 @@ updated: 2026-04-25
   machine-owned fallback path before being treated as principal work.
 
 ## Structural / background
+
+- **Synthesis output empty (FR-0038)** — `workspace-synthesize.timer` at 15:27Z produced a 67-byte self-referential file; `LATEST_SYNTHESIS` now points to it. Fix: size gate in `synthesize.sh` (proposal in INBOX). Attended session required.
+- **Synthesis dispatch deadline expired** — 15:25Z deadline for 2026-04-26T15:25Z synthesis proposals (Tier-C: tick event labeling, CURRENT_STATE commit gate, review-debt scan) passed without action. `general-synthesis-dispatch-2026-04-27T02-49Z.md` still in `runtime/.handoff/`; all 3 proposals blocked on Tier-C write access.
+- **INBOX saturation — 12 Tier-C proposals** — 12 supervisor script/playbook proposals accumulating since 2026-04-25; all require attended session. INBOX saturation suppression active. Suppression noted; these compress into attended-session work queue.
+- **Atlas adversarial review (URGENT)** — `runner.py:1086–1196` 4th carry-forward (FR-0021). Routed to atlas session at `runtime/.handoff/atlas-adversarial-review-urgent-2026-04-27T16-49Z.md`. 2 bugs in 2 weeks; escalation gate code.
+- **ADR-0031/0032 cross-agent review overdue** — 8+ defers; escalation in INBOX `URGENT-escalated-adr-review-and-tick-branch-8-defers-2026-04-26T08-48Z.md`. Attended session only.
+- **Tick branch `ticks/2026-04-20-22` at 161h** — doctor FAIL. Attended delete or merge required.
 
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
