@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-27
 ---
 
 # Active issues
@@ -31,6 +31,10 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **Ghost FR materialization (FR-0038)** — tick sessions emit `fr_captured` events for friction files written on tick branches that never merge to main. Events reference FRs that don't exist on main; friction surface is unreliable for tick-written observations. Tier-C fix required (supervisor-tick.sh). See `proposal-merge-tick-branches-playbook-2026-04-26T03-37-07Z.md`.
+- **Tier-C proposal accumulation (attended exec only)** — 12+ INBOX proposals (tick event labeling, CURRENT_STATE reflect-commit gate, review debt scan, FR atomization, synthesis size gate, etc.) require Tier-C edits to supervisor scripts. All require attended exec session. Synthesis dispatch deadline 2026-04-27T15:25Z expired without landing. Oldest proposals: 2026-04-25.
+- **Aged tick branch (doctor FAIL)** — `ticks/2026-04-20-22` at 163h+; doctor FAIL until deleted or merged. Additionally 13+ tick branches aged 25-49h (warn). Attended exec destructive git op required.
+- **INBOX URGENT defer count** — 3 URGENT items (ADR-0031/0032 review, tick branch delete, escalation rollup) deferred 10+ consecutive ticks. ADR review requires content judgment; branch delete requires attended git op. INBOX SLA structurally broken.
 
 ---
 
