@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-27
 ---
 
 # Active issues
@@ -23,6 +23,12 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **[CRITICAL] Truth-recording fabrication (FR-0038)** — Tick events hard-code "main" as artifact location; commits land on tick branches. Root cause of ghost FRs (FR-0029), tick-branch stranding, and remote push gap. Fix requires attended edit to `supervisor-tick.sh`. Synthesis Proposal 1 dispatched to general in `runtime/.handoff/general-synthesis-dispatch-2026-04-27T02-49Z.md`.
+- **[HIGH] Remote push gap** — 35 commits ahead of `origin/main` as of 2026-04-27T02:49Z; growing ~1-3 commits/window. A server failure loses significant governance history. Requires attended `git push` after verifying main is stable.
+- **[HIGH] Atlas hypothesis loop frozen** — Same 5 hypothesis IDs cycling "continue" across all reflection windows. 17 formulated hypotheses never evaluated; evidence count frozen at 153. Two hypotheses stuck `testing` due to BitMEX/Kraken Futures data unavailability with no timeout path. Synthesis Pattern 3.
+- **[HIGH] Synthesis dispatch gap (FR-0039)** — Synthesis proposals sitting without dispatch; 24h window closes 2026-04-27T15:25Z. Tick sessions emit `synthesis_reviewed` but cannot dispatch Tier-C proposals. `runtime/.handoff/general-synthesis-dispatch-2026-04-27T02-49Z.md` is the live dispatch item.
+- **[HIGH] INBOX SLA broken — 8-defer URGENT** — Two URGENTs deferred 8+ consecutive ticks: (1) ADR-0031/0032 missing review artifacts; (2) `ticks/2026-04-20-22` aged 147h. Both require attended session judgment. Per URGENT-escalated-adr-review-and-tick-branch-8-defers-2026-04-26T08-48Z.md.
+- **[MEDIUM] Adversarial review debt** — ADR-0031 accepted 7+ reflection windows without review artifact; ADR-0032 accepted 5+ windows. Atlas commit 90bd5fc (S3-P2 gate, 203 lines) shipped without review; dedup bug subsequently found. Synthesis Pattern 4.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
