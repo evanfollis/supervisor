@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-28
 ---
 
 # Active issues
@@ -20,6 +20,15 @@ updated: 2026-04-25
 
 - None currently. External-service setup should first be converted to a
   machine-owned fallback path before being treated as principal work.
+
+## Governance substrate (URGENT — attended session required)
+
+- **Doctor FAIL: 3 tick branches >72h** — `ticks/2026-04-25-16` (77h), `ticks/2026-04-25-18` (75h), `ticks/2026-04-25-20` (73h) unmerged. 21 additional branches >24h. Merge-tick-branches playbook proposal in INBOX.
+- **INBOX saturation: 19 items, all deferred** — all require attended session (Tier-B/C scope or `.reviews/` EROFS). URGENT `URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md` open since 08:50Z Apr 28. Root: tick sandbox cannot execute Tier-C proposals; no attended session in ~130h.
+- **`.reviews/` EROFS at OS level** — confirmed across worktrees AND direct sessions. ADR-0031/0032 review content in `adr-review-complete-0031-0032-2026-04-28T02-49Z.md` INBOX. No write path exists from automated tick sessions.
+- **CLAUDE.md iterate-patch-freeze amendment pending** — 2 duplicate proposals in INBOX (`proposal-iterate-patch-freeze-2026-04-28T15-34-37Z.md`, `proposal-iteratively-patched-functions-freeze-review-2026-04-28T15-35-41Z.md`); text ready; attended session should de-duplicate and land or reject.
+- **Synthesis output gate unimplemented** — `scripts/lib/synthesize.sh` has no size threshold; 2 of 3 synthesis cycles Apr 26-28 produced 67-byte stubs (FR-0039). Fix is 5 lines of bash; Tier-C.
+- **FR-0038/0039 now on main** — ghost-written 5+ times in tick branches; materialized in this tick session (2026-04-28T22-49Z). The structural cause (tick branches never merged) remains.
 
 ## Structural / background
 
