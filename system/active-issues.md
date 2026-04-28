@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-28
 ---
 
 # Active issues
@@ -31,6 +31,10 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **Synthesis stub propagation (FR-0039)** — LATEST_SYNTHESIS has pointed to 67-byte stubs for 2 consecutive synthesis cycles (2026-04-27T15:27 and 2026-04-28T03:25). Synthesize.sh updates the pointer unconditionally; a size gate fix is pending attended session (`proposal-synthesis-output-gate` is 5th-cycle carry-forward in INBOX).
+- **INBOX saturation** — 16 items in INBOX; 12 are Tier-B/C proposals awaiting attended session. 3 from 2026-04-25 are ~61h old. Ghost FR pattern (FR-0038) confirmed: events claimed FR-0038 creation on 2 prior ticks; file was never written to disk; this tick materializes it.
+- **ADR-0031 and ADR-0032 reviews pending file move** — Review content is in INBOX item `adr-review-complete-0031-0032-2026-04-28T02-49Z.md`; `.reviews/` is EROFS from tick sandbox; attended session must write `adr-0031-2026-04-28T02-49Z.md` and `adr-0032-2026-04-28T02-49Z.md` to `.reviews/` and archive the INBOX item.
+- **Tick-branch proliferation** — 11 tick branches >24h old (ticks/2026-04-26-06 through ticks/2026-04-27-02); doctor WARN. Governance writes made by tick sessions on branches never reach main; attended merge needed.
 
 ---
 
