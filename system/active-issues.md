@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-28
 ---
 
 # Active issues
@@ -23,6 +23,10 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **Tick branch stranding** — 22+ tick branches with Tier-A governance commits never merged to main; governance state bifurcated. Merge playbook proposed in INBOX (5 cycles, `proposal-merge-tick-branches-playbook`); `playbooks/` is EROFS in tick sandbox. Attended session must write playbook and execute merge. FR-0038 (ghost FRs) is a direct consequence.
+- **Synthesis stub loop** — LATEST_SYNTHESIS has pointed to a 67-byte stub for 4+ cycles; synthesize.sh has no size gate. Fix is 5 lines of bash in `scripts/lib/synthesize.sh` (Tier C, attended session only). FR-0039 written. Translator generates carry-forward proposals from stubs — inflating INBOX with 15 proposals lacking real synthesis content.
+- **INBOX proposal saturation** — 15 synthesis proposals 3–4 days without disposition; URGENT-inbox-proposal-saturation written 2026-04-28T08:50Z. Saturation exception active. Attended session must bulk-disposition (execute, defer, or close) to restore URGENT signal quality.
+- **ADR-0031/0032 review placement blocked** — Review content written to INBOX handoff 2026-04-28T02:49Z; `.reviews/` is EROFS in tick sandbox so placement deferred 2+ days. Attended session must write `.reviews/adr-003{1,2}-2026-04-28T02-49Z.md` from INBOX content and archive `adr-review-complete-0031-0032-2026-04-28T02-49Z.md`.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
