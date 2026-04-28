@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-28
 ---
 
 # Active issues
@@ -31,6 +31,11 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **Tick-branch stranding** (doctor WARN) — 21 aged tick branches >24h as of 2026-04-28T12:49Z. Proposal `proposal-merge-tick-branches-playbook` in INBOX; needs attended session to either add playbook or declare won't-fix. Branches are safe to delete or merge but require principal access.
+- **Synthesis stub loop** (FR-0039) — LATEST_SYNTHESIS points to 67-byte stub for 4+ cycles; meta-loop stalled. Fix is a size gate in `scripts/lib/synthesize.sh` (5 lines, Tier-C). Proposal `proposal-synthesis-output-gate-2026-04-28T03-30-01Z.md` in INBOX. Requires attended session.
+- **INBOX proposal saturation** — 16 Tier-B/C proposals aged 3-4 days without disposition; URGENT-inbox-proposal-saturation in INBOX. Saturation exception active. Requires attended session to bulk-disposition.
+- **ADR review placement** — ADR-0031 and ADR-0032 reviews exist in INBOX (`adr-review-complete-0031-0032-2026-04-28T02-49Z.md`) but `.reviews/` is EROFS from tick sandbox. Requires attended session to move content to `.reviews/`.
+- **Ghost FR loop** (FR-0038) — Tick sessions running in worktree sandbox cannot write to `friction/` (EROFS). Claimed FR creation in events but files never written until this tick (non-worktree session). Fix: either verify write success before emitting event, or make `friction/` writable in worktree sandbox. Attended session or scripts/lib/ change needed.
 
 ---
 
