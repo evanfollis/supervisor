@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-28
 ---
 
 # Active issues
@@ -22,6 +22,12 @@ updated: 2026-04-25
   machine-owned fallback path before being treated as principal work.
 
 ## Structural / background
+
+- **Synthesis stub propagation (FR-0039)** — `synthesize.sh` produces 67-byte stubs; LATEST_SYNTHESIS corrupt for 3+ consecutive cycles. `proposal-synthesis-output-gate` in INBOX on 5th cycle; requires Tier C scripts/lib/ edit by attended session. URGENT-inbox-proposal-saturation covers this.
+- **INBOX saturation — 15 proposals aged 3-4 days (URGENT written 2026-04-28T08:50Z)** — synthesis proposals require attended disposition. See `URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`. Saturation exception applies; no further per-proposal URGENTs.
+- **ADR-0031 + ADR-0032 reviews pending file-move** — review content in INBOX `adr-review-complete-0031-0032-2026-04-28T02-49Z.md`; `.reviews/` is EROFS from tick sandbox. Attended session must copy files and archive INBOX item.
+- **Ghost FR materialization (FR-0038)** — ticks claiming fr_captured events for files never written to disk; both FR-0038 and FR-0039 materialized this tick after being ghost for 6h.
+
 
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
