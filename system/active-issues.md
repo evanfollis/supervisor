@@ -1,13 +1,15 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
 
 ## Currently live
 
+- **Atlas hypothesis pool rotation** — 14 formulated hypotheses never consumed; 2 testing stuck on unavailable BitMEX/Kraken data; runner only evaluates `testing` pool, so loop produces zero knowledge gain. Principal-class decision needed: A (auto-promote formulated+feasibility check) vs B (manual queue) vs C (deprecate stuck). Handoff: `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`. PM recommendation: A+C combined.
+- **INBOX saturation** — 22 synthesis proposals aged 25–97h without disposition; saturation exception active. Root cause: all pending proposals require Tier-C (scripts/lib/, CLAUDE.md) writes that tick sandbox cannot perform. Attended session must bulk-disposition before the URGENT queue regains signal fidelity.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
