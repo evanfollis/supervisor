@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -31,6 +31,9 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **INBOX proposal saturation — 17+ items need attended session** — 17 Tier-B/C synthesis proposals (oldest Apr 25) require attended principal or operator session to disposition. Tick sessions cannot reach scripts/lib/, .reviews/, or CLAUDE.md. URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md remains in INBOX. Minimum action: fix synthesis-output-gate (5-line bash) + bulk disposition remaining proposals.
+- **synthesize.sh LATEST_SYNTHESIS corruption** — synthesis job follows symlink when writing output, risk of overwriting historical files. FR-0039 filed. Requires scripts/lib/ fix (Tier C). Workaround: tick sessions manually correct symlink each run. Structural fix needed in synthesize.sh.
+- **Synaplex: 5-cycle carry-forward (OBS-3 + OBS-4)** — `/review` not run on `5814658`; arxiv adapter lacks S3-P2 escalation gate. Routed to synaplex session via `runtime/.handoff/synaplex-5cycle-carry-forward-2026-04-29T02-49Z.md`.
 
 ---
 
