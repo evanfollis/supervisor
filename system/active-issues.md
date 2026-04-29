@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -18,10 +18,12 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — 14 formulated hypotheses never enter testing because 2 stuck BitMEX-dependent `testing` hypotheses block the loop (no data source). Recommendation A+C (auto-promote formulated + add INFEASIBLE status + feasibility check). Decision needed; handoff at `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`. No code until principal selects A/B/C.
 
 ## Structural / background
+
+- **INBOX proposal saturation** — 22 proposals in INBOX (3–101h aged), all Tier-B/C requiring attended session. Saturation exception active (suppressing further per-proposal URGENTs). Items include: synthesis-output-gate fix (5 lines in scripts/lib/), merge-tick-branches playbook, and 19 policy proposals. Doctor FAIL: 9 tick branches >72h. Attended session needed to disposition in bulk (bulk won't-fix + 2–3 act-ons is sufficient). 2 new proposals from 15:29Z synthesis also landed (Tier-C deferred): iteratively-patched-functions-freeze (CLAUDE.md amendment), tick-consecutive-failure-tracking (tick-wrapper.sh).
+- **Synthesis output stub** — `cross-cutting-2026-04-29T15-24-48Z.md` is a 1-line path stub (synthesis job output gate missing). Fix is `proposal-synthesis-output-gate-2026-04-28T03-30-01Z.md` in INBOX (scripts/lib/ — Tier-C).
 
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
