@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -18,8 +18,7 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — 14 `formulated` hypotheses never consumed; 2 `testing` hypotheses stuck on BitMEX/Kraken data (unavailable from Hetzner US). Loop is a 2-hypothesis perpetual-continue machine with zero knowledge gain. Options A+C (auto-promote with feasibility check + add INFEASIBLE status) recommended by atlas session. Decision file: `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`. Principal pick needed: A / B / C / A+C.
 
 ## Structural / background
 
@@ -31,6 +30,8 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **INBOX proposal saturation** — 20 INBOX items, 17 SLA-violated (>24h). Root cause: all proposals require Tier-C (scripts/lib/, CLAUDE.md) changes that tick sessions cannot make. URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md is the escalation surface. Attended session must bulk-disposition (execute / won't-fix / defer) to restore signal quality.
+- **Ghost-state self-verification** — ticks claim FRs and active-issues updates "landed on main" when changes are on unmerged tick branches. 10+ cycle pattern documented in synthesis; FR-0038 written. Root fix: tick-wrapper post-action state check (synthesis Proposal 1) — requires scripts/lib/ edit (Tier-C, attended session). See `runtime/.meta/cross-cutting-2026-04-29T03-24-29Z.md §Proposal 1`.
 
 ---
 
