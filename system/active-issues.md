@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -18,8 +18,8 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Synaplex L1 cap policy** — ADR-0029 §6 says 200-items/day cap but `layer1_cap()` enforces per-fetch, not per-day; HN reached 409, RSS 202 on 2026-04-28. Decision needed: (A) reframe cap as per-fetch (current behavior, reword ADR-0029 §6) or (B) enforce per-day with a tie-breaker (score/recency/random). Synaplex session recommends A. See `runtime/.handoff/general-synaplex-cap-and-review-followups-2026-04-29T03-10Z.md` §Item 1.
+- **Atlas hypothesis pool rotation** — runner evaluates only 2 hypotheses/cycle (60 falsified, 14 formulated-never-consumed, 2 stuck in testing on unavailable data). Net knowledge gain: zero. Needs decision on lifecycle: auto-consume formulated, manual curation, or deprecate infeasible. Dispatched to atlas session for framing; see `runtime/.handoff/atlas-hypothesis-pool-rotation-2026-04-29T08-48Z.md`.
 
 ## Structural / background
 
@@ -31,6 +31,9 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+- **INBOX proposal saturation** — 19 Tier-B/C synthesis proposals aged 29–89h without disposition. INBOX saturation exception active. Requires attended session to disposition (execute/defer/archive). URGENT file: `handoffs/INBOX/URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`.
+- **FR-0038/0039 open** — tick invocation failures not escalating via S3-P2 (FR-0038); ghost-FR pattern confirmed (FR-0039). Both need tick wrapper fix (scripts/lib/supervisor-tick.sh — Tier C, attended session only).
+- **ADR-0031/0032 review artifacts** — reviews written and sound; cannot copy to `.reviews/` from tick sandbox (EROFS confirmed). Attended session must move content from `handoffs/INBOX/adr-review-complete-0031-0032-2026-04-28T02-49Z.md` to `.reviews/adr-0031-*.md` and `.reviews/adr-0032-*.md`, then archive the INBOX item.
 
 ---
 
