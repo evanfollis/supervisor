@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -18,8 +18,8 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — atlas loop stuck: 2 `testing` hypotheses require BitMEX/KrakenFutures data (geo-blocked); 14 `formulated` never promoted. Three options (A: auto-promote with feasibility check, B: manual queue management, C: deprecate stuck as `infeasible`) — atlas PM recommends A+C. Principal must choose before atlas PM implements. Handoff: `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`.
+- **INBOX proposal saturation** — 22 synthesis proposals in INBOX, 3–4 days old, saturation exception active. All require Tier-C writes (scripts/lib/, CLAUDE.md) beyond tick authority. Key items: synthesis-output-gate (5-line fix to unblock meta-loop), merge-tick-branches-playbook (addresses 8+ aged branches), 20+ minor process proposals. Attended session must bulk-disposition (accept/defer/won't-fix) to restore URGENT signal quality.
 
 ## Structural / background
 
