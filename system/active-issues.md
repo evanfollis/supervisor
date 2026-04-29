@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -18,8 +18,7 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — 2 `testing` hypotheses stuck on unavailable BitMEX/KrakenFutures data; 14 `formulated` hypotheses never promoted; loop producing no new knowledge. Three options (A: auto-promote formulated, B: manual queue, C: mark stuck as infeasible; A+C recommended by atlas session). Decision handoff: `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`.
 
 ## Structural / background
 
