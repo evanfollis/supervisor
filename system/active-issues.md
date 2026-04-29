@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -31,6 +31,13 @@ updated: 2026-04-25
 - **ADR-0028 post-landing artifact hygiene** — artifact inbox still needs owned browser-layer proof before retiring the old `/_inbox` stopgap. Do not ask the principal for the proof path by default.
 - **Workspace CLAUDE.md versioned as of `d09d2be`** — symlink from `/opt/workspace/CLAUDE.md` → `supervisor/workspace-claude.md`. All future workspace-charter edits land in git history via the supervisor repo. Autonomous-exec loop demonstrated for this change (synthesis → translator → INBOX handoff → executive commit).
 - **Cowork is a secondary friction surface** — external commentary only; not a gate, validator, or backlog priority escalator. Phase D Cowork UI remains downstream of command Phase C and broader system backlog pressure. Durable contract: ADR-0032.
+
+## Governance substrate (active — requires attended session)
+
+- **INBOX saturation** — 19 items in `handoffs/INBOX/`; all require attended session to disposition (Tier-B/C: CLAUDE.md amendments, playbook edits, scripts/lib/ changes). INBOX saturation exception active. Root URGENT: `URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`.
+- **.reviews/ EROFS** — `.reviews/` directory is read-only even in direct non-worktree sessions. ADR review content for ADR-0031/0032 is in INBOX handoff `adr-review-complete-0031-0032-2026-04-28T02-49Z.md`; cannot be placed without a different privilege context. FR-0021.
+- **Doctor: WARN** — tick branches aged >72h cleared this tick (4 branches rescued, content on main as FR-0038/0039/0040). Doctor is now WARN (21 branches >24h) — attended session should merge or prune aged tick branches after each attended run.
+- **FR-0038/0039/0040 now real on main** — rescued from Apr 25 tick branches; prior ghost-FR events pre-date this commit. Tick sessions must not re-write these.
 
 ---
 
