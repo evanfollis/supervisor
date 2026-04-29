@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-29
 ---
 
 # Active issues
@@ -10,16 +10,18 @@ updated: 2026-04-25
 
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
-- **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
+- **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; L2/L3/L4 pending. Synaplex intake cap violation active: HN at 409 vs 200-item cap, RSS at 204 vs 200. Cap enforcement not functioning post-merge; fix requires code change (awaiting HN cap decision — see Pending principal).
 - **Skillfoundry agentic inbound deploy** — Preflight landing route + `sourceType` + watcher restart; Launchpad Lint + LCI landing + telemetry; ≥1 blog post/probe/week. In flight per the skillfoundry session (scope now spans `/opt/workspace/projects/skillfoundry/` root).
 - **Discovery adapter post-fix findings** — 3 new findings from Codex review on `2f63ae5`: `parse_assumption` 3-claim collapse, migrate.py swallows decision-header parse failures, parse-one-file boundary leaking. Triaged per handoff; Finding B ships this cycle, Finding A proposal drafts for spec-review, Finding C's ADR promotes to accepted-pending-scheduling.
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
+- **Automated self-verification broken (FR-0038)** — tick wrapper emits success events without verifying postconditions; FR-0038 documents recursive ghost-FR pattern. Cross-cutting synthesis Proposal 1 (post-action state check) in INBOX as `proposal-tick-postaction-verification-2026-04-29T03-28-39Z.md`; Tier-C, needs attended session.
+- **INBOX saturation + attended session drought** — 20 INBOX proposals, saturation exception active (>5 items, same EROFS root). All proposals Tier-C; require operator/attended access. URGENT: `handoffs/INBOX/URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`. ~6 day drought.
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — runner stuck on 2 BitMEX-dependent hypotheses; 14 formulated hypotheses never promoted. Options A+C recommended (add infeasibility status + auto-promote with data-source check). Decision needed: `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`.
+- **Synaplex HN daily cap** — 409 items vs 200-item cap; post-merge cap truncation order also open. Two options: enforce 200-item cap or declare unbounded. Cap enforcement code is blocked until this is decided.
 
 ## Structural / background
 
