@@ -8,6 +8,7 @@ updated: 2026-04-25
 
 ## Currently live
 
+- **Atlas runner frozen — two blockers, decision overdue** — runner halted since 00:45Z 2026-04-30 (~18h). Blocker 1: BitMEX/Kraken data unavailable (2 stuck `testing` hypotheses). Blocker 2: signal-hash drift (12 `formulated` hypotheses unreachable). Decision on A+C+D2 needed; URGENT in INBOX. S3-P2 monitoring gap patched in `9708867`. See FR-0038 and INBOX `URGENT-atlas-pool-rotation-v2-two-blockers-2026-04-30T18-48Z.md`.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
