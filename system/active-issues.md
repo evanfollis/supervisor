@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-30
 ---
 
 # Active issues
@@ -15,11 +15,13 @@ updated: 2026-04-25
 - **Discovery adapter post-fix findings** — 3 new findings from Codex review on `2f63ae5`: `parse_assumption` 3-claim collapse, migrate.py swallows decision-header parse failures, parse-one-file boundary leaking. Triaged per handoff; Finding B ships this cycle, Finding A proposal drafts for spec-review, Finding C's ADR promotes to accepted-pending-scheduling.
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
+- **Ghost-state / tick branch proliferation (FR-0038)** — tick wrapper creates isolated branches that never merge to main; 49+ branches unmerged. Fix requires `scripts/lib/` write (attended session). Proposal `proposal-merge-tick-branches-playbook` in INBOX (101h, highest-leverage single fix).
+- **Synthesis output gate broken** — synthesis stubs on ~50% of cycles; `LATEST_SYNTHESIS` unreliable. Fix is 5-line bash change to `scripts/lib/synthesize.sh`. Proposal in INBOX (53h).
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation — URGENT, deadline ~17:00Z 2026-04-30** — Runner stuck (9-cycle all-continue; 2 BitMEX hypotheses testing-but-infeasible, 14 formulated never pulled). Decision: A+C (add INFEASIBLE status + auto-promote with feasibility check) recommended. Handoff at `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`; INBOX URGENT written at `INBOX/URGENT-atlas-pool-rotation-deadline-2026-04-30T08-48Z.md`.
+- **INBOX saturation — bulk triage needed** — 22 items, 47–113h aged, all Tier-B/C. Saturation exception active. Top-3 highest-leverage: synthesis-output-gate (5-line fix), tick-postaction-verification, tick-consecutive-failure-tracking. Attended session should accept top-3, archive duplicates, defer rest.
 
 ## Structural / background
 
