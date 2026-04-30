@@ -1,3 +1,10 @@
+---
+name: System Status
+description: Current operating model and active focus for the supervisor control plane
+type: front-door
+updated: 2026-04-30
+---
+
 # System Status
 
 ## Role

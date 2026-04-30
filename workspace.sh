@@ -99,6 +99,9 @@ case "${1:-status}" in
   doctor)
     exec "$WORKSPACE_SCRIPTS_ROOT/doctor.sh"
     ;;
+  harness-check)
+    exec "$WORKSPACE_SCRIPTS_ROOT/harness-check.py" "${@:2}"
+    ;;
   *)
     echo "Usage: workspace.sh {start|recover|stop|restart [name]|status|capabilities|add <name> <path>}"
     echo "       workspace.sh feature <slug> [--project <name>] [--agent claude|codex]"
@@ -108,5 +111,6 @@ case "${1:-status}" in
     echo "       workspace.sh idea-focus"
     echo "       workspace.sh context"
     echo "       workspace.sh doctor"
+    echo "       workspace.sh harness-check [--strict|--json]"
     ;;
 esac
