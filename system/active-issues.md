@@ -1,13 +1,15 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-30
 ---
 
 # Active issues
 
 ## Currently live
 
+- **Atlas runner frozen ~20h (CRITICAL)** — Two independent blockers: (1) BitMEX/Kraken data unavailable from Hetzner US → `testing` hypotheses loop `continue`; (2) signal-hash drift on 12 `formulated` hypotheses → empty candidate list → early exit. URGENT in INBOX. Atlas PM recommends A+C+D2. Principal decision needed at `runtime/.handoff/atlas-pool-rotation-decision.md`.
+- **Synaplex L1 cap policy (5th carry-forward)** — ADR-0029 §6 says "max 200/source/day"; implementation does "max 200/fetch" → ~450/day for HN. No data corruption. Three options; synaplex PM recommends C (ratify per-fetch semantic, 0 code change). INBOX item `synaplex-cap-policy-decision-2026-04-30T14-49Z.md`.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
@@ -23,6 +25,8 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **INBOX saturation** — 30 items in INBOX; saturation exception active (>5 items, same root: 0 proposals landed from 14+ synthesis cycles). Doctor FAIL: 21 branches >72h (oldest 113h). Both require attended session to resolve. Next step: bulk-dispose proposals + run merge-tick-branches-playbook.
+- **Ghost-write pattern (FR-0038/FR-0039)** — Tick sessions claim Tier-A writes (active-issues, friction) in events but changes don't persist to disk/git. Confirmed again this tick: active-issues unchanged from `3da9bf3` despite 16:48Z and 18:48Z ticks claiming updates. Structural fix needed (post-action state verification).
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
