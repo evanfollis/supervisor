@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-30
 ---
 
 # Active issues
@@ -16,13 +16,15 @@ updated: 2026-04-25
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
 
-## Pending principal (people-or-money only)
+## Pending principal (decisions, not provisioning)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — runner stuck on 2 BitMEX hypotheses (all-continue streak: 9+ cycles); 14 formulated hypotheses never pulled. **Deadline 2026-04-30T17:00Z (~2h)**. Decision A/B/C/A+C needed. INBOX: `URGENT-atlas-pool-rotation-deadline-2026-04-30T08-48Z.md`. Runtime handoff: `general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`.
+- **Synaplex Layer 1 cap policy** — ADR-0029 §6 says "200/day" but code does "200/fetch" (HN accumulates ~450/day). 5th carry-forward cycle. Decision A/B/C needed. Recommendation: C (ratify per-fetch, amend ADR). INBOX: `synaplex-cap-policy-decision-2026-04-30T14-49Z.md`.
 
 ## Structural / background
 
+- **Tick invocation failures (FR-0038)** — consecutive failures at 10:48Z and 12:47Z Apr 30 produced stub-only reports. Root cause unknown; wrapper emits no diagnostic detail. Proposal `proposal-tick-consecutive-failure-tracking-2026-04-29T15-29-09Z.md` in INBOX targets this.
+- **FR ghost-write / tick-branch isolation (FR-0039)** — FRs 0038–0040 were claimed written 6+ times across ticks but never landed on main (committed to unmerged tick branches). INBOX saturation exception active (22+ proposals); attended session needed to merge tick branches or ratify tick-branch model.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
