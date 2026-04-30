@@ -1,13 +1,17 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-30
 ---
 
 # Active issues
 
 ## Currently live
 
+- **Atlas runner frozen — signal-hash-drift + S3-P2 blind spot** — Runner frozen 14+h (since 00:45Z 2026-04-30); `cycle.completed` never fires on early-exit path (zero-candidate signal-hash-drift). Pool-rotation decision deadline (~17:00Z Apr 30) elapsed without principal response. URGENT in INBOX. Synthesis Proposal 4 (fallback to formulated pool) + S3-P2 fix dispatched to atlas via handoff. Principal needs to respond to `URGENT-atlas-pool-rotation-deadline-2026-04-30T08-48Z.md`.
+- **Synaplex cap policy decision pending** — ADR-0029 §6 per-day vs per-fetch semantic; 5 reflection cycles unresolved. Recommendation: Option C (ratify per-fetch, amend ADR). In INBOX as `synaplex-cap-policy-decision-2026-04-30T14-49Z.md`.
+- **Supervisor main/origin divergence** — local main 1 ahead, 2 behind origin/main. Origin includes FR-0038/FR-0039 (from ticks/2026-04-30-14) not yet on local. Attended merge/rebase needed before next push.
+- **INBOX proposal saturation** — 30 items in INBOX (22 SLA-aged), most are duplicate synthesis proposals requiring attended disposition. Saturation exception active. Requires attended session.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
