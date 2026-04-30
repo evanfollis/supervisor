@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-04-30
 ---
 
 # Active issues
@@ -18,10 +18,16 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas hypothesis pool rotation** — 2 hypotheses stuck in `testing` (BitMEX data unavailable); 14 `formulated` never evaluated; loop silent for 9+ cycles. Decision needed: Option A+C (auto-promote formulated with feasibility check + add INFEASIBLE status) vs B (manual queue) vs C-only. Handoff: `runtime/.handoff/general-atlas-pool-rotation-decision-needed-2026-04-29T17-00Z.md`.
 
-## Structural / background
+## Structural / operational
+
+- **INBOX saturation + attended-session drought** — 22 proposals in INBOX, oldest 107h, all require Tier-B/C disposition. Attended drought ~180h as of 2026-04-30T02:49Z. URGENT-inbox-proposal-saturation active (saturation exception suppressing per-item URGENTs). Next attended session must disposition the queue.
+- **Synthesis loop broken** — `synthesize.sh` writing 1-line stub output since ~2026-04-26. `LATEST_SYNTHESIS` points to invalid file. Meta-loop inputs to reflection are corrupt. Fix is 5-line bash gate in `scripts/lib/synthesize.sh` (proposal in INBOX, Tier-C). Server maintenance handoff `general-server-maintenance-2026-04-30T01-24-05Z.md` also flags LATEST_SYNTHESIS pointer repair as p2.
+- **Tick branch proliferation** — 12 branches >72h (attended merge overdue), 22 branches >24h. Ghost-state pattern (FR-0038) explains why prior tick reports claimed main-writes that never landed. Merge-tick-branches-playbook proposal in INBOX (Tier-B, awaiting attended disposition).
+- **Ghost-state writes (FR-0038) confirmed** — written this tick to main. FR-0039 (S3-P2 invocation no-escalate) and FR-0040 (FR-candidate aging) also written this tick.
+
+## Structural / background (legacy)
 
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
