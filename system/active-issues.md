@@ -1,13 +1,16 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-01
 ---
 
 # Active issues
 
 ## Currently live
 
+- **[CRITICAL] 401 auth credential split — all headless project ticks down** — Context-repo and command ticks fail immediately with 401; reflection jobs on same hosts succeed. Tick launch path uses stale/different credential. FR-0039. Fix: compare credential sources between tick script and reflect.sh, rotate stale key. Operator access required; p2 per `runtime/.meta/server-maintenance-2026-05-01T01-26-04Z.md`.
+- **[CRITICAL] Atlas runner frozen ~18h — pool rotation decision overdue 12h** — URGENT in INBOX since 2026-04-30T18:48Z. PM recommends A+C+D2. Needs executive decision. Reply via `runtime/.handoff/atlas-pool-rotation-decision.md`.
+- **Atlas S3-P2 escalation gate silently failing 11+ cycles** — `_maybe_escalate_frozen_loop` has had 7 distinct bug classes across 6 commits. Iterate-patch-freeze CLAUDE.md amendment proposed 5 INBOX copies, 4 synthesis cycles, empirically validated. Next touch requires adversarial review before code. See `cross-cutting-2026-05-01T03-27-05Z.md` Pattern 1.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
