@@ -1,14 +1,16 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-01
 ---
 
 # Active issues
 
 ## Currently live
 
-- **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
+- **[CRITICAL] 401 auth blocks all headless project ticks** — Context-repo and command project ticks fail immediately with 401 Invalid authentication credentials. Reflection jobs and atlas runner unaffected (different execution path). All autonomous project work (ticks, PM sessions) is blocked. FR-0039. Operator action needed: compare tick vs reflection credential path, rotate stale key. URGENT in INBOX: `URGENT-headless-tick-401-auth-2026-05-01T08-49Z.md`.
+- **[CRITICAL] Atlas runner frozen ~56h, decision overdue** — Two blockers: (B1) BitMEX/Kraken funding-rate data unavailable from Hetzner; (B2) signal-hash drift makes formulated pool structurally unreachable. Atlas PM recommends A+C+D2. Principal decision required; URGENT-atlas-pool-rotation-v2 in INBOX since 2026-04-30T18:48Z.
+- **Command browser-layer verification** — command tick completed 2026-05-01T05:54Z; harness-check legibility work landed. Status: in-progress; full browser-layer proof still pending machine-owned verification.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
 - **Skillfoundry agentic inbound deploy** — Preflight landing route + `sourceType` + watcher restart; Launchpad Lint + LCI landing + telemetry; ≥1 blog post/probe/week. In flight per the skillfoundry session (scope now spans `/opt/workspace/projects/skillfoundry/` root).
