@@ -1,10 +1,20 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-02
 ---
 
 # Active issues
+
+## URGENT (principal or operator action required)
+
+- **Headless project ticks failing 401 auth** (FR-0039) — all PM-layer ticks blocked since ~2026-04-30. Operator fix: compare tick vs reflection credential source, rotate stale key. INBOX: `URGENT-headless-tick-401-auth-2026-05-01T08-49Z.md`. Bundled: `runtime/.handoff/general-operator-actions-required-2026-05-02T06-48Z.md`.
+- **Atlas S3-P2 fix undeployed** — commit `39b6d2f` passed 156/156 tests but service not restarted. Operator: `sudo systemctl restart atlas-runner.service`. Handoff: `runtime/.handoff/general-atlas-s3p2-restart-needed-2026-05-02T04-47Z.md`.
+- **LCI outreach blocked 22 days** — 10 drafts at `drafted` status since 2026-04-11. Principal decision needed: unblock (Tally form + outreach method), park with rationale, or kill LCI track. INBOX: `URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **Synaplex cap policy 4th carry-forward cycle** — ADR-0029 §6 says "200/source/day"; implementation produces ~450/day for HN. Recommended: Option C (amend ADR-0029 §6 wording, 0 code change). INBOX: `URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`. Attended executive can amend as Tier-A write.
+- **INBOX proposal saturation** — 40 items, 0 landed in 11 synthesis cycles (FR-0041). Bulk triage (30 min) would restore URGENT signal quality. INBOX: `URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`.
+- **reflect.sh Write bypass** (FR-0040) — disallow-list blocks `Edit` but not `Write`; reflections actively mutate project files. Tier-C fix needed in `scripts/lib/reflect.sh`. INBOX: `reflect-sh-disallow-list-gap-2026-05-01T16-48Z.md`.
+- **Ghost-write false verification** (FR-0038) — tick sessions produce explicit "verified on disk" claims that are empirically false; 11 synthesis cycles confirming; tick branches not merged to main is root cause. Operator must merge aged tick branches or fix write path.
 
 ## Currently live
 
