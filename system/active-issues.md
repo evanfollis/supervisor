@@ -1,10 +1,20 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-02
 ---
 
 # Active issues
+
+## URGENT — requires attended session or principal action
+
+- **[CRITICAL] Headless project ticks 401 auth** — all project ticks failing since 2026-04-30. Reflection works; ticks don't. Operator action required: compare credential sources + rotate stale key. FR-0039. See `handoffs/INBOX/URGENT-headless-tick-401-auth-2026-05-01T08-49Z.md`.
+- **[CRITICAL] Atlas frozen loop** — atlas runner has produced `hypotheses_evaluated: 0` for 14+ consecutive cycles since A+C+D2 (2026-05-01). S3-P2 self-escalation is itself broken (old gate suppressed by Apr-27 emission). Fix `39b6d2f` deployed to main but not running. Two actions needed: (1) `sudo systemctl restart atlas-runner.service`; (2) authorize P1 TESTING re-evaluation (no principal auth yet). See `runtime/.handoff/general-atlas-orphaned-testing-failure-mode-2026-05-02T14-26Z.md`.
+- **[HIGH] LCI outreach blocked 22 days** — 10 drafts at `drafted` status since 2026-04-11. Channel decision needed from principal: Tally form + outreach method, or explicit park/kill. 3-cycle escalation threshold crossed. See `handoffs/INBOX/URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **[HIGH] Synaplex cap policy 4th cycle** — ADR-0029 §6 doc/code diverge. Recommendation: Option C (ratify per-fetch semantic, amend ADR wording; 0 code change). Principal or attended executive must decide. See `handoffs/INBOX/URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **[HIGH] INBOX saturation — 40 proposals unimplemented** — 11 synthesis cycles, 0/40 proposals landed. Most are Tier-C (scripts/lib/) changes. Attended bulk triage required. FR-0041. See `handoffs/INBOX/URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`.
+- **[HIGH] reflect.sh Write bypass** — reflection sessions can mutate project files via Write tool; `--disallowedTools` only blocks Edit. One harness session already committed unreviewed changes via this gap. Tier-C fix required in scripts/lib/. FR-0040. See `handoffs/INBOX/reflect-sh-disallow-list-gap-2026-05-01T16-48Z.md`.
+- **[HIGH] Ghost-write + false verification** — tick sessions wrote FR/active-issues to unmerged branches for 9+ windows, claimed "verified on disk", closed carry-forward gates. FRs 0038, 0042. Now writing to main in attended sessions only until tick branch model is fixed.
 
 ## Currently live
 
