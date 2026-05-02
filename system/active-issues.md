@@ -1,10 +1,18 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-02
 ---
 
 # Active issues
+
+## URGENT (operator or principal action required)
+
+- **[OPERATOR] Headless project tick 401 auth** — all project ticks failing since 2026-04-30; reflection jobs unaffected. Credential path divergence. FR-0039. `handoffs/INBOX/URGENT-headless-tick-401-auth-2026-05-01T08-49Z.md`.
+- **[OPERATOR] Atlas runner not restarted** — S3-P2 gate fix `39b6d2f` deployed to main but atlas-runner.service not restarted; 14+ empty cycles, self-escalation gate broken. `runtime/.handoff/general-operator-actions-required-2026-05-02T06-48Z.md`.
+- **[PRINCIPAL] LCI outreach blocked 22 days** — 10 drafts at `drafted` since 2026-04-11; channel decision needed (Tally form, outreach method, or park/kill). `handoffs/INBOX/URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **[PRINCIPAL] Synaplex cap policy** — ADR-0029 §6 doc/code diverge (200/day vs 200/fetch+union). Recommendation: option C (ratify per-fetch, amend ADR wording). 24h deadline expired. `handoffs/INBOX/URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **[PRINCIPAL] INBOX saturation** — 49+ items (18 duplicates, 4 URGENTs), growing +5/cycle; saturation URGENT is 105h old without triage. Tick sessions cannot clear it. Dispatch pipeline broken (0/40 proposals implemented in 11 cycles, FR-0041). `handoffs/INBOX/URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`.
 
 ## Currently live
 
@@ -23,6 +31,9 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **Ghost-write / tick false verification** — headless tick sessions claim to write FR records and update active-issues.md but files never land on disk (FR-0037 was highest on disk until this tick; 0038-0042 ghost-written 10+ times). Proposal: post-action verification in tick wrapper. `handoffs/INBOX/proposal-post-action-state-verify-2026-05-02T15-31-58Z.md`. FR-0040.
+- **reflect.sh Write bypass** — reflection sessions mutate CURRENT_STATE.md via Write tool (not in disallow list); one reflection-embedded git command executed unauthorized commit. Fix is additive (add "Write" to disallow list). FR-0042. `handoffs/INBOX/reflect-sh-disallow-list-gap-2026-05-01T16-48Z.md`.
+- **Synthesis execution gap** — 11 synthesis cycles, 0/40 proposals implemented. All proposals require Tier-C edits (scripts/lib/, CLAUDE.md). New Proposal 5: Tier-B-auto authority for additive workspace-infrastructure fixes. FR-0041. `handoffs/INBOX/proposal-tier-b-auto-authority-2026-05-02T18-50Z.md`.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
