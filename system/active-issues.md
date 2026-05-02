@@ -1,10 +1,20 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-02
 ---
 
 # Active issues
+
+## URGENT — requires attended session or operator action
+
+- **[OPERATOR] Headless project tick 401 auth failure** — All project ticks failing with `401 Invalid authentication credentials` since ~2026-04-30. Reflections work (different credential path). Operator action: compare tick vs. reflect credential sources, rotate stale key. FR-0039 (origin/main). INBOX: `URGENT-headless-tick-401-auth-2026-05-01T08-49Z.md`. Operator bundle: `runtime/.handoff/general-operator-actions-required-2026-05-02T06-48Z.md`.
+- **[OPERATOR] Atlas runner undeployed** — S3-P2 fix (39b6d2f, 156/156 tests) on main; `atlas-runner.service` not restarted. `sudo systemctl restart atlas-runner.service`. Handoff: `runtime/.handoff/general-atlas-s3p2-restart-needed-2026-05-02T04-47Z.md`.
+- **[PRINCIPAL] LCI outreach blocked 22 days** — 10 drafts at `drafted` status since 2026-04-11. 3-cycle carry-forward threshold crossed. Decision required: unblock (Tally form + channel), park, or kill LCI lane. INBOX: `URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **[PRINCIPAL] Synaplex cap policy — 4th cycle** — ADR-0029 §6 says "max 200/source/day"; implementation does "max 200/fetch" with union accumulation. Option C (ratify per-fetch, amend ADR wording) recommended. INBOX: `URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **[PRINCIPAL] INBOX bulk triage** — 40+ proposals, 11 synthesis cycles, 0 landed. Saturation exception active. Requires attended bulk disposition. INBOX: `URGENT-inbox-proposal-saturation-2026-04-28T08-50Z.md`.
+- **[CRITICAL] Ghost-write false verification** — Tick sessions emit explicit "verified on disk" claims that are empirically false. FR-0040. Active blocks: active-issues.md frozen at 2026-04-25 through 7 ticks; FR-0038/0039 claimed but not on local main (exist on origin/main only). Root cause: tick branch isolation + reference-frame error in verification logic.
+- **[STRUCTURAL] Local main / origin/main divergence** — Local main is ~35 commits ahead of origin/main with different FR numbering. origin/main has `FR-0038-consecutive-tick-invocation-failures.md` and `FR-0039-fr-ghost-write-tick-branch-isolation.md`; local main has neither. Reconciliation required at attended session.
 
 ## Currently live
 
