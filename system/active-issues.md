@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-03
 ---
 
 # Active issues
@@ -18,8 +18,10 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas runner restart** — `sudo systemctl restart atlas-runner.service`. P1 (commit `71224e9`, TESTING orphan re-evaluation) landed ~17:05Z May 2 but service not restarted. S3-P2 gate confirmed firing; data freshness lapsed. One command unblocks the scientific output loop. Principal-decisions: `handoffs/INBOX/2026-05-03T02-47Z-principal-decisions-pending.md`.
+- **Synaplex cap policy decision** — ADR-0029 §6 says "max 200/source/day"; code does "max 200/fetch" with accumulation (HN reaching ~400/day). Recommendation: Option C (ratify per-fetch semantic; zero code change). 4-cycle carry-forward. Decision file: `URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **LCI outreach decision** — 10 drafts at `drafted` status since 2026-04-11 (22+ days). Choose: unblock (Tally form + channel), park explicitly (ADR), or kill. Reflection will continue escalating until decided. INBOX: `URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **Tier-B-auto authority** — 13 synthesis cycles, 40+ proposals, 0 implemented (all target Tier-C surfaces). Proposal: approve additive `scripts/lib/` writes for changes proposed 2+ cycles, no ADR needed. Immediate unlocks: reflect.sh Write fix (FR-0040), synthesize.sh size gate, dedup gate. INBOX: `proposal-tier-b-auto-authority-2026-05-02T18-50Z.md`.
 
 ## Structural / background
 
