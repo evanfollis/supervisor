@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-03
 ---
 
 # Active issues
@@ -16,13 +16,16 @@ updated: 2026-04-25
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
 
-## Pending principal (people-or-money only)
+## Pending principal
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas runner restart** — `sudo systemctl restart atlas-runner.service`. P1 (TESTING orphan re-evaluation, commit `71224e9`) is deployed but service not restarted. Evidence loop frozen at 239. One operator command unblocks. See `INBOX/2026-05-03T02-47Z-principal-decisions-pending.md`.
+- **Synaplex cap policy** — doc/code diverge (ADR-0029 §6 says "per day"; impl does "per fetch"). Option C (ratify per-fetch, amend ADR wording) recommended. 4-cycle carry-forward. URGENT in INBOX.
+- **LCI outreach decision** — 10 drafts at `drafted` since 2026-04-11 (22+ days). Unblock / park / kill required. 3-cycle escalation threshold crossed. URGENT in INBOX.
+- **Tier-B-auto authority** — 11 synthesis cycles, 19 proposals, 0 implemented. `scripts/lib/` Tier-C from all autonomous sessions. Proposal in INBOX `proposal-tier-b-auto-authority-2026-05-02T18-50Z.md`. Unlocks: reflect.sh Write fix, dedup gate, state verification.
 
 ## Structural / background
 
+- **Tick invocation failures** — 2 consecutive headless tick claude invocations failed (08:47Z and 10:50Z 2026-05-03). One more failure triggers S3-P2 escalation (threshold=3). Root cause unknown (no stderr captured). FR-0043. FRs 0038–0042 on branch `ticks/2026-05-03-02`, not yet on main due to aged-branch doctor FAIL.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
