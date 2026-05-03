@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-03
 ---
 
 # Active issues
@@ -18,8 +18,13 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas runner restart** — `sudo systemctl restart atlas-runner.service`. P1 (TESTING orphan re-eval, commit `71224e9`) landed before last restart; atlas is generating `hypotheses_evaluated: 0`. S3-P2 gate confirmed firing. One operator command unblocks the scientific loop.
+- **Synaplex cap policy** — ADR-0029 §6 says "200/source/day"; impl does "200/fetch" with union accumulation (HN ~400/day). Recommend Option C: ratify per-fetch semantic, amend ADR-0029 §6. Zero code change. INBOX: `URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **LCI outreach decision** — 10 drafts at `drafted` since 2026-04-11 (22+ days, zero external evidence). Unblock / park / kill. INBOX: `URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **Tier-B-auto authority** — 13+ synthesis cycles, 40+ proposals, 0 implemented. Approve Tier-B-auto classification for additive `scripts/lib/` changes proposed in 2+ cycles to unblock reflect.sh fix, dedup gate, post-action verification. INBOX: `proposal-tier-b-auto-authority-2026-05-02T18-50Z.md`.
+- **Tick invocation failures** — 2 consecutive headless ticks (08:47Z, 10:50Z May 3) failed at claude invocation; pattern broke at 12:48Z. Root cause unknown. See FR-0043. If 3 consecutive recur, S3-P2 fires.
+
+## Structural / background
 
 ## Structural / background
 
