@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-03
 ---
 
 # Active issues
@@ -16,13 +16,16 @@ updated: 2026-04-25
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
 
-## Pending principal (people-or-money only)
+## Pending principal
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas runner restart** — `sudo systemctl restart atlas-runner.service`. P1 (TESTING orphan re-evaluation, `71224e9`) + S3-P2 gate (`39b6d2f`) both in main since ~May 2 17:05Z; service last restarted May 2 14:25Z. One command deploys both. Evidence frozen at 239.
+- **Synaplex cap policy** — ADR-0029 §6 says "200/source/day"; implementation does "200/fetch" + union (HN ~400/day). Recommendation: Option C — amend ADR wording to match implementation (zero code change). 5th carry-forward cycle. See `URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **LCI outreach decision** — 10 drafts at `drafted` status since 2026-04-11 (22+ days). Three options: unblock (channel decision), park explicitly (ADR), or kill. See `URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **Tier-B-auto authority** — 13 cycles × 0 synthesis proposals landed. Approving Tier-B-auto for additive `scripts/lib/` changes proposed 2+ cycles immediately unblocks reflect.sh fix (FR-0040), synthesis-translator dedup, and ~8 other stale INBOX proposals. See `proposal-tier-b-auto-authority-2026-05-02T18-50Z.md` and `2026-05-03T02-47Z-principal-decisions-pending.md`.
 
 ## Structural / background
 
+- **Tick-branch isolation (FR-0038)** — tick wrapper creates `ticks/YYYY-MM-DD-HH` branches; all writes commit there and never merge to main. Governance surfaces (friction/, active-issues, verified-state) updated by ticks are effectively orphaned. Merge playbook in INBOX since Apr 26; structural fix needs attended session or Tier-B-auto approval.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
