@@ -1,13 +1,16 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-03
 ---
 
 # Active issues
 
 ## Currently live
 
+- **Atlas P1 undeployed — 24h dispatch obligation breached** — commit 71224e9 (S3-P2 counter gate + hypothesis evaluation fix) has been in `main` since ~17:05Z May 2, 46h+ unfrozen. Service last restarted before P1 landed; 14+ consecutive cycles with `hypotheses_evaluated: 0`. Requires `sudo systemctl restart atlas-runner.service`. URGENT at `runtime/.handoff/URGENT-atlas-frozen-loop-2026-05-02T14-18-55Z.md`.
+- **reflect.sh Write bypass — propose-only contract violated** — `scripts/lib/reflect.sh` blocks `Edit` and `NotebookEdit` but not `Write`. Reflection sessions can write files silently past the safety net (dirty-tree check only catches HEAD advances). Supervisor reflection at 14:24Z May 3 advanced HEAD via autocommit path. Fix: add `"Write"` to `--disallowedTools` at line 112. URGENT at `runtime/.handoff/URGENT-reflect-sh-write-bypass-2026-05-03T15-23Z.md`. Tier-C — needs operator.
+- **Test telemetry pollution in sf-harness** — commit 531946f (migrate.py) wrote two events with `sourceType: user` and `venture_root: /tmp/pytest-of-root/...` to the production telemetry sink. ADR-0019 + S1-P2 both violated. Fix: conftest autouse fixture redirecting `*_TELEMETRY_PATH` to a temp dir. Synthesis proposal 4.
 - **Command browser-layer verification** — server-side smoke is strong, but real-browser coverage remains a machine-owned gap. Old principal FR-0015 escalation archived; replacement handoff is `runtime/.handoff/command-browser-verification-owned-2026-04-25T1310Z.md`.
 - **Synaplex site V1 deploy to synaplex.ai** — site scaffold builds clean at `projects/synaplex/site/dist/`; rebrand landed; deploy still pending. IA reshape decision open (§Open design questions in ADR-0027). Dispatched to synaplex session.
 - **Synaplex loop L2/L3/L4 subsystems** — L1 intake live; Layer 2 reasoning (per-beat candidate emission), Layer 3 validation (counter-search + nightly integrity), Layer 4 presentation (writeups → site + newsletter) follow ADR-0029's bootstrap throttle (≤5 candidates/beat/day for 4 weeks).
@@ -18,8 +21,10 @@ updated: 2026-04-25
 
 ## Pending principal (people-or-money only)
 
-- None currently. External-service setup should first be converted to a
-  machine-owned fallback path before being treated as principal work.
+- **Atlas runner restart** — `sudo systemctl restart atlas-runner.service` deploys P1 + S3-P2 gate. 46h frozen. One command. (URGENT in runtime/.handoff/)
+- **LCI outreach decision** — 10 drafts at `drafted` since 2026-04-11 (22+ days). Channel decision required: Tally form + outreach method, or explicit park/kill. URGENT in INBOX 37h.
+- **Synaplex cap policy** — ADR-0029 §6 doc/code diverge (per-day vs per-fetch). Principal decision needed: truncate-by-score, truncate-by-recency, or ratify per-fetch + amend ADR. URGENT in INBOX 50h.
+- **Tier-B-auto authority** — 14 cycles × 0 proposals landed. Approving autonomous Tier-B writes for additive, 2+-cycle infrastructure-only changes unblocks reflect.sh fix + 5+ stale proposals. Alternative: 30-min attended INBOX triage.
 
 ## Structural / background
 
