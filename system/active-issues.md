@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-04
 ---
 
 # Active issues
@@ -23,7 +23,11 @@ updated: 2026-04-25
 
 ## Structural / background
 
-- **Operator authority loop** — attached sessions can be executive/supervisor
+- **Consecutive tick invocation failures (FR-0039)** — ticks at 2026-05-04T18:50Z and 20:49Z both failed with "claude invocation failed"; 2/3 S3-P2 threshold. Tick wrapper emits no diagnostic and writes no URGENT on invocation failure. Needs wrapper fix (Tier C).
+- **Ghost-write pattern on main (FR-0038)** — FR-0038 was claimed written in 7+ prior sessions; confirmed absent until the 2026-05-04T22:47Z tick actually created it. Events log is not a reliable source of truth for Tier-A file existence until tick branches are merged.
+- **INBOX saturation (47 items, 3 URGENTs)** — saturation exception in effect. All proposals are Tier B/C; principal decisions needed for LCI (park/kill/unblock) and synaplex cap policy (option A/B/C). Oldest URGENT: 2026-04-28T08:50Z (165h+).
+- **LATEST_SYNTHESIS corrupted** — last 2 synthesis runs produced 1-line stub files; fix requires `synthesize.sh` edit (Tier C). Oldest intact synthesis: 2026-05-04T03:26Z.
+- **Operator authority loop** — attached sessions can be executive/supervisor — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
   must become an explicit operator bridge/tool.
