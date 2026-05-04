@@ -1,10 +1,21 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-04
 ---
 
 # Active issues
+
+## Critical (unattended-loop cannot fix — principal/operator required)
+
+- **Atlas runner frozen 42h+** (6th consecutive reflection window, 2026-05-02T~14Z) — `atlas-runner.service` stopped; evidence store stuck at 239; signal→hypothesis pipeline halted. Fix: `sudo systemctl restart atlas-runner.service`. URGENT in runtime/.handoff/ unconsumed. **One command.**
+- **reflect.sh Write bypass cycle 10** — reflection sessions can call Write tool despite propose-only contract; CURRENT_STATE mutations bypass safety net. Fix is adding `"Write"` to `--disallowedTools` in `scripts/lib/reflect.sh:112`. INBOX: `reflect-sh-disallow-list-gap-2026-05-01T16-48Z.md`. Tier-C from ticks; requires attended session or Tier-B-auto authority.
+- **Ghost-write telemetry corruption** — ticks emit false state claims into `events.jsonl` (e.g. "active-issues updated on main" when writes landed on a tick branch). Telemetry truth source is degraded. Root cause: ticks run on tick branches, not main. FR-0038 pending (see friction harvest this tick).
+- **Tick branch accumulation** — 21 branches >24h unmerged (doctor FAIL); 12 commits diverged from remote. All governance writes from ticks (FR, active-issues updates) are ephemeral until merged. `active-issues.md` was 9 days stale on main before this tick.
+- **INBOX saturation: 39 proposals, 0/25 landed in 16 cycles** — URGENT-inbox-proposal-saturation from 2026-04-28 still unconsumed. Terminal-consumer bottleneck: no attended session processes Tier-B proposals. Structural unblock: Tier-B-auto authority decision (pending principal).
+- **LCI outreach blocked 22+ days** — 10 drafts at `drafted` since 2026-04-11; zero external evidence for LCI commercial assumption. 3-cycle escalation threshold crossed. Principal decision required: unblock channel, park explicitly, or kill. INBOX: `URGENT-lci-outreach-blocked-22-days-2026-05-02.md`.
+- **Synaplex cap policy doc/code diverge** — ADR-0029 §6 says "max 200 per source/day"; implementation does "max 200 per fetch + union accumulation" (HN at ~400/day). 3rd-cycle escalation. Decision: truncate-by-score, truncate-by-recency, or ratify per-fetch + amend ADR. INBOX: `URGENT-synaplex-cap-policy-3rd-cycle-2026-05-01T14-42Z.md`.
+- **Tier-B-auto authority decision** — 16 synthesis cycles × 0 proposals landed. Without authority for ticks to edit `scripts/lib/`, the reflect.sh bypass, LATEST_SYNTHESIS pointer, rotation-blind telemetry, and ~8 other standing fixes cannot land autonomously. Key unblock for the workspace self-repair loop.
 
 ## Currently live
 
