@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-05
 ---
 
 # Active issues
@@ -23,6 +23,9 @@ updated: 2026-04-25
 
 ## Structural / background
 
+- **Ghost-write telemetry corruption (FR-0038)** — Tick sessions emit `friction_captured` events for files never committed. Events claim FR-0038 and FR-0039 written 8+ times since 2026-04-30; both now actually landed on main 2026-05-05T02:47Z. Root cause: tick branch isolation + autocommit staging gap. Fix needs `supervisor-tick.sh` change (Tier C).
+- **LATEST_SYNTHESIS empty** — `cross-cutting-2026-05-04T15-24-45Z.md` is 0 bytes; `synthesize.sh` atomic-write gate missing. Fix is bash change to scripts/lib/ (Tier C). Server maintenance 2026-05-05 also flagged this as p2.
+- **INBOX proposal saturation (8+ days)** — 47 proposals in INBOX; 3 URGENTs aged 82–167h without principal disposition. Saturation exception in effect. Attended session required to bulk-archive or disposition proposals.
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
