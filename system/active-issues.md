@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-04-25
+updated: 2026-05-05
 ---
 
 # Active issues
@@ -23,7 +23,13 @@ updated: 2026-04-25
 
 ## Structural / background
 
-- **Operator authority loop** — attached sessions can be executive/supervisor
+- **Tick branch governance isolation (FR-0038, CRITICAL)** — All tick-written Tier-A artifacts (FR files, active-issues, verified-state) commit to tick branches never merged to main. Doctor shows 8 branches >72h, 24 >24h. FR-0038/0039/0040 exist only on orphan branches; main shows FR-0037 as latest. Attended session must merge or cherry-pick tick branches + add merge playbook.
+- **LATEST_SYNTHESIS stub (CRITICAL)** — `cross-cutting-2026-05-05T03-23-14Z.md` is 67 bytes (only its own path). Synthesis output is broken. Fix is in `scripts/lib/synthesize.sh` (Tier C); proposal-latest-synthesis-pointer in INBOX cycle 2.
+- **reflect.sh Write bypass (FR-0040)** — `scripts/lib/reflect.sh` missing `"Write"` in disallowedTools; 11 cycles unfixed; Tier C change. One inadvertent commit confirmed 2026-05-01. 1-line fix blocked behind INBOX saturation.
+- **LCI outreach stalled 22+ days** — 10 drafts at `drafted` since 2026-04-11; principal decision needed (channel + Tally form or park/kill). URGENT in INBOX since 2026-05-02.
+- **Synaplex cap policy** — doc/code diverge on cap semantics; 3rd-cycle URGENT in INBOX. Scoring cron may waste API calls once ANTHROPIC_API_KEY lands.
+- **INBOX proposal saturation** — 44+ proposals (Tier B/C) since 2026-04-25; saturation URGENT filed 2026-04-28, still open. Attended session must bulk-disposition or archive.
+- **Operator authority loop** — attached sessions can be executive/supervisor — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
   must become an explicit operator bridge/tool.
