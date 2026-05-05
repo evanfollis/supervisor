@@ -182,7 +182,10 @@ def source_latest_synthesis(state: dict) -> Iterator[Card]:
     pointer = META_DIR / "LATEST_SYNTHESIS"
     if not pointer.exists():
         return
-    target = pointer.read_text().strip()
+    if pointer.is_symlink():
+        target = str(pointer.resolve())
+    else:
+        target = pointer.read_text().strip()
     if not target:
         return
     key = "latest_synthesis_target"

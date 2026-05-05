@@ -63,6 +63,12 @@ else
   exit 2
 fi
 
+OUTPUT_SIZE=$(wc -c < "$OUTPUT_FILE")
+if [[ "$OUTPUT_SIZE" -lt 500 ]]; then
+  echo "synthesize: WARNING — output is ${OUTPUT_SIZE} bytes (< 500); not translating or updating LATEST_SYNTHESIS" >&2
+  exit 0
+fi
+
 # Translate proposals → executable handoffs. Closes the "perfect diagnosis,
 # zero execution" failure class diagnosed in cross-cutting-2026-04-23T15-24-05Z.md
 # and the cowork-side claude handoff 2026-04-23T18:30Z. Before this hook,
@@ -86,4 +92,4 @@ if command -v tmux >/dev/null 2>&1 && tmux has-session -t general 2>/dev/null; t
 fi
 
 # Also drop a pointer file the general session can pick up on next reflection.
-echo "$OUTPUT_FILE" > "$WORKSPACE_LATEST_SYNTHESIS_PTR"
+ln -sfn "$(basename "$OUTPUT_FILE")" "$WORKSPACE_LATEST_SYNTHESIS_PTR"

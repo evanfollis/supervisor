@@ -262,7 +262,11 @@ fi
 section "synthesis pointer"
 ptr="$WORKSPACE_LATEST_SYNTHESIS_PTR"
 if [[ -f "$ptr" ]]; then
-  target=$(cat "$ptr")
+  if [[ -L "$ptr" ]]; then
+    target=$(readlink -f "$ptr" 2>/dev/null || true)
+  else
+    target=$(cat "$ptr")
+  fi
   if [[ -f "$target" ]]; then
     mtime=$(stat -c %Y "$target")
     age=$(( now_epoch - mtime ))
