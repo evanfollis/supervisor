@@ -229,6 +229,94 @@ The review verdict was "directionally strong but not yet safe to accept as-is" w
 
 If Layer 1/2 implementation surfaces that any of these controls is wrong-shaped or unimplementable as specified, the correct response is a follow-on ADR refining them — the ADR remains in the conjecture/criticism loop per Invariant 5.
 
+## Amendment 2026-05-07 — Layer 1 cap policy: per-fetch, not per-day
+
+The "Rate limits enforced at write-time" bullet under §Response to
+Finding 2 originally stated "Layer 1 raw-intake capped at 200
+items/source/day." The shipped implementation enforces the cap
+**per fetch**, not per day. This amendment ratifies the implemented
+semantic.
+
+### What the code actually does
+
+`intake.limits.layer1_cap()` returns 200; the three intake adapters
+(`rss.py`, `arxiv.py`, `hackernews.py`) check `len(new_items) >= cap`
+mid-fetch and emit `eventType: throttled` when they would exceed it
+*within a single run*. The no-clobber/union-merge in
+`intake.adapters.merge_jsonl_by_id` then merges per-fetch results
+with the existing daily file by `content_id`. Multiple cron firings
+per day (every 4h) each contribute up to 200 fresh items, so a
+daily file can exceed 200 when the union of fetches contains more
+distinct ids than the cap.
+
+Concrete: HN reaches ~277–450 items/day; arxiv ~200; rss ~200–205.
+None of this is data corruption — the union is correct by-id — but
+it deviates from the literal text "200 items/source/day".
+
+### What the amendment changes
+
+§Response to Finding 2's last bullet is corrected to read:
+
+> Rate limits enforced at write-time. Layer 1 raw-intake capped at
+> **200 items/source/fetch** (not per day) — the cap protects against
+> a single feed dumping its full archive in one cron firing.
+> Per-day file size is **unbounded by intent at Layer 1**, with
+> union-merge by `content_id` preventing duplication; daily-cap
+> discipline is deferred to Layer 2 reasoning, which will prioritize
+> items per its own logic rather than truncating Layer 1 ahead of L2.
+> Layer 2 caps (5 candidates/beat/day bootstrap → 10 steady) are
+> unaffected by this amendment.
+
+The original line is preserved in this amendment for traceability.
+Treat the amended bullet as canonical.
+
+### Why per-fetch beats per-day
+
+Three reasons, in order of weight:
+
+1. **Per-fetch already provides the runaway-feed protection** that
+   motivated the cap. A feed that dumps 1000+ items in one run hits
+   the cap; a feed that contributes 50 items each cron firing
+   accumulates to ~300/day without representing the failure class
+   the cap was designed against.
+2. **Per-day truncation would invert the layering.** Layer 1's job
+   is signal acquisition; prioritization is Layer 2's job. Truncating
+   Layer 1 ahead of Layer 2 commits to a tiebreaker (score, recency)
+   that Layer 2 will likely want to choose for itself.
+3. **Daily-file growth is bounded.** HN's top+new streams cap the
+   reachable item count; arxiv rate-limits the API at 100/run; RSS
+   feeds have finite recent windows. Unbounded-by-intent is not the
+   same as unbounded in practice.
+
+### Trigger for re-litigation
+
+When **Layer 2 reasoning ships** and starts consuming intake
+natively, Layer 2 will need a prioritization policy for what makes
+it into candidate Claims. At that point the question recurs in a
+better-shaped form: "what does L2's tiebreaker look like?" rather
+than "should L1 truncate ahead of L2?" If L2's prioritization
+implies truncating L1 first (e.g., scoring becomes prohibitively
+expensive on full-day corpora), Option A from the carry-forward
+handoff (post-merge truncate by score) becomes a follow-on ADR.
+
+### Provenance of this amendment
+
+Authored by the synaplex session in response to handoff
+`runtime/.handoff/synaplex-cap-policy-divergence-2026-05-07T02-48Z.md`.
+The cap-policy decision sat in the carry-forward escalation loop
+through three reflection cycles before the supervisor tick delegated
+the choice to synaplex with explicit "pick A or B" framing
+(rather than the prior "principal-only decision" framing). Synaplex
+chose B (amend ADR), recommended Option C in the prior routed
+handoff, and the two are substantively the same outcome.
+
+Verifiable assertion landed alongside this amendment at
+`projects/synaplex/intake/test_cap_policy.py` — a single-file test
+that asserts (a) `layer1_cap() == 200`, (b) merge_jsonl_by_id
+produces `count + existing` totals (not `min(count + existing, 200)`),
+and (c) the per-fetch cap fires within a single fetch when items
+exceed 200.
+
 ## Provenance
 
 Articulated 2026-04-23 across three conversation turns with the principal,
