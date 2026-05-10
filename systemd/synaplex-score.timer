@@ -1,17 +1,21 @@
 [Unit]
-Description=Run synaplex scoring at :20 each hour (lags intake's :17)
+Description=Run synaplex scoring once per intake cadence (intake+8min)
 Requires=synaplex-score.service
 
 [Timer]
-# Fire at :20 each hour, not top-of-hour. The intake timer fires at :17
-# every 4h (00:17, 04:17, 08:17, 12:17, 16:17, 20:17 UTC); intake takes
-# ~70s; scoring at top-of-hour caused a `score:stuck` event each midnight
-# (00:00) because today's raw didn't exist yet. Shifting score to :20
-# makes the 00:20 firing reliably lag the 00:17 intake by ~3 min.
-# (`After=synaplex-intake.service` on the .service alone doesn't help —
-# systemd ordering is only within a single startup transaction; timers
-# fire independently.)
-OnCalendar=*-*-* *:20:00
+# Fire 6×/day at :25, aligned to intake's 4h cadence at :17 (so 00:25
+# lags 00:17 by ~8 min — plenty of slack for intake's ~70s fetch).
+#
+# History: this timer originally ran hourly (12×/day) at :20. The :20
+# slot fixed the score:stuck-at-midnight issue (intake at 00:17 + score
+# at 00:20). But hourly scoring runs 12×/day against a corpus that only
+# changes 3-6×/day (intake fires every 4h), so 6-9 of 12 daily score
+# runs re-score unchanged data. Free under the heuristic scorer; ~8100
+# Sonnet API calls/day under the LLM scorer (when ANTHROPIC_API_KEY
+# lands). Aligning to intake cadence eliminates the redundancy without
+# losing any scored coverage. See URGENT-synaplex-score-cron-3rd-cycle-
+# 2026-05-10.md for the carry-forward audit trail.
+OnCalendar=*-*-* 00,04,08,12,16,20:25:00
 RandomizedDelaySec=60
 Persistent=true
 Unit=synaplex-score.service
