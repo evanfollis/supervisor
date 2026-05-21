@@ -1,0 +1,34 @@
+{
+  "artifacts": [
+    "/opt/workspace/supervisor/decisions/0033-passive-income-portfolio-abstraction.md",
+    "/opt/workspace/supervisor/docs/passive-income-portfolio-strategy.md",
+    "/opt/workspace/supervisor/projects/products/atlas.md",
+    "/opt/workspace/supervisor/projects/products/skillfoundry-harness.md"
+  ],
+  "compoundability": "high",
+  "created_at": "2026-05-21T00:00:00Z",
+  "disposition_rationale": "Principal clarified that passive income should not be collapsed into manual sales or into diversification across agent-skill vendors. The correct abstraction is a portfolio of self-serve income mechanisms: agent/developer tooling, market-modeling assets, data/API products, and research/content licensing.",
+  "disturbs": [
+    "Skillfoundry's prior first-external-conversation framing",
+    "Atlas expand/park/retire framing when disconnected from income-sleeve strategy",
+    "Any future synthesis that treats marketplace proliferation as portfolio diversification"
+  ],
+  "evidence": [
+    "Principal statement 2026-05-21: 'We should be diversifiying our passive income at a higher abstraction level than just different skill vendors.'",
+    "Existing Launchpad Lint MONETIZATION_CHANNELS.md already warns not to treat one marketplace as the business.",
+    "Atlas CURRENT_STATE.md shows a stopped market-behavior modeling loop that should be evaluated as a separate passive-income sleeve rather than idle project noise."
+  ],
+  "id": "IDEA-0006",
+  "next_step": "Have skillfoundry and atlas project sessions update their local strategy/current-state docs around passive-income portfolio sleeves and propose first measurable passive-income experiments.",
+  "priority": "high",
+  "proposer": "human",
+  "review_after": "2026-06-04",
+  "risk": "medium",
+  "scope": "portfolio strategy",
+  "slug": "passive-income-portfolio-not-skill-vendor-diversification",
+  "status": "adopted",
+  "summary": "Treat passive income as a portfolio-level objective across different self-serve income mechanisms, not merely as distribution across agent-skill marketplaces. Agent tooling, atlas market-modeling assets, data/API products, and research/content licensing should be evaluated as separate sleeves with distinct evidence and risk profiles.",
+  "target_layer": "executive",
+  "title": "Passive income portfolio, not skill-vendor diversification",
+  "updated_at": "2026-05-21T00:00:00Z"
+}

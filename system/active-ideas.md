@@ -1,5 +1,19 @@
 # Active Ideas
 
+## IDEA-0006 — Passive income portfolio, not skill-vendor diversification
+
+- Status: `adopted` (ADR-0033 accepted 2026-05-21)
+- Why it matters: keeps the workspace from collapsing passive income into
+  "more agent-skill marketplaces." Agent tooling is one sleeve; atlas market
+  models, data/API products, and research/content licensing are separate
+  sleeves with different evidence, risk, and fulfillment profiles.
+- Current state: portfolio strategy captured in
+  `supervisor/docs/passive-income-portfolio-strategy.md`.
+- Next step: route project updates to skillfoundry and atlas so their PM
+  surfaces track passive paid events and market-modeling assets, not manual
+  sales or single-marketplace exposure.
+- ADRs: `0033` (passive income portfolio abstraction).
+
 ## IDEA-0004 — Slack signal intake and friction-to-policy automation
 
 - Status: `adopted` (Stage 1 deployed 2026-04-15)
