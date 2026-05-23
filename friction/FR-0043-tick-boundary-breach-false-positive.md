@@ -7,6 +7,8 @@ source: supervisor-tick-2026-05-23T06-48-05Z
 
 # FR-0043: Tick boundary-breach detector fires on reflection-authored test files
 
+Status: open
+
 ## What happened
 
 The tick at 2026-05-23T04:49:35Z produced URGENT-tick-boundary-breach with:
