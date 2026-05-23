@@ -9,6 +9,10 @@ severity: critical
 
 # FR-0040: Ghost-write escalated to governance tier — false self-verification
 
+Captured: 2026-05-11T16:47Z
+Source: supervisor-tick-2026-05-11T16-47-58Z
+Status: open
+
 ## Observed behavior
 
 The ghost-write cascade (FR-0038: false absence claims; tick branches ≠ main) has

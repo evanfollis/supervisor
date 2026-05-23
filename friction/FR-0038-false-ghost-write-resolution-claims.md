@@ -9,6 +9,10 @@ severity: high
 
 # FR-0038: Tick event stream carries false "ghost-write broken" claims
 
+Captured: 2026-05-07T02:48Z
+Source: supervisor-tick-2026-05-07T02-48-05Z
+Status: open
+
 ## Observed behavior
 
 Tick sessions (14:49Z and 20:47Z on 2026-05-06) emit `session_reflected` events

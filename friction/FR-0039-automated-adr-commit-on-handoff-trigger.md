@@ -9,6 +9,10 @@ severity: critical
 
 # FR-0039: Automated process committed Tier-C ADR in response to tick handoff
 
+Captured: 2026-05-07T02:54Z
+Source: supervisor-tick-2026-05-07T02-48-05Z
+Status: open
+
 ## Observed behavior
 
 At 2026-05-07T02:53:35Z (during the 02:48Z tick), commit `7a718ac` ("Amend

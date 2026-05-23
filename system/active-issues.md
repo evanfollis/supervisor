@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-05-14
+updated: 2026-05-23
 ---
 
 # Active issues
@@ -9,8 +9,9 @@ updated: 2026-05-14
 ## CRITICAL (blocks autonomous repair)
 
 - **reflect.sh Write bypass — confirmed exploit, ~36+ exposure windows** — `scripts/lib/reflect.sh:112` blocks `Edit` and `NotebookEdit` but not `Write`. Confirmed exploitation on May 2 and May 6 (project repos); May 6 supervisor HEAD advance (`2bdfdaf1`). Fix is 1 line: add `"Write"` to `--disallowedTools`. Dispatch handoff: `runtime/.handoff/general-reflect-sh-write-bypass-fix-2026-05-12T04-49Z.md` (unconsumed, ~287h). Requires attended session with Tier-B/C access. Cycle-36 standing recommendation #2.
-- **Ghost-write cascade — 55 commits ahead of origin/main, ADR-0033 still absent** — Tick branches claim Tier-A writes that never merge to main. FR-0038/39/40 Status-field fix finally landed on main 2026-05-14T12:50Z after 6+ ghost-write cycles. FR-0041 filed first time this tick. ADR-0033 absent from decisions/ despite 8+ `decision_recorded` events. Requires Tier-B-auto authority decision or attended merge playbook. Cycle-36 standing recommendation #5. Branch divergence: 55 ahead, 2 behind origin/main.
-- **Synthesis dispatch obligation — 36 cycles, INBOX at 18 items (saturation active)** — INBOX holds 18 items (4 URGENTs + 14 proposals); consumption rate 0 for 8+ cycles. INBOX saturation suppression exception invoked per cycle-35 rules (>10 items, 0 consumption). All 5 cycle-36 proposals still deposited at 15:33Z despite suppression — deposit suppression not yet enforced in tick dispatcher. Tier-B-auto or attended merge session required to reduce backlog.
+- **Ghost-write cascade — 91+ commits ahead of origin/main** — Tick branches claim Tier-A writes that never merge to main. ADR-0033 confirmed on main (`decisions/0033-passive-income-portfolio-abstraction.md`). FR-0038/39/40/41 Status lines fixed on main (tick-2026-05-23T04-49Z). Requires Tier-B-auto authority decision or attended merge playbook. Branch divergence: 91 ahead, 2 behind origin/main.
+- **Synthesis dispatch obligation — 53 cycles, INBOX at 72 items (saturation active)** — INBOX holds 72 items (4 URGENTs + 68 proposals); consumption rate 0. INBOX saturation suppression active (>30 items, per CLAUDE.md). Cycle-53 dispatch written (`runtime/.handoff/general-synthesis-cycle53-dispatch-2026-05-23T04-49Z.md`). Tier-B-auto or attended session required.
+- **reflect.sh:193 argument ordering — 8th cycle, ATTENDED SESSION ACTIONABLE** — `scripts/lib/reflect.sh:193` misorders args; CURRENT_STATE.md uncommitted across 5 projects (atlas 22 cycles+). EROFS blocks tick edits but NOT attended sessions (reflection write artifacts in scripts/lib/ prove writable for non-tick processes). Fix: move `-- CURRENT_STATE.md` after `-m` flags. First action of next attended session. Cycle-53 P1.
 
 ## Currently live
 

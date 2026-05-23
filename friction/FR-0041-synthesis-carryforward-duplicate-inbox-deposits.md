@@ -8,6 +8,10 @@ source: supervisor-tick-2026-05-14T16-47-20Z
 
 # FR-0041: Synthesis carry-forward creates duplicate INBOX deposits
 
+Captured: 2026-05-14T16:47Z
+Source: supervisor-tick-2026-05-14T16-47-20Z
+Status: open
+
 ## Observed behavior
 
 Each synthesis cycle that "carries" a proposal creates a new INBOX file with a new
