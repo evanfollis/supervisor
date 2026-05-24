@@ -33,3 +33,5 @@ The charter (`CLAUDE.md`) names these items "ATTENDED SESSION ACTIONABLE" and "D
 ## Proposed fix
 
 The executive should add a charter rule or playbook step: at session start, if `active-issues.md` lists items marked `ATTENDED SESSION ACTIONABLE` or `Direct action`, clear those before opening new threads. The rule already exists implicitly in the reentry procedure; it needs to be enforced more explicitly and checked at session start.
+
+**Status: open**
