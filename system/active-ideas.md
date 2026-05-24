@@ -14,7 +14,10 @@
   requires a separate capital/operations decision after evidence exists.
 - Next step: have the PM layer preflight 2-3 auction/recommerce surfaces,
   normalize all-in cost and liquidity risk, track paper-bid outcomes, and
-  identify a self-serve monetization route.
+  identify a self-serve monetization route. The preflight should use the
+  predictive evidence telemetry loop so every paper recommendation has an
+  immutable prediction row, reasoning summary, references, observation,
+  scored outcome, error attribution, and future-policy lesson.
 - ADRs: none yet.
 
 ## IDEA-0006 — Passive income portfolio, not skill-vendor diversification

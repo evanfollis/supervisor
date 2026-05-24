@@ -1,6 +1,7 @@
 {
   "artifacts": [
     "/opt/workspace/supervisor/docs/passive-income-portfolio-strategy.md",
+    "/opt/workspace/supervisor/docs/predictive-evidence-telemetry-loop.md",
     "/opt/workspace/runtime/.handoff/skillfoundry-recommerce-underwriting-preflight-2026-05-24.md"
   ],
   "compoundability": "high",
@@ -21,7 +22,7 @@
     "McKinsey's 2025 State of AI survey reports 23% of respondents scaling agentic AI somewhere in the enterprise and 39% experimenting; Gartner projected 40% of enterprise applications would include task-specific agents by the end of 2026."
   ],
   "id": "IDEA-0007",
-  "next_step": "Run a no-inventory preflight: select 2-3 auction/recommerce surfaces, collect a small sample of lots, normalize all-in landed cost and resale liquidity, generate max-bid recommendations, track outcomes without bidding, and define whether the resulting signal can be sold or exposed self-serve.",
+  "next_step": "Run a no-inventory preflight with predictive telemetry: select 2-3 auction/recommerce surfaces, collect a small sample of lots, normalize all-in landed cost and resale liquidity, generate max-bid recommendations, record immutable prediction rows with reasoning summaries and references, track outcomes without bidding, score misses, and define whether the resulting signal can be sold or exposed self-serve.",
   "priority": "high",
   "proposer": "human",
   "review_after": "2026-06-07",

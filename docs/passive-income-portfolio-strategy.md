@@ -158,6 +158,11 @@ Each sleeve should be evaluated on:
 - evidence quality
 - compounding value to the rest of the system
 
+All sleeves that make market, pricing, activation, or revenue predictions should
+use the predictive evidence telemetry loop in
+`supervisor/docs/predictive-evidence-telemetry-loop.md`. The portfolio should
+prefer candidates that generate reusable, scored evidence even before revenue.
+
 ## Current Stance
 
 Launchpad Lint remains the fastest agent-tooling experiment, but it must not
@@ -177,7 +182,9 @@ market underwriting sleeve. The strong version is not "product flipping"; it is
 a market-discovery and underwriting asset for lots or categories where fee
 structures, logistics, condition opacity, and resale liquidity make the market
 hard to reason about. It should be tested by paper underwriting before any
-capital or inventory operation is considered.
+capital or inventory operation is considered, and each paper row should capture
+prediction, reasoning summary, references, action threshold, observed outcome,
+error attribution, and future-policy lesson.
 
 ## Operating Rule
 
