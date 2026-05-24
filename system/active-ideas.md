@@ -1,5 +1,22 @@
 # Active Ideas
 
+## IDEA-0007 — Intimidation market arbitrage as high-friction market underwriting
+
+- Status: `framed`
+- Why it matters: adds a real-world high-friction market sleeve to the
+  passive-income portfolio without collapsing the system into manual product
+  flipping. The asset should be underwriting, price discovery, fee/logistics
+  normalization, and resale-liquidity signal.
+- Current state: proposal captured from principal discussion and linked to the
+  passive-income portfolio strategy as a candidate sleeve.
+- Guardrail: phase 1 is no-inventory paper underwriting only. Buying pallets,
+  storing goods, arranging freight, listing products, or handling returns
+  requires a separate capital/operations decision after evidence exists.
+- Next step: have the PM layer preflight 2-3 auction/recommerce surfaces,
+  normalize all-in cost and liquidity risk, track paper-bid outcomes, and
+  identify a self-serve monetization route.
+- ADRs: none yet.
+
 ## IDEA-0006 — Passive income portfolio, not skill-vendor diversification
 
 - Status: `adopted` (ADR-0033 accepted 2026-05-21)

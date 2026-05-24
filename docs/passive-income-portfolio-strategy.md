@@ -1,6 +1,6 @@
 # Passive Income Portfolio Strategy
 
-Updated: 2026-05-21
+Updated: 2026-05-24
 Owner: executive
 
 ## Frame
@@ -107,6 +107,45 @@ Primary evidence:
 - crawler/payment events
 - newsletter/feed subscriptions
 
+### Candidate: High-friction market underwriting
+
+Examples:
+
+- recommerce and liquidation lot intelligence
+- auction fee, pickup, freight, storage, and handling normalization
+- resale comp and liquidation-risk models
+- paper-bid recommendations and opportunity feeds
+- high-friction market maps for domains where fragmented rules intimidate
+  otherwise capable buyers
+
+Potential channels:
+
+- paid opportunity feeds
+- x402 or RapidAPI underwriting endpoints
+- static paid datasets
+- niche market reports
+- affiliate or referral revenue where it does not compromise ranking quality
+- subscription dashboards for buyers who already handle inventory operations
+
+Primary evidence:
+
+- paper bids that would clear a hurdle after buyer premiums, taxes, freight,
+  handling, storage, condition uncertainty, platform fees, and return/disposal
+  reserves
+- repeatable resale comp quality across categories
+- tracked auction outcomes against recommended max bids
+- buyer demand for the signal without bespoke consulting or manual selling
+- monetization path that does not require the principal to buy, store, ship, or
+  manually resell inventory
+
+Important boundary:
+
+The first version must be a no-inventory underwriting loop. Buying pallets,
+storing goods, coordinating freight, repairing items, listing products, handling
+returns, or manually closing buyers would make this an operating business, not a
+passive-income sleeve. Any capital deployment requires a separate decision after
+paper evidence survives fees, logistics, and condition uncertainty.
+
 ## Selection Criteria
 
 Each sleeve should be evaluated on:
@@ -132,6 +171,13 @@ publication, paid signal/research feed, or explicit parking.
 Skillfoundry should generalize from "first external conversation" to "first
 passive paid event by channel and sleeve." Manual LCI-style services are only
 valid if transformed into self-serve or automated fulfillment.
+
+Intimidation Market Arbitrage is now a framed candidate for the high-friction
+market underwriting sleeve. The strong version is not "product flipping"; it is
+a market-discovery and underwriting asset for lots or categories where fee
+structures, logistics, condition opacity, and resale liquidity make the market
+hard to reason about. It should be tested by paper underwriting before any
+capital or inventory operation is considered.
 
 ## Operating Rule
 

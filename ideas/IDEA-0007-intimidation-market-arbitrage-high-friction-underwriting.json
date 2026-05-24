@@ -1,0 +1,36 @@
+{
+  "artifacts": [
+    "/opt/workspace/supervisor/docs/passive-income-portfolio-strategy.md",
+    "/opt/workspace/runtime/.handoff/skillfoundry-recommerce-underwriting-preflight-2026-05-24.md"
+  ],
+  "compoundability": "high",
+  "created_at": "2026-05-24T00:00:00Z",
+  "disposition_rationale": "The proposal is strategically interesting only if it is framed as a market-discovery and underwriting engine for high-friction recommerce, not as manual product flipping. It fits the passive-income portfolio as a candidate sleeve when phase 1 is no-inventory paper underwriting and monetization is through feeds, APIs, reports, referrals, or licensing. It violates the passive constraint if it requires the principal to buy, store, ship, repair, list, or manually resell goods.",
+  "disturbs": [
+    "The current passive-income portfolio, by adding a real-world high-friction market sleeve beyond agent tooling, crypto market models, data/API products, and research licensing",
+    "Any temptation to treat recommerce GMV as proof of accessible arbitrage margin",
+    "Project planning that equates market opportunity with inventory operations before paper underwriting evidence exists",
+    "Atlas/market-modeling boundaries, because the same evidence discipline may apply to non-crypto markets without making atlas the owner"
+  ],
+  "evidence": [
+    "Principal proposal 2026-05-24: 'don't pitch this as product flipping; pitch it as a market-discovery and underwriting engine for high-friction recommerce.'",
+    "eBay reported 2025 GMV of $79.6B and described recommerce momentum in its Q4/full-year 2025 investor release.",
+    "OfferUp Recommerce Report 2025 says the U.S. recommerce industry is projected to reach $306.5B by 2030 and nearly 8% of total retail spending.",
+    "B-Stock describes itself as the largest network of B2B liquidation marketplaces connecting returned, overstock, and new-condition inventory from top retailers and manufacturers to business buyers.",
+    "GovDeals live auction pages show variable buyer premiums, pickup/removal constraints, storage fees, and lot-specific handling or packaging fees.",
+    "McKinsey's 2025 State of AI survey reports 23% of respondents scaling agentic AI somewhere in the enterprise and 39% experimenting; Gartner projected 40% of enterprise applications would include task-specific agents by the end of 2026."
+  ],
+  "id": "IDEA-0007",
+  "next_step": "Run a no-inventory preflight: select 2-3 auction/recommerce surfaces, collect a small sample of lots, normalize all-in landed cost and resale liquidity, generate max-bid recommendations, track outcomes without bidding, and define whether the resulting signal can be sold or exposed self-serve.",
+  "priority": "high",
+  "proposer": "human",
+  "review_after": "2026-06-07",
+  "risk": "high",
+  "scope": "portfolio strategy",
+  "slug": "intimidation-market-arbitrage-high-friction-underwriting",
+  "status": "framed",
+  "summary": "Frame Intimidation Market Arbitrage as a candidate passive-income sleeve for underwriting high-friction recommerce and liquidation markets. The asset is the market model, all-in cost normalization, and opportunity signal, not the act of manually flipping inventory.",
+  "target_layer": "executive",
+  "title": "Intimidation Market Arbitrage as high-friction market underwriting",
+  "updated_at": "2026-05-24T00:00:00Z"
+}
