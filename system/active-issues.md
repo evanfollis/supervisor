@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-05-25T14:47Z
+updated: 2026-05-25T16:47Z
 ---
 
 # Active issues
@@ -10,9 +10,9 @@ updated: 2026-05-25T14:47Z
 
 - **reflect.sh Write bypass — confirmed exploit, ~36+ exposure windows** — `scripts/lib/reflect.sh:112` blocks `Edit` and `NotebookEdit` but not `Write`. Confirmed exploitation on May 2 and May 6 (project repos); May 6 supervisor HEAD advance (`2bdfdaf1`). Fix is 1 line: add `"Write"` to `--disallowedTools`. Dispatch handoff: `runtime/.handoff/general-reflect-sh-write-bypass-fix-2026-05-12T04-49Z.md` (unconsumed, ~287h). Requires attended session with Tier-B/C access. Cycle-36 standing recommendation #2.
 - **Ghost-write cascade — 130+ commits ahead of origin/main** — Tick branches claim Tier-A writes that never merge to main. ADR-0033 confirmed on main (`decisions/0033-passive-income-portfolio-abstraction.md`). FR-0038/39/40/41 Status lines fixed on main (tick-2026-05-23T04-49Z). FR-0042 claimed in events (`supervisor/friction/FR-0042-synthesis-erofs-misdiagnosis.md`) but not written to disk — ghost-write confirmed. Requires Tier-B-auto authority decision or attended merge playbook. Branch divergence: 130+ ahead, 2 behind origin/main (doctor 2026-05-24T22:47Z).
-- **Synthesis dispatch obligation — 65 cycles, INBOX at 85 items (saturation active)** — INBOX holds 85 items (4 URGENTs + 81 proposals); consumption rate 0. INBOX saturation suppression active (>30 items, per CLAUDE.md). Cycle-57 synthesis reviewed and dispatched (4 proposals — P1/P3 to active-issues, Q2 to pending-principal); Proposals 1+2 from C56 require attended session for supervisor-tick.sh. Tier-B-auto or attended session required.
+- **Synthesis dispatch obligation — 66 cycles, INBOX at 86 items (saturation active)** — INBOX holds 86 items (4 URGENTs + 82 proposals); consumption rate 0. INBOX saturation suppression active (>30 items, per CLAUDE.md). Cycle-58 synthesis reviewed (4 proposals — P1 aging-gate new, P2/P3/P4 carry-forwards all classified as attended-session-blocked); no new dispatching possible without attended session. Tier-B-auto or attended session required.
 - **reflect.sh:193 argument ordering — 16th cycle, ATTENDED SESSION ACTIONABLE** — `scripts/lib/reflect.sh:193` misorders args; CURRENT_STATE.md uncommitted across 5 projects (atlas 24+ cycles, researcher 23+ days stale per cycle-55). EROFS blocks tick edits but NOT attended sessions (reflection write artifacts in scripts/lib/ prove writable for non-tick processes). Fix: move `-- CURRENT_STATE.md` after `-m` flags. First action of next attended session. Cycle-55 P2. Two consecutive attended sessions skipped this repair (FR-0044).
-- **Test artifact files blocking breach detector — 28th false-positive cycle** — `scripts/lib/.erofs-test-meta-reflection` and `scripts/lib/TEST_WRITE_2951547` written by a reflection write-test (proved EROFS=false) persist as untracked files. Breach detector fires URGENT every tick (FR-0043 false positive). Attended session must `git clean -f scripts/lib/.erofs-test-meta-reflection scripts/lib/TEST_WRITE_2951547` or equivalent to stop the noise. Direct action — no judgment required. Two consecutive attended sessions skipped this (FR-0044).
+- **Test artifact files blocking breach detector — 29th false-positive cycle** — `scripts/lib/.erofs-test-meta-reflection` and `scripts/lib/TEST_WRITE_2951547` written by a reflection write-test (proved EROFS=false) persist as untracked files. Breach detector fires URGENT every tick (FR-0043 false positive). Attended session must `git clean -f scripts/lib/.erofs-test-meta-reflection scripts/lib/TEST_WRITE_2951547` or equivalent to stop the noise. Direct action — no judgment required. Two consecutive attended sessions skipped this (FR-0044).
 
 - **Adversarial review gate dead — 16 consecutive codex-not-installed failures** — `adversarial-review.sh` calls `codex exec` which is not installed on this server. Every project session that reaches the review gate logs a failure and continues. A permanently-failing gate normalizes non-compliance in session reports. Principal decision required: (a) install codex, (b) switch route to `claude -p` adversarial prompt, or (c) remove gate and rely on `/review`. Cycle-55 Proposal 3. First cross-cutting synthesis escalation.
 
@@ -44,7 +44,8 @@ updated: 2026-05-25T14:47Z
 
 ## Structural / background
 
-- **Carry-forward re-verification gap — 3 documented false URGENTs (C57 P3)** — Reflection loop re-asserts prior-cycle observations without re-running the diagnostic. Three instances: Codex PATH (resolved before re-assertion), preflight watcher (fixed before re-assertion), migrate.failure (fixed 16h before URGENT filed). Fix: add "re-verify before carry-forward" gate to reflect prompt template. C57 Proposal 3 (Tier B).
+- **Synthesis aging gate (C58 P1 — NEW)** — Synthesis proposals that go un-landed for >2 cycles must be classified by root cause (attended-blocked, Tier-B-blocked, principal-blocked, or withdrawn). Proposals blocked for >4 cycles escalate to URGENT (subject to saturation rules). CLAUDE.md amendment proposed by C58; attended-session-blocked.
+- **Carry-forward re-verification gap — 4 documented false URGENTs (C58 P4)** — Reflection loop re-asserts prior-cycle observations without re-running the diagnostic. Four instances: Codex PATH, preflight watcher, migrate.failure, LCI bandwidth. Fix: add "re-verify before carry-forward" gate to reflect prompt template. C57 Proposal 3 / C58 Proposal 4 (Tier B).
 - **Operator authority loop** — attached sessions can be executive/supervisor
   with repo write but no tmux/systemd host control. ADR-0015 amendment now
   forbids routing Evan to another "full admin" agent; repeated host-only needs
