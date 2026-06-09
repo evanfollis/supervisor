@@ -1,6 +1,6 @@
 # Passive Income Portfolio Strategy
 
-Updated: 2026-05-24
+Updated: 2026-06-09
 Owner: executive
 
 ## Frame
@@ -47,13 +47,18 @@ Primary evidence:
 Examples:
 
 - atlas-derived market behavior models
-- signal feeds
+- causal market maps
+- conjecture/evidence ledgers
+- calibrated signal feeds
 - strategy-readiness reports
 - paper-trading portfolios
 - eventually automated capital allocation, only after evidence supports it
 
 Primary evidence:
 
+- falsifiable predictions with closeout analysis
+- causal claims that survive criticism, confounder search, and out-of-sample
+  observation
 - robust out-of-sample signals
 - reproducible paper strategy performance
 - drawdown and regime behavior
@@ -62,9 +67,11 @@ Primary evidence:
 
 Important boundary:
 
-Atlas should not jump straight from idle research loop to live capital. The
-passive-income sleeve can start as signals, reports, or paper strategies before
-capital allocation.
+Atlas should not jump straight from market research to live capital. The
+passive-income sleeve should first become a falsifiable causal research system:
+predictions, reasoning, assumptions, confounders, observations, closeouts, and
+lessons. Signals, reports, feeds, and paper strategies are possible output
+forms only after the underlying research ledger is trustworthy.
 
 ### 3. Data/API products
 
@@ -168,10 +175,12 @@ prefer candidates that generate reusable, scored evidence even before revenue.
 Launchpad Lint remains the fastest agent-tooling experiment, but it must not
 become the whole strategy.
 
-Atlas should be reframed from "trading project waiting for a decision" to
-"market-modeling sleeve candidate." Its next decision should ask which passive
-asset form it should pursue first: expanded signal research, paper-strategy
-publication, paid signal/research feed, or explicit parking.
+Atlas is the market-modeling sleeve, not merely a trading project waiting for a
+park/restart decision. Per ADR-0034, its default posture is run and improve:
+turn each cycle into high-quality causal research data, including explicit
+no-action records when the system detects signals but cannot form a novel
+testable conjecture. Parking is no longer a default option; it requires a
+separate evidence-backed reason.
 
 Skillfoundry should generalize from "first external conversation" to "first
 passive paid event by channel and sleeve." Manual LCI-style services are only
