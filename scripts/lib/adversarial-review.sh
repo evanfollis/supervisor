@@ -24,6 +24,10 @@ shift || true
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --out)
+      if [[ $# -lt 2 || -z "${2:-}" ]]; then
+        echo "--out requires a non-empty output path" >&2
+        exit 2
+      fi
       OUT="$2"
       shift 2
       ;;
@@ -38,13 +42,59 @@ if [[ ! -e "$TARGET" ]]; then
   echo "target not found: $TARGET" >&2
   exit 1
 fi
+if [[ ! -f "$TARGET" || ! -r "$TARGET" ]]; then
+  echo "target must be a regular readable file: $TARGET" >&2
+  exit 2
+fi
+TARGET_SIZE_BYTES="$(wc -c < "$TARGET")"
+MAX_TARGET_BYTES="${ADVERSARIAL_REVIEW_MAX_BYTES:-1048576}"
+if (( TARGET_SIZE_BYTES > MAX_TARGET_BYTES )); then
+  echo "target too large for single-file review: ${TARGET_SIZE_BYTES} bytes > ${MAX_TARGET_BYTES}" >&2
+  exit 2
+fi
+TARGET_REAL="$(realpath -- "$TARGET")"
+if [[ "$TARGET_REAL" == *$'\n'* || "$TARGET_REAL" == *$'\r'* ]]; then
+  echo "target path contains unsupported control characters" >&2
+  exit 2
+fi
 
-if ! command -v codex >/dev/null 2>&1; then
-  echo "codex not installed" >&2
+if [[ -n "$OUT" ]]; then
+  OUT_DIR="$(dirname -- "$OUT")"
+  if [[ ! -d "$OUT_DIR" ]]; then
+    echo "output directory not found: $OUT_DIR" >&2
+    exit 2
+  fi
+  if [[ -e "$OUT" ]]; then
+    echo "output file already exists: $OUT" >&2
+    exit 2
+  fi
+fi
+
+CODEX_BIN="$(command -v codex || true)"
+if [[ -z "$CODEX_BIN" ]]; then
+  # systemd and non-login shells often miss the nvm-managed Node bin directory.
+  # Keep this explicit rather than sourcing shell profiles in automation.
+  for candidate in \
+    /root/.nvm/versions/node/v22.22.0/bin/codex \
+    /root/.nvm/versions/node/v22.21.0/bin/codex \
+    /usr/local/bin/codex \
+    /usr/bin/codex; do
+    if [[ -x "$candidate" ]]; then
+      CODEX_BIN="$candidate"
+      export PATH="$(dirname "$candidate"):$PATH"
+      break
+    fi
+  done
+fi
+
+if [[ -z "$CODEX_BIN" ]]; then
+  echo "codex CLI not found on PATH or known install locations" >&2
   exit 1
 fi
 
-PROMPT="Adversarial review of ${TARGET}.
+PROMPT="Adversarial review of this exact file path:
+
+${TARGET_REAL}
 
 You are a skeptical reviewer. Read the target file carefully. Then produce a review with exactly these three sections:
 
@@ -57,7 +107,7 @@ Cite specific line numbers. Be terse and concrete. End with a 1-2 sentence overa
 TMPFILE="$(mktemp)"
 trap 'rm -f "$TMPFILE"' EXIT
 
-if ! codex exec --skip-git-repo-check --sandbox read-only "$PROMPT" 2>&1 | tee "$TMPFILE" ; then
+if ! "$CODEX_BIN" exec --skip-git-repo-check --sandbox read-only "$PROMPT" 2>&1 | tee "$TMPFILE" ; then
   echo "codex exec failed" >&2
   exit 1
 fi
