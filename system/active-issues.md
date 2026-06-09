@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-06-09T16:00Z
+updated: 2026-06-09T16:22Z
 ---
 
 # Active issues
@@ -25,7 +25,8 @@ updated: 2026-06-09T16:00Z
 - **Discovery adapter post-fix findings** — 3 new findings from Codex review on `2f63ae5`: `parse_assumption` 3-claim collapse, migrate.py swallows decision-header parse failures, parse-one-file boundary leaking. Triaged per handoff; Finding B ships this cycle, Finding A proposal drafts for spec-review, Finding C's ADR promotes to accepted-pending-scheduling.
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
-- **Server maintenance p2** — kernel reboot required: running `6.8.0-110-generic`, newest installed `6.8.0-124-generic`, reboot-required flag set, uptime 7 weeks+ in verified-state 2026-06-09T15:41:39Z. Operator action needed, but do not reboot mid-principal session without coordination.
+- **Atlas causal-market-map intent mismatch** — Principal clarified 2026-06-09 that Atlas should remain a running falsifiable crypto-market mapping loop using conjecture/criticism, causal implications, and confounder search (Pearl-style). Live post-reboot runner is active, but latest telemetry reported `hypotheses_evaluated: 0`, `graph_nodes: 0`, `graph_edges: 0`. Audit/realign implementation before any stop/park recommendation.
+- **Server maintenance p2** — reboot completed 2026-06-09; post-boot kernel `6.8.0-124-generic`, no reboot-required flag, core services active. Keep next maintenance pass focused on residual service checks, especially `api.synaplex.ai` DNS/API reachability.
 - **Reflection accuracy gap (cycle 36 NEW)** — Reflection jobs read CURRENT_STATE.md instead of live sources (task stores, git HEAD, service status), propagating stale derivatives across cycles. Command reported "1 task" for multiple cycles while live store had 11. Proposals 1+4 from cycle-36 synthesis in INBOX propose CLAUDE.md amendment + reflect-prompt.md fix.
 - **Synaplex arxiv API degradation (cycle 36 NEW)** — Two concurrent failure modes in one 12h window (429 rate-limit + TimeoutError on arxiv). Neither synaplex nor atlas has backoff logic. `skip_next_run` primitive proposed in cycle-36 synthesis Proposal 5. Dispatching to synaplex session.
 
@@ -33,10 +34,8 @@ updated: 2026-06-09T16:00Z
 
 - **LCI channel decision** — park, kill, or unblock the 33+ day stalled outreach track. INBOX URGENT `URGENT-aged-lci-outreach-blocked-2026-05-09T02-49Z.md` (133h old, no response).
 - **Skillfoundry recommerce Phase 1 authorization** — Phase 1 (source-access outreach to GovDeals/B-Stock/GSA) was never authorized. No emails sent (correct per ADR-0020). Verdict remains: authorize / defer / reframe / kill. If authorized now, the 14-day schedule resets from authorization date. Status: `general-recommerce-status-2026-05-26.md`.
-- **Atlas strategic direction** — `atlas-runner.service` is inactive since 2026-05-18, so it is not burning Bitstamp calls. Principal-level choice remains: Shape 4 expansion/restart, explicit parked state, or retirement.
 - **Tier-B-auto authority** — grant or deny ticks authority to implement additive `scripts/lib/` changes without attended gating. Structural unblock for ~10 standing synthesis proposals. 8-cycle carry-forward (cycle-20 Q1). Without it, workspace remains diagnosis-complete and action-incomplete.
 - **Adversarial review independence decision** — Codex CLI is installed and the wrapper now launches it from known nvm paths, but the review remains same-workspace Codex output, not a truly independent control. Decide later whether that is sufficient or whether a separate review surface is required.
-- **[Cycle 57 Q2] Atlas reflection loop suspension** — 26 consecutive idle reflection cycles, runner STOPPED since 2026-05-18. C57 Proposal 2 suggests commenting out atlas in `projects.conf`. Saves ~2 reflection sessions/day with zero information loss. Options: (a) suspend until runner restarts, (b) keep as sentinel cadence. Tier-C change — requires attended session or Tier-B-auto grant.
 - **[Cycle 56] Should tick auto-promote synthesis "Questions for the human" to active-issues Pending principal?** — Cycle-55 had Q1 (repair ordering) and Q2 (adversarial review route); neither reached this section because the tick absorbed content without escalating. Proposal 1 in C56 synthesis fixes this structurally in `supervisor-tick.sh`. If you prefer synthesis questions stay in synthesis files only, withdraw Proposal 1. Otherwise: attended session should implement C56 Proposal 1.
 
 ## Structural / background
