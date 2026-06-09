@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-06-09T16:40Z
+updated: 2026-06-09T16:48Z
 ---
 
 # Active issues
@@ -25,7 +25,7 @@ updated: 2026-06-09T16:40Z
 - **Discovery adapter post-fix findings** — 3 new findings from Codex review on `2f63ae5`: `parse_assumption` 3-claim collapse, migrate.py swallows decision-header parse failures, parse-one-file boundary leaking. Triaged per handoff; Finding B ships this cycle, Finding A proposal drafts for spec-review, Finding C's ADR promotes to accepted-pending-scheduling.
 - **Canon schema — polarity surface underspecified** — Codex review on `weakens_assumption` narrow proposal rejected narrow path. Holistic audit (reconcile polarity vocabulary + coupled audit/citation/phase-0 surfaces + canon-CI gap FR-0035) dispatched to context-repo session.
 - **Context-repo pass-2 retrofit** — M1+M2 retrofit for atlas landed (`49c24df` in atlas repo; 107/107 tests). skillfoundry-valuation-context retrofit proposal filed; awaiting skillfoundry session pickup.
-- **Atlas causal-map cold-start deadlock** — ADR-0034 restored Atlas as live market-modeling sleeve; Atlas audit commit `b0df455` found 22 candidates → 0 unique every cycle, 69 falsified hypotheses, 0 promoted primitives, no graph file. ADR-0035 now accepts falsifications as map content; implementation handoff: `runtime/.handoff/atlas-implement-falsified-claims-map-adr-0035-2026-06-09.md`.
+- **Atlas causal-map residuals after ADR-0035** — Implementation commit `1658711` deployed: graph now has 69 refuted nodes and runner is active on graph-derived hypotheses. Residuals: `atlas status` warns multiple active cycles, graph edges remain 0, forward-prediction ledger not built, adversarial review flagged claim-faithfulness/data-validity risks beyond the targeted graph-gap guard.
 - **Server maintenance p2** — reboot completed 2026-06-09; post-boot kernel `6.8.0-124-generic`, no reboot-required flag, core services active. Keep next maintenance pass focused on residual service checks, especially `api.synaplex.ai` DNS/API reachability.
 - **Reflection accuracy gap (cycle 36 NEW)** — Reflection jobs read CURRENT_STATE.md instead of live sources (task stores, git HEAD, service status), propagating stale derivatives across cycles. Command reported "1 task" for multiple cycles while live store had 11. Proposals 1+4 from cycle-36 synthesis in INBOX propose CLAUDE.md amendment + reflect-prompt.md fix.
 - **Synaplex arxiv API degradation (cycle 36 NEW)** — Two concurrent failure modes in one 12h window (429 rate-limit + TimeoutError on arxiv). Neither synaplex nor atlas has backoff logic. `skip_next_run` primitive proposed in cycle-36 synthesis Proposal 5. Dispatching to synaplex session.
