@@ -9,7 +9,7 @@ updated: 2026-06-09T16:00Z
 ## CRITICAL (blocks autonomous repair)
 
 - **Ghost-write cascade — 224 commits ahead of origin/main, 2 behind** — Tick/autocommit branches claim writes that do not consistently merge to main. Requires a deliberate merge/triage playbook before origin sync. Primary receipt: `git -C /opt/workspace/supervisor status -sb` on 2026-06-09.
-- **Synthesis dispatch obligation — INBOX at 156 items, general handoffs at 47** — INBOX saturation is active and completion breadcrumbs are mixed with live work. Requires triage into live / stale / done before more proposal generation is useful. Primary receipt: verified-state generated 2026-06-09T15:41:39Z.
+- **Synthesis dispatch obligation — INBOX at 156 items, general handoffs at 10 by verified-state filter** — INBOX saturation is still active, but runtime handoff root was reduced by archiving done/superseded breadcrumbs on 2026-06-09. Requires INBOX triage next. Primary receipt: verified-state generated 2026-06-09T15:52:47Z.
 
 ## Currently live
 
