@@ -74,6 +74,18 @@ That template is a starting point — the agent is free to evolve the structure.
 Do not rewrite the entire file — update the sections that changed. Preserve
 entries in "Recent decisions" that are still accurate.
 
+## Auto-commit gate (reflect.sh, not Claude)
+
+After your session ends, `reflect.sh` checks whether `CURRENT_STATE.md`
+was modified and, if so, commits it via `git commit` in the shell script
+itself. This commit is NOT made by your Claude session — it is made by
+the shell after your session exits. The `--disallowedTools` constraint
+(`Edit`, `MultiEdit`, `Write`, `NotebookEdit`) prevents your session from
+writing files directly. If you see a commit attributed to a reflection
+session in git history, it was made by the shell gate, not by the Claude
+model bypassing tool restrictions. Do not report such commits as a
+"Write bypass" or security finding — it is designed behavior.
+
 ## Constraints
 
 - **Do not** run `git commit`, `git push`, or any command that writes to the project repo.

@@ -53,13 +53,13 @@ fi
 
 # --- 4. check Tier-A dirty state ---
 TIER_A_DIRTY=$(git -C "$SUP" status --porcelain \
-  -- friction/ handoffs/ system/ ideas/ decisions/ 2>/dev/null || true)
+  -- friction/ handoffs/ system/ ideas/ decisions/ events/ 2>/dev/null || true)
 
 [[ -n "$TIER_A_DIRTY" ]] || skip "Tier-A paths clean — nothing to commit"
 
 # --- 5. stage Tier-A paths and commit on current branch ---
 git -C "$SUP" add \
-  friction/ handoffs/ system/ ideas/ decisions/ \
+  friction/ handoffs/ system/ ideas/ decisions/ events/ \
   2>/dev/null || true
 
 if git -C "$SUP" diff --cached --quiet 2>/dev/null; then
