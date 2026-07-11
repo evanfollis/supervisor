@@ -142,12 +142,15 @@ if [[ ! -d "$SUP/.git" ]]; then
 fi
 
 PRE_SUP_HEAD=$(git -C "$SUP" rev-parse HEAD 2>/dev/null || echo unknown)
-# Exclude untracked files (`??`) and the generated verified-state snapshot from
-# the dirty check: neither can produce merge conflicts with targeted tick edits.
+# Exclude untracked files (`??`), the generated verified-state snapshot, and
+# the append-only events ledger from the dirty check: none can represent
+# attended-session work in flight. Every subsystem appends to the events
+# ledger — including supervisor-autocommit.sh's own post-commit emit_event —
+# so treating it as dirty re-creates the dirty state immediately after every
+# autocommit and deadlocks the tick permanently (52-cycle outage, C86–C138).
 # The real concern is modified/staged attended-session work, which still
-# blocks. Prior behavior treated inert files as dirty and caused repeated tick
-# outages.
-PRE_SUP_DIRTY=$(git -C "$SUP" status --porcelain -- . ':!system/verified-state.md' 2>/dev/null | grep -v '^??' || true)
+# blocks.
+PRE_SUP_DIRTY=$(git -C "$SUP" status --porcelain -- . ':!system/verified-state.md' ':!events/supervisor-events.jsonl' 2>/dev/null | grep -v '^??' || true)
 
 # Refuse to run on a dirty working tree — an attended session may be in flight
 # with uncommitted work. Safer to skip than to risk committing partial state.
