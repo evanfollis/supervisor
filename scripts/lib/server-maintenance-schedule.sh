@@ -22,6 +22,7 @@ sed \
   "$LIB_DIR/server-maintenance-schedule-prompt.md" > "$PROMPT_FILE"
 
 codex exec \
+  --profile full_auto \
   --skip-git-repo-check \
   -C "$WORKSPACE_ROOT" \
   -s read-only \

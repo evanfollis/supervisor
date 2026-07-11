@@ -107,7 +107,7 @@ Cite specific line numbers. Be terse and concrete. End with a 1-2 sentence overa
 TMPFILE="$(mktemp)"
 trap 'rm -f "$TMPFILE"' EXIT
 
-if ! "$CODEX_BIN" exec --skip-git-repo-check --sandbox read-only "$PROMPT" 2>&1 | tee "$TMPFILE" ; then
+if ! "$CODEX_BIN" exec --profile full_auto --skip-git-repo-check --sandbox read-only "$PROMPT" 2>&1 | tee "$TMPFILE" ; then
   echo "codex exec failed" >&2
   exit 1
 fi
