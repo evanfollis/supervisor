@@ -30,7 +30,7 @@ updated: 2026-06-09T16:48Z
 - **Reflection accuracy gap (cycle 36 NEW)** — Reflection jobs read CURRENT_STATE.md instead of live sources (task stores, git HEAD, service status), propagating stale derivatives across cycles. Command reported "1 task" for multiple cycles while live store had 11. Proposals 1+4 from cycle-36 synthesis in INBOX propose CLAUDE.md amendment + reflect-prompt.md fix.
 - **Synaplex arxiv API degradation (cycle 36 NEW)** — Two concurrent failure modes in one 12h window (429 rate-limit + TimeoutError on arxiv). Neither synaplex nor atlas has backoff logic. `skip_next_run` primitive proposed in cycle-36 synthesis Proposal 5. Dispatching to synaplex session.
 
-## Pending principal (people-or-money only)
+## Pending principal (decisions, not provisioning)
 
 - **LCI channel decision** — park, kill, or unblock the 33+ day stalled outreach track. INBOX URGENT `URGENT-aged-lci-outreach-blocked-2026-05-09T02-49Z.md` (133h old, no response).
 - **Skillfoundry recommerce Phase 1 authorization** — Phase 1 (source-access outreach to GovDeals/B-Stock/GSA) was never authorized. No emails sent (correct per ADR-0020). Verdict remains: authorize / defer / reframe / kill. If authorized now, the 14-day schedule resets from authorization date. Status: `general-recommerce-status-2026-05-26.md`.
