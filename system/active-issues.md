@@ -12,15 +12,18 @@ Cross-check any claim here against `runtime/.meta/LATEST_SYNTHESIS` first.
 
 ## CRITICAL / time-critical
 
-- **Atlas Phase 2b scorer — bucket 2949 resolves 2026-07-16T00:00Z** — 0/60
-  predictions scored since Phase 2a shipped Jun 28; bucket 2948 expired
-  unscored. Dispatched 2026-07-11T22:34Z to atlas session
-  (`runtime/.handoff/atlas-phase2b-scorer-2026-07-11.md`), session confirmed
-  working. Verify completion report before Jul 14.
-- **Unpushed governance + project branches** — supervisor 610+ ahead of
-  origin (merge landed 2026-07-11, divergence resolved, pushable);
-  context-repository, command, synaplex, skillfoundry-* also unpushed per
-  C138. Awaiting principal go-ahead on pushes.
+_(none as of 2026-07-11T23:15Z)_
+
+- ~~Atlas Phase 2b~~ **CLOSED 2026-07-11T23:05Z** — scorer shipped +
+  deployed (`cf76b7b`, 184 tests, runner restarted 22:51Z); bucket 2948
+  recovered (20 scored), 2949 self-scores on Jul 16. Follow-on: 2c
+  calibration CLI (not time-critical).
+- ~~Unpushed branches~~ **CLOSED 2026-07-11T23:10Z** — principal authorized;
+  supervisor/context-repository/command/skillfoundry-harness pushed after
+  audit (composition + secrets scan, 0 hits); atlas + sf-products already in
+  sync. **Exception: synaplex has NO git remote** — "push synaplex" (rec
+  #19) was never executable; creating the GitHub repo is a principal-facing
+  naming/visibility decision.
 
 ## Currently live (verified 2026-07-11)
 
@@ -48,8 +51,8 @@ Cross-check any claim here against `runtime/.meta/LATEST_SYNTHESIS` first.
   fallback active 61+ cycles; needs principal-provisioned credential at
   `runtime/.secrets/`. Intake itself is healthy (W27 current, W28 due
   Jul 12).
-- **atlas-runner restart pending** — running code predates `f24d298`; fold
-  restart into Phase 2b deploy (in dispatched handoff).
+- ~~atlas-runner restart~~ **CLOSED** — restarted 2026-07-11T22:51Z with the
+  Phase 2b deploy; picked up `f24d298`.
 - **Codex config migrated 2026-07-11** — legacy `profile = "full_auto"`
   rejected by the current codex CLI (breakage is recent: nightly maintenance
   still ran at 01:23Z Jul 11). Migrated to `full_auto.config.toml`; `codex
