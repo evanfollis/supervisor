@@ -71,12 +71,15 @@ PY
 
 # If the session already exists (user started it manually via `ws start`),
 # attach supervision to it rather than starting a second copy.
-if ! tmux has-session -t "$NAME" 2>/dev/null; then
+# `=` forces exact-match: bare -t does prefix matching, so `-t general`
+# matches `general-codex` — on parallel boot this silently skipped creating
+# `general` and supervised the wrong session (2026-07-11 reboot).
+if ! tmux has-session -t "=$NAME" 2>/dev/null; then
   echo "session-supervisor[$NAME]: starting tmux session at $DIR (agent: $AGENT)"
   tmux new-session -d -s "$NAME" -c "$DIR" "$LAUNCH"
   sleep 2
   # Nudge past any first-run prompt. Harmless for both agents.
-  tmux send-keys -t "$NAME" "" Enter 2>/dev/null || true
+  tmux send-keys -t "=$NAME" "" Enter 2>/dev/null || true
 else
   echo "session-supervisor[$NAME]: attaching to existing session"
 fi
@@ -84,7 +87,7 @@ fi
 write_manifest
 
 # Block while the session is alive. Poll every 15s.
-while tmux has-session -t "$NAME" 2>/dev/null; do
+while tmux has-session -t "=$NAME" 2>/dev/null; do
   sleep 15
 done
 

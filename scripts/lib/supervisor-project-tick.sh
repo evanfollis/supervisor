@@ -59,7 +59,7 @@ fi
 
 # --- 3. attended-session interlock -------------------------------------------
 # Skip if the project's tmux session was active in the last 15 min.
-if command -v tmux >/dev/null 2>&1 && tmux has-session -t "$PROJECT_NAME" 2>/dev/null; then
+if command -v tmux >/dev/null 2>&1 && tmux has-session -t "=$PROJECT_NAME" 2>/dev/null; then
   last_activity=$(tmux display-message -p -t "$PROJECT_NAME" '#{session_activity}' 2>/dev/null || echo 0)
   now_epoch=$(date -u +%s)
   if [[ "$last_activity" =~ ^[0-9]+$ ]] && (( now_epoch - last_activity < 900 )); then

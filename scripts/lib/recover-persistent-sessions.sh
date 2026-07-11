@@ -44,7 +44,7 @@ start_loop() {
     rm -f "$pidfile"
   fi
 
-  if tmux has-session -t "$name" 2>/dev/null; then
+  if tmux has-session -t "=$name" 2>/dev/null; then
     echo "session-up: $name"
     return 0
   fi

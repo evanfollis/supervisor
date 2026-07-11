@@ -36,18 +36,18 @@ case "${1:-status}" in
     # Claude session JSONL survives; only the live process goes away.
     for n in $(names); do
       systemctl stop "workspace-session@${n}.service" 2>/dev/null || true
-      tmux kill-session -t "$n" 2>/dev/null && echo "stopped: $n" || true
+      tmux kill-session -t "=$n" 2>/dev/null && echo "stopped: $n" || true
     done
     ;;
   restart)
     # Restart a single session (or all). The supervisor respawns within ~5s.
     target="${2:-}"
     if [[ -n "$target" ]]; then
-      tmux kill-session -t "$target" 2>/dev/null || true
+      tmux kill-session -t "=$target" 2>/dev/null || true
       echo "killed $target — systemd will respawn"
     else
       for n in $(names); do
-        tmux kill-session -t "$n" 2>/dev/null || true
+        tmux kill-session -t "=$n" 2>/dev/null || true
       done
       echo "killed all — systemd will respawn each within ~5s"
     fi
@@ -56,7 +56,7 @@ case "${1:-status}" in
     printf '%-20s %-10s %s\n' SESSION SUPERVISOR TMUX
     for n in $(names); do
       sup=$(systemctl is-active "workspace-session@${n}.service" 2>/dev/null || echo inactive)
-      tmx=$(tmux has-session -t "$n" 2>/dev/null && echo up || echo down)
+      tmx=$(tmux has-session -t "=$n" 2>/dev/null && echo up || echo down)
       printf '%-20s %-10s %s\n' "$n" "$sup" "$tmx"
     done
     ;;

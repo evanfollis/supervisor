@@ -98,7 +98,7 @@ for list_file in "$TMPDIR_PENDING"/*; do
   [[ -f "$list_file" ]] || continue
   target="$(basename "$list_file")"
 
-  if ! tmux has-session -t "$target" 2>/dev/null; then
+  if ! tmux has-session -t "=$target" 2>/dev/null; then
     count=$(wc -l < "$list_file")
     emit_event "handoff.dispatch_skipped" "$target" "$count" "session not running"
     # Don't mark dispatched — try again next run.
@@ -115,11 +115,11 @@ for list_file in "$TMPDIR_PENDING"/*; do
   # The Claude Code REPL wraps long input across display lines and the first
   # Enter can land inside the wrapped buffer instead of submitting. Send the
   # text, wait, then send Enter twice to guarantee submit.
-  tmux send-keys -t "$target" "$nudge"
+  tmux send-keys -t "=$target" "$nudge"
   sleep 0.3
-  tmux send-keys -t "$target" Enter
+  tmux send-keys -t "=$target" Enter
   sleep 0.3
-  tmux send-keys -t "$target" Enter
+  tmux send-keys -t "=$target" Enter
 
   emit_event "handoff.dispatched" "$target" "$count" "tmux batch nudge"
 

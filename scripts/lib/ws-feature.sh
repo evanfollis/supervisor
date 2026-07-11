@@ -76,7 +76,7 @@ cmd_feature() {
 
   [[ -e "$meta" ]] && { echo "ERROR: feature '$tmux_name' already exists ($meta)" >&2; return 1; }
   [[ -e "$worktree" ]] && { echo "ERROR: worktree path already exists ($worktree)" >&2; return 1; }
-  tmux has-session -t "$tmux_name" 2>/dev/null && { echo "ERROR: tmux session '$tmux_name' already exists" >&2; return 1; }
+  tmux has-session -t "=$tmux_name" 2>/dev/null && { echo "ERROR: tmux session '$tmux_name' already exists" >&2; return 1; }
 
   local base; base=$(default_branch "$pdir") || return 1
 
@@ -189,7 +189,7 @@ cmd_close() {
   fi
 
   # Committed to closing. Kill tmux, then clean up.
-  tmux kill-session -t "$name" 2>/dev/null && echo "killed tmux: $name" || true
+  tmux kill-session -t "=$name" 2>/dev/null && echo "killed tmux: $name" || true
 
   case "$action" in
     stale_meta)
@@ -230,7 +230,7 @@ cmd_tree() {
     [[ "$name" =~ ^[[:space:]]*# ]] && continue
     [[ -z "$name" ]] && continue
     [[ "$name" == "general" ]] && continue
-    local tmx; tmx=$(tmux has-session -t "$name" 2>/dev/null && echo up || echo down)
+    local tmx; tmx=$(tmux has-session -t "=$name" 2>/dev/null && echo up || echo down)
     printf '├── %s (%s)\n' "$name" "$tmx"
     # Features for this project
     for meta in "$SESSIONS_DIR"/"${name}"--*.json; do
@@ -240,7 +240,7 @@ cmd_tree() {
       fname=$(jq -r .tmux_name "$meta")
       agent=$(jq -r .agent "$meta")
       branch=$(jq -r .branch "$meta")
-      ftmx=$(tmux has-session -t "$fname" 2>/dev/null && echo up || echo down)
+      ftmx=$(tmux has-session -t "=$fname" 2>/dev/null && echo up || echo down)
       printf '│   └── %s [%s] %s (%s)\n' "$fname" "$agent" "$branch" "$ftmx"
     done
   done < "$PROJECTS_CONF"
