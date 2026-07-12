@@ -210,6 +210,40 @@ if [[ -d "$hooks_dir" ]]; then
   note "hooks dir: $active_hooks active, $disabled_hooks disabled"
 fi
 
+# Runtime evidence must never become a continuously-written Git surface.
+section "empirical storage boundary"
+case "$WORKSPACE_SUPERVISOR_EVENTS_FILE" in
+  "$RUNTIME_ROOT"/.telemetry/*)
+    say_ok "supervisor event stream is on runtime storage"
+    ;;
+  *)
+    say_fail "supervisor event stream escapes runtime: $WORKSPACE_SUPERVISOR_EVENTS_FILE"
+    ;;
+esac
+if [[ -e "$SUPERVISOR_ROOT/events/supervisor-events.jsonl" || -d "$SUPERVISOR_ROOT/handoffs/ARCHIVE" ]]; then
+  say_fail "legacy empirical writer surface exists inside supervisor Git"
+else
+  say_ok "legacy Git-resident event and handoff archives are absent"
+fi
+for evidence_dir in "$WORKSPACE_TELEMETRY_DIR" "$WORKSPACE_META_DIR/handoff-archive"; do
+  if mkdir -p "$evidence_dir" 2>/dev/null && [[ -w "$evidence_dir" ]]; then
+    say_ok "$evidence_dir is writable"
+  else
+    say_fail "$evidence_dir is not writable"
+  fi
+done
+summary_hook="$hooks_dir/session-end-auto-summary.sh"
+if [[ -f "$summary_hook" ]]; then
+  if grep -q '/opt/workspace/runtime/.meta/handoff-archive' "$summary_hook" \
+     && ! grep -q 'HANDOFF_PRIMARY_ROOT="/opt/workspace/supervisor' "$summary_hook"; then
+    say_ok "SessionEnd summaries target runtime cold storage"
+  else
+    say_fail "SessionEnd summary hook can write into the supervisor repo"
+  fi
+else
+  say_warn "SessionEnd auto-summary hook not installed"
+fi
+
 # --- notifier: Slack notifier consumes events.jsonl; confirm it's alive ---
 section "notifier"
 if (( ! systemctl_ok )); then
