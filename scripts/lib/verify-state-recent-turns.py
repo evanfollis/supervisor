@@ -20,6 +20,9 @@ SKIP_PREFIXES = (
     '# Workspace',
     '<command-name>',
     '<system-reminder>',
+    '[handoff-dispatcher]',
+    '[executive]',
+    'Please read and execute /opt/workspace/runtime/.handoff/',
 )
 
 
@@ -43,6 +46,13 @@ def main():
                 continue
             if d.get('type') != 'user':
                 continue
+            # Headless SDK calls and tmux `send-keys` control-plane nudges also
+            # serialize their input as role=user. Only turns explicitly tagged
+            # as typed at an interactive CLI are safe to call principal input.
+            # Fail closed: omission is better than attributing automation to the
+            # human. Other surfaces need their own authenticated provenance.
+            if d.get('entrypoint') != 'cli' or d.get('promptSource') != 'typed':
+                continue
             m = d.get('message', {})
             if not isinstance(m, dict):
                 continue
@@ -65,7 +75,7 @@ def main():
                     continue
             except Exception:
                 continue
-            msgs.append((ts, stripped.replace('\n', ' ')[:160]))
+            msgs.append((ts, stripped.replace('\n', ' ')[:160].rstrip()))
 
     if not msgs:
         print("_(no principal turns in last 48h)_")
