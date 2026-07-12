@@ -23,9 +23,15 @@ outside the subscription plans.
 - The synaplex Sonnet scorer/synthesizer remains on the heuristic path.
   This is a deliberate cost decision, not a credential blocker. Reflection
   and synthesis jobs must stop carrying it forward as a blocker.
-- If a provider's subscription limit is hit, agents pause that provider's
-  work or route to the unblocked provider (Claude ↔ Codex), not to metered
-  API fallbacks.
+- If a provider's subscription limit is hit, agents route to the unblocked
+  subscription provider (Claude ↔ Codex), not to metered API fallbacks.
+  Automated harnesses should hard-stop only when both subscription providers
+  are blocked or when the failure is not a provider-capacity failure.
+- Every automated LLM call should emit foundational usage telemetry:
+  provider, model, role, status, latency, fallback source, and token counts
+  where the CLI exposes them. When subscription CLIs do not expose exact
+  token counts, emit clearly labeled estimates rather than pretending
+  precision.
 - Workspace loops and attended sessions should economize accordingly:
   prefer single-session work over multi-agent fan-outs unless explicitly
   requested; heavier models only where the charter already calls for them.

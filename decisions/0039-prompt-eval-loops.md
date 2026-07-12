@@ -160,9 +160,11 @@ deploy-gate extension. The contract:
   reports TPR/TNR, failing below 0.8 — a judge that can't clear the bar
   gets its rubric revised before it gates again. Judges that gate set
   `judge.trials: 3` (majority vote) to absorb single-call noise.
-- All LLM execution via subscription CLIs per ADR-0036. If a provider is
-  rate-limited, eval runs emit `eventType: "throttled"` (not `failure`)
-  and the gate treats the run as not-run (blocked ≠ failed).
+- All LLM execution via subscription CLIs per ADR-0036. Provider-capacity
+  failures route across subscription families first: Claude-primary calls
+  try Codex next, and Codex-primary calls try Claude next. Eval runs emit
+  `eventType: "throttled"` (not `failure`) and are treated as not-run only
+  when both subscription providers are blocked.
 
 ### 4. CI gate
 
@@ -225,6 +227,12 @@ deploy-gate extension. The contract:
   `runtime/.telemetry/events.jsonl` (`source: "prompteval"`, correct
   `sourceType`, `eventType` ∈ info|failure|throttled|escalated), per the
   workspace telemetry contract.
+- Every LLM attempt appends `eventType: "llm_call"` with provider, model,
+  role, status, latency, fallback source, input/output character counts,
+  and token accounting. Exact token counts are recorded when a CLI exposes
+  them; otherwise the event uses `tokenSource: estimated_chars_div_4`.
+  Command reads this telemetry directly so eval cost/latency/fallbacks are
+  visible in the principal-facing surface.
 - Per S3-P2, staleness/saturation flags that persist ≥3 consecutive
   status runs emit `eventType: "escalated"` so the synthesis loop sees a
   decaying golden set as pressure, not archive.
