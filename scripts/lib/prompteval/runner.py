@@ -329,9 +329,14 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
             "pass": all(trial_passes),            # pass^k
             "pass_any": any(trial_passes),        # pass@k (reported, not gated)
             "trials": trials,
+            "trial_results": [
+                {"trial": index, "pass": passed, "checks": checks}
+                for index, (passed, checks) in enumerate(zip(trial_passes, trial_details))
+            ],
             "must_pass": case.get("must_pass", True),
             "status": case.get("status"),
             "provenance": case.get("provenance"),
+            # Retained for compatibility with existing report consumers.
             "checks": trial_details[-1],
         }
 

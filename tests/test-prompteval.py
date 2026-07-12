@@ -352,6 +352,24 @@ class TestRunnerAndGate(unittest.TestCase):
         self.assertFalse(report["gate"]["passed"])
         self.assertTrue(any("unknown ratio" in r for r in report["gate"]["reasons"]))
 
+    def test_report_retains_each_trial_diagnostic(self):
+        echo_adapter(self.repo, '{"score": 72}')
+        spec = write_spec(
+            self.repo,
+            gate={"aggregate_floor_delta": 0.02, "trials": 3,
+                  "max_unknown_ratio": 0.2},
+        )
+        case = add_case(
+            spec,
+            {"title": "trial diagnostics"},
+            [{"kind": "numeric_band", "path": "score", "min": 50}],
+        )
+        report = run_fresh(spec)
+        trials = report["cases"][case["id"]]["trial_results"]
+        self.assertEqual([item["trial"] for item in trials], [0, 1, 2])
+        self.assertTrue(all(item["pass"] for item in trials))
+        self.assertTrue(all(item["checks"] for item in trials))
+
     def test_holdout_excluded_unless_release(self):
         echo_adapter(self.repo, '{"score": 72}')
         spec = write_spec(self.repo)
