@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-07-11T22:42Z
+updated: 2026-07-12T03:26Z
 ---
 
 # Active issues
@@ -34,11 +34,11 @@ _(none as of 2026-07-11T23:15Z)_
 - **INBOX saturation — 333 items** — mostly duplicate synthesis-translator
   proposals (P3a suppression enforcement never landed). Sweep + P3a fix
   pending.
-- **Synthesis follow-ups still unlanded** — P3 (reflection failure
-  self-reporting), P5 (reflect.sh HEAD-check false positive — source of the
-  `URGENT-supervisor-reflection-mutated-head` noise), P3a (INBOX
-  suppression), P2 (activity-gated reflection). All small `reflect.sh` /
-  translator patches; see C138 for specs.
+- **Synthesis follow-ups still unlanded** — P5 (reflect.sh HEAD-check false
+  positive — source of the `URGENT-supervisor-reflection-mutated-head` noise),
+  P3a (INBOX suppression), P2 (activity-gated reflection). P3 reflection
+  failure self-reporting landed 2026-07-12. Remaining items are small
+  `reflect.sh` / translator patches; see C138 for specs.
 - **Hook injection hardening (ADR-0037 review findings)** — the
   session-start hook keys freshness on `updated:` only (not `generated:`)
   and does not escape inner code fences; both matter if any generated file

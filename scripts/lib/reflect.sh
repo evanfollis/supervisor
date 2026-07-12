@@ -43,6 +43,16 @@ ISO_NOW="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 OUTPUT_FILE="$META_DIR/${PROJECT}-reflection-${ISO_NOW}.md"
 WORKSPACE_SESSION_MEMORY_DIR="/root/.claude/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
 
+emit_reflection_failure_telemetry() {
+  local reason="$1"
+  local exit_code="$2"
+
+  mkdir -p "$WORKSPACE_TELEMETRY_DIR" 2>/dev/null || return 0
+  printf '{"project":"%s","source":"%s.reflect","eventType":"failure","level":"error","sourceType":"system","timestamp":%s,"note":"reflection failed: %s","ref":"%s","details":{"reason":"%s","exitCode":%d,"outputFile":"%s"}}\n' \
+    "$PROJECT" "$PROJECT" "$(date -u +%s%3N)" "$reason" "$OUTPUT_FILE" "$reason" "$exit_code" "$OUTPUT_FILE" \
+    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
+}
+
 # Claude Code's per-cwd JSONL directory. Encoding: slashes → hyphens, prefix "-".
 # e.g. /opt/workspace/projects/atlas → -opt-workspace-projects-atlas
 SESSION_DIR="/root/.claude/projects/-$(echo "$PROJECT_DIR" | sed 's|^/||; s|/|-|g')"
@@ -116,6 +126,7 @@ if [[ -f "$OUTPUT_FILE" ]]; then
   echo "reflect[$PROJECT]: wrote $OUTPUT_FILE"
 else
   echo "reflect[$PROJECT]: WARNING — no output file produced" >&2
+  emit_reflection_failure_telemetry "no_output_file" 2
   exit 2
 fi
 
