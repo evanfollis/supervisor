@@ -53,12 +53,18 @@ _(none as of 2026-07-11T23:15Z)_
   still model/PM-reviewed, not machine-proven. Synaplex's vendor route is now
   canonically withdrawn with zero Evidence. The first internal prospective
   Claim was invalidated before observation after an opposing review found its
-  method contaminated; the full Evidence-to-reflection loop remains open.
+  method contaminated. A replacement controlled instrument-validation study
+  is committed pre-entry at Synaplex `946c946` with Claim
+  `e1c51ab0d83be772`, frozen Policy `7628c88b8f08c7e8`, zero Evidence, and zero
+  subject access. Its Claude review is blocked by subscription connectivity;
+  a one-shot pre-entry retry is scheduled for 2026-07-12 20:21 UTC. The full
+  Evidence-to-reflection loop remains open.
 - **Prompt governance coverage is incomplete** — `prompteval check` validates
   one governed prompt and reports 20 ungoverned prompt surfaces. The
-  workspace-charter registry now exists, but its first release run timed out
-  under concurrent subscription-model eval load; it remains ungoverned until
-  a fresh release baseline passes.
+  workspace-charter registry now exists, but its release gate remains failed
+  after a fresh serialized run. One holdout also became author-visible during
+  cache diagnostics and must be retired as contaminated. No baseline was
+  accepted; the charter remains ungoverned and uncommitted.
 - **Model-work admission is implicit** — concurrent project prompt-eval runs
   currently compete directly for subscription capacity. On 2026-07-12 a
   workspace-charter release call hit the harness's 300s timeout while four
