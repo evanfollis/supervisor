@@ -1,4 +1,4 @@
-# ADR-0039: A canon emission path for the synaplex lab
+# ADR-0040: A canon emission path for the synaplex lab
 
 Date: 2026-07-12
 Status: **proposed**
