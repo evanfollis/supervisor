@@ -2,7 +2,7 @@
 name: System Status
 description: Current operating model and active focus for the supervisor control plane
 type: front-door
-updated: 2026-04-30
+updated: 2026-07-12
 ---
 
 # System Status
@@ -63,6 +63,8 @@ consume workspace attention.
   workflow, or expectation changes instead of permanent manual oversight.
 - Treat friction capture plus policy refinement as the main mechanism for
   moving the whole stack up, analogous to a policy-search loop.
+- The reflect loop ran clean for the 2026-07-12 cycle; no current supervisor
+  status intervention is needed from this cycle.
 - Push `command` toward a true executive control-plane product, not a better
   looking collection of session and terminal utilities.
 - Support `atlas` through its epistemic-build phase toward the systematic
