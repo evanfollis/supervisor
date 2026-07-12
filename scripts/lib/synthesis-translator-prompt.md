@@ -18,6 +18,7 @@ INBOX output dir (supervisor/executive work): `{{INBOX_DIR}}`
      2. Read the target file. Search the whole file for that identifier, including comments outside the proposed destination block.
      3. Search `/opt/workspace/supervisor/decisions/` for that identifier and read every matching decision passage. For workspace-charter, context-loading, governance, or architecture proposals, this decision search is mandatory even if the target file appears to permit the change.
      4. Search the target repo for the proposed end state or an explicit rejection of it.
+     5. Apply ADR-0047 requirement provenance: distinguish the capability being proposed from any vendor, product, paper, or architecture used only as an example. If a proposal promotes an external example into an evaluation subject, runtime dependency, credential, or spend target, require an accepted Decision or explicit principal instruction authorizing that exact promotion. Otherwise skip it as an unauthorized external objective; do not convert its missing credential into a blocker.
    - Is it already landed or stale? If the file already contains the target state, **skip it** — do not emit a handoff. If the file's current content contradicts the proposal's premise, the proposal is stale — **skip it** too. If the target file or a decision record says the proposed state is deliberately not desired, that is a decision conflict: **emit zero handoffs for that proposal** and name the conflicting decision in the report. Absence from the destination block is not evidence that a change is desired.
    - **Verification is mandatory, not best-effort:** never emit a handoff if any preflight step was not completed. An unverified handoff sends a session to act on possibly-stale state; a skipped-with-reason proposal costs one line in your report.
    - Is it principal-scope (people-or-money)? Does it require interacting with a named external human or spending money? If yes, **skip it** — the principal handles this class. Explain why in your completion message.
@@ -57,6 +58,9 @@ Do not conflate "complex" with "principal-scope." If the synthesis specifies a c
 
 ## Handoff format
 
+Copy the three provenance lines in this template verbatim. Do not paraphrase
+their keys or values. They are a machine-checked boundary, not editorial prose.
+
 ```markdown
 ---
 from: synthesis-translator
@@ -66,6 +70,9 @@ priority: high
 task_id: synthesis-<short-slug-derived-from-proposal-title>
 source_synthesis: {{SYNTHESIS_FILE}}
 source_proposal: <proposal number + title>
+authority: synthesis proposal under ADR-0020 reversible-action scope
+external_dependencies: none
+policy_compatibility: verified against matching accepted Decisions; no conflict found
 ---
 
 # <Proposal title>
@@ -97,6 +104,7 @@ URGENT if:
 
 - **Read/search and Write tools only.** Use Read, Grep, and Glob for the mandatory preflight, and Write only to create new handoff files at the two target paths. Do not edit existing files, run git commands, or execute arbitrary shell.
 - **Do not invent proposals.** Only translate what the synthesis explicitly wrote as `### Proposal N — ...`. If the synthesis has a "Questions for the human" section or "Open items" section, that is principal-scope; skip it.
+- **Examples are not requirements.** A synthesis may discuss an external system as an analogy without authorizing its execution, integration, evaluation, credential, or purchase. Skip any such promotion unless the source proposal cites an accepted Decision or explicit principal instruction. Project handoffs must use the exact ADR-0047 scalar contract shown above: `external_dependencies: none`. The translator never emits `authorized` external dependencies because named external humans, spend, credentials, and irreversible commitments are already outside its autonomous scope.
 - **Do not editorialize.** Copy the proposal body verbatim. Add only the verification/acceptance/escalation scaffolding per the handoff format.
 - **Be idempotent.** If handoffs for the same synthesis already exist in the target dirs (check for matching filenames), report that and skip. Your timestamp in the filename makes same-synthesis re-runs produce different filenames, so this is a defensive check — in practice you'll rarely collide.
 

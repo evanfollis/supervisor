@@ -1,5 +1,11 @@
 # synthesis-translator golden set — dimensions
 
+2026-07-12 correction: case `gc-54aed68c31eed81b` was retired after fresh
+primary verification showed its expected emission was ambiguous and stale. The
+workspace charter already expresses the requested prompt-eval acceptance rule;
+the translator correctly skipped a redundant YAML marker. This was a bad case,
+not a prompt regression.
+
 Axes of variation for the input space (a cross-cutting synthesis file):
 
 | Dimension | Values covered |

@@ -18,11 +18,16 @@
 
 set -euo pipefail
 
-HANDOFF_DIR="/opt/workspace/runtime/.handoff"
+HANDOFF_DIR="${HANDOFF_DIR:-/opt/workspace/runtime/.handoff}"
 DISPATCHED_FILE="${HANDOFF_DIR}/.dispatched"
-TELEMETRY_LOG="/opt/workspace/runtime/.telemetry/events.jsonl"
+TELEMETRY_LOG="${TELEMETRY_LOG:-/opt/workspace/runtime/.telemetry/events.jsonl}"
+PROVENANCE_GATE_CUTOFF="${PROVENANCE_GATE_CUTOFF:-2026-07-12T12:56:00Z}"
+PROVENANCE_INBOX="${PROVENANCE_INBOX:-/opt/workspace/supervisor/handoffs/INBOX}"
+PROVENANCE_CHECK="$(dirname "$0")/check-handoff-provenance.py"
+PROVENANCE_QUARANTINE="$HANDOFF_DIR/REJECTED"
 
-mkdir -p "$HANDOFF_DIR" "$(dirname "$TELEMETRY_LOG")"
+mkdir -p "$HANDOFF_DIR" "$(dirname "$TELEMETRY_LOG")" "$PROVENANCE_INBOX" \
+  "$PROVENANCE_QUARANTINE"
 touch "$DISPATCHED_FILE"
 
 # Known PM sessions. Handoffs addressed to "general" are completion reports
@@ -38,6 +43,10 @@ emit_event() {
   local count="$3"
   local note="$4"
   local ts_ms
+  note=${note//\\/\\\\}
+  note=${note//\"/\\\"}
+  note=${note//$'\n'/ }
+  note=${note//$'\r'/ }
   ts_ms=$(($(date +%s%N) / 1000000))
   printf '{"project":"supervisor","source":"handoff-dispatcher","eventType":"%s","level":"info","sourceType":"system","timestamp":%d,"details":{"target":"%s","count":%d,"note":"%s"}}\n' \
     "$event_type" "$ts_ms" "$target" "$count" "$note" >> "$TELEMETRY_LOG"
@@ -49,6 +58,44 @@ already_dispatched() {
 
 mark_dispatched() {
   echo "$1" >> "$DISPATCHED_FILE"
+}
+
+reject_missing_provenance() {
+  local file="$1"
+  local target="$2"
+  local reason="$3"
+  local digest report quarantined
+  [[ -f "$file" ]] || return 0
+  digest=$({ printf '%s\0' "$file"; sha256sum "$file"; } | sha256sum | cut -c1-12)
+  report="$PROVENANCE_INBOX/URGENT-requirement-provenance-${digest}.md"
+  quarantined="$PROVENANCE_QUARANTINE/${digest}-$(basename "$file")"
+
+  if [[ -z "$reason" ]]; then
+    reason="provenance checker failed without a diagnostic"
+  fi
+  mv -- "$file" "$quarantined"
+
+  if [[ ! -e "$report" ]]; then
+    cat > "$report" <<EOF
+# Requirement-provenance gate rejected a project handoff
+
+**Source**: handoff dispatcher
+**Target**: ${target}
+**Original handoff**: ${file}
+**Quarantined intact at**: ${quarantined}
+**Reason**: ${reason}
+
+The handoff was not dispatched, marked complete, or left on the project PM's
+direct inbox path. Correct its underlying objective under ADR-0047 and create a
+new handoff; preserve this quarantined artifact as evidence. Required non-empty
+fields are \`authority\`, \`external_dependencies\`, and
+\`policy_compatibility\`. The external-dependency field is the scalar enum
+\`none\` or \`authorized\`; authorized dependencies additionally require
+\`dependency_authority\` and \`dependency_details\`.
+EOF
+  fi
+
+  emit_event "handoff.dispatch_rejected" "$target" 1 "$reason"
 }
 
 target_session_for() {
@@ -97,6 +144,11 @@ for f in "$HANDOFF_DIR"/*.md; do
   if [[ -z "$target" ]]; then
     # Not a project handoff; mark seen and skip
     mark_dispatched "$f"
+    continue
+  fi
+  [[ -f "$f" ]] || continue
+  if ! reason=$("$PROVENANCE_CHECK" "$f" "$PROVENANCE_GATE_CUTOFF" 2>&1); then
+    reject_missing_provenance "$f" "$target" "$reason"
     continue
   fi
   echo "$f" >> "$TMPDIR_PENDING/$target"

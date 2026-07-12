@@ -1,7 +1,7 @@
 ---
 name: synaplex shaping surface
 description: Executive shaping file for synaplex.ai — the self-evolving knowledge system. Not a product in the portfolio; the system itself. See ADR-0027.
-updated: 2026-04-23
+updated: 2026-07-12
 tier: system
 owner: executive
 ---
@@ -21,10 +21,11 @@ Load-bearing layers:
 - **Agent context repos** — per-pod / per-agent operational front doors and
   resumability surfaces. Local, mutable, not shared truth.
 - **Canon** — formal obligations model at
-  `projects/context-repository/spec/discovery-framework/` (frozen at v0.1.0).
+  `projects/context-repository/spec/discovery-framework/` (v0.2.0).
 - **Knowledge system** — accumulating validated invariants with provenance;
   durable across pod lifecycles and distinct from both canon and local context
-  repos. Physical home: open design question (IDEA-0005).
+  repos. Its first implementation is the reconstructible projection at
+  `projects/synaplex/knowledge/` (ADR-0044).
 - **Memory / retrieval surfaces** — MCP, file-memory, or managed-memory
   interfaces that let agents consume context and knowledge. Replaceable
   delivery layer, not source of truth.
@@ -42,16 +43,16 @@ invariants and absorb them. Pod graduation is legitimate.
 
 ## Current status
 
-- **Phase**: architecture locked (ADR-0027 proposed 2026-04-19). Legacy
-  agentstack work preserved. Deploy to `synaplex.ai` not yet authorized.
+- **Phase**: first full empirical knowledge loop active (ADRs 0044, 0047).
+  Legacy agentstack work is preserved as lineage; public projection remains
+  fail-closed until a validator-passing Decision exists.
 - **Tier**: System. Not a portfolio product; the system itself. Atlas,
   skillfoundry, and command are positioned as pods/surfaces of this system,
   not siblings to it.
 - **Operating model**: executive shapes; project-session work delegated via
   handoffs under `runtime/.handoff/synaplex-*.md` (naming convention
   changes from `agentstack-*.md`).
-- **Session**: `workspace-session@synaplex.service` (formerly
-  `@agentstack.service`) — rename pending.
+- **Session**: `workspace-session@synaplex.service`.
 - **Stance**: realist discovery, not opinion publishing. Creative
   pragmatism: ship to uncover invariants; do not anchor on default-blog /
   default-SaaS patterns.
@@ -60,12 +61,14 @@ invariants and absorb them. Pod graduation is legitimate.
 
 - Public synaplex.ai deployed with a **non-default-blog** site shape —
   minimum-viable topology/concept-map, iteratable.
-- First lab evaluation (memory-systems-v1) published as both canon envelope
-  and reader-facing writeup; feeds invariants into the knowledge system
-  AND produces a reusable review methodology artifact.
+- First full knowledge loop pressure-tests the Command build/serve split-brain
+  failure through a newly pre-registered controlled comparison, then carries a
+  bounded Decision through invariant, reader-facing projection, pod
+  consumption/refusal, and reflection with model-state provenance (ADR-0047).
 - Atlas and skillfoundry CURRENT_STATE docs reframed as pods with explicit
   bidirectional knowledge-system obligations.
-- Knowledge system physical home decided (IDEA-0005 → ADR-00XX).
+- Knowledge projection proves reconstructibility and cross-surface consumption
+  before any database or service extraction is considered.
 - Review methodologies established as first-class artifacts in canon (new
   type or projection onto Policy — pending context-repository review).
 - Subdomain pattern for pods stable: `skillfoundry.synaplex.ai`,
@@ -111,7 +114,7 @@ invariants and absorb them. Pod graduation is legitimate.
 
 ## Truth sources (authoritative for this system)
 
-1. `projects/context-repository/spec/discovery-framework/` — L1 canon.
+1. `projects/context-repository/spec/discovery-framework/` — L1 canon v0.2.0.
 2. `supervisor/decisions/0027-synaplex-is-the-system.md` — architecture.
 3. `projects/synaplex/CURRENT_STATE.md` — front door (rename pending).
 4. `projects/synaplex/lab/.canon/` — lab's canonical envelope store.
@@ -134,7 +137,6 @@ invariants and absorb them. Pod graduation is legitimate.
 
 - **Deploy authorization** — synaplex.ai root to Cloudflare Pages (first
   V1 deploy; reversible).
-- **Knowledge system physical home** — IDEA-0005; ADR-class.
 - **Legal entity for sponsor revenue** — defer to first sponsor invoice
   (month 5+).
 - **Paid tier / education surface monetization** — design-for; defer

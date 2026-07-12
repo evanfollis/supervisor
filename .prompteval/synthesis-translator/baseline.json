@@ -1,12 +1,12 @@
 {
-  "prompt_version": "pv-eb2c6067c7b9b9d3",
+  "prompt_version": "pv-342b3a96a37368c5",
   "spec_hash": "sh-d3972bc5d2f35ed0",
-  "golden_hash": "gh-ac36932cdc43a07b",
+  "golden_hash": "gh-62d9fbacff9022b2",
   "model": "claude-haiku-4-5-20251001",
   "params": {},
   "judge_model": "opus",
-  "run_id": "run-20260712T115327Z-324a7e",
-  "ts": "2026-07-12T11:53:27Z",
+  "run_id": "run-20260712T134059Z-141028",
+  "ts": "2026-07-12T13:40:59Z",
   "release": true,
   "passed": true,
   "accepted_from_cache": false,
@@ -21,10 +21,6 @@
       "must_pass": true
     },
     "gc-c454aee0b58bc40b": {
-      "pass": true,
-      "must_pass": true
-    },
-    "gc-54aed68c31eed81b": {
       "pass": true,
       "must_pass": true
     },
@@ -53,6 +49,14 @@
       "must_pass": true
     },
     "gc-1868b4062e30c031": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-fac08043bae71f20": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-8a456a3643e308ab": {
       "pass": true,
       "must_pass": true
     },

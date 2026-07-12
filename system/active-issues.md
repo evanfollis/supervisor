@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-07-12T03:26Z
+updated: 2026-07-12T12:56Z
 ---
 
 # Active issues
@@ -47,10 +47,10 @@ _(none as of 2026-07-11T23:15Z)_
   truncates tail files (URGENT handoff `synaplex-always-load-cap-collision`
   to principal). This rewrite shrinks active-issues from 10.3KB to ~4KB but
   does not close it.
-- **ANTHROPIC_API_KEY for synaplex intake prose synthesis** — heuristic
-  fallback active 61+ cycles; needs principal-provisioned credential at
-  `runtime/.secrets/`. Intake itself is healthy (W27 current, W28 due
-  Jul 12).
+- **Requirement-provenance enforcement (ADR-0047)** — a Letta example was
+  promoted into an unauthorized vendor/key blocker despite ADR-0036. Dispatch
+  now quarantines handoffs missing provenance declarations. Semantic truth is
+  still model/PM-reviewed, not machine-proven; Synaplex correction is active.
 - ~~atlas-runner restart~~ **CLOSED** — restarted 2026-07-11T22:51Z with the
   Phase 2b deploy; picked up `f24d298`.
 - **Codex config migrated 2026-07-11** — legacy `profile = "full_auto"`
