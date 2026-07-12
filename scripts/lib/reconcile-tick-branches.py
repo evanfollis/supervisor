@@ -101,7 +101,7 @@ def main() -> None:
                 "tick_name": name,
                 "tip_sha": record["tip_sha"],
                 "corresponding_refs": {"local": local, "remote_live": remote, "tracking": tracking},
-                "duplicate_tip_refs": sorted(r["ref"] for r in refs if r["tip_sha"] == tip),
+                "duplicate_tip_refs": sorted(r["ref"] for r in refs if r["tip_sha"] == record["tip_sha"]),
                 "analysis": by_tip[record["tip_sha"]],
                 "disposition": None,
                 "supporting_evidence": [],

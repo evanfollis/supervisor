@@ -16,8 +16,9 @@ git -C "$repo" branch ticks/a "$base"
 git -C "$repo" branch ticks/b "$base"
 printf 'changed\n' > "$repo/system/status.md"
 git -C "$repo" add .
-git -C "$repo" commit -q -m change
-tip=$(git -C "$repo" rev-parse HEAD)
+tree=$(git -C "$repo" write-tree)
+tip=$(printf 'change\n\n' | git -C "$repo" commit-tree "$tree" -p "$base")
+git -C "$repo" update-ref refs/heads/ticks/a "$tip"
 git -C "$repo" update-ref refs/remotes/origin/ticks/a "$tip"
 
 manifest="$repo/manifest.tsv"
