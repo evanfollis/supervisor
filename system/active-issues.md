@@ -51,11 +51,20 @@ _(none as of 2026-07-11T23:15Z)_
   promoted into an unauthorized vendor/key blocker despite ADR-0036. Dispatch
   now quarantines handoffs missing provenance declarations. Semantic truth is
   still model/PM-reviewed, not machine-proven. Synaplex's vendor route is now
-  canonically withdrawn with zero Evidence; the internal prospective Claim is
-  registered but the full Evidence-to-reflection loop is not yet complete.
+  canonically withdrawn with zero Evidence. The first internal prospective
+  Claim was invalidated before observation after an opposing review found its
+  method contaminated; the full Evidence-to-reflection loop remains open.
 - **Prompt governance coverage is incomplete** — `prompteval check` validates
-  one governed prompt but reports 20 ungoverned prompt surfaces, including
-  tick, reflection, maintenance, skill, and workspace-charter prompts.
+  one governed prompt and reports 20 ungoverned prompt surfaces. The
+  workspace-charter registry now exists, but its first release run timed out
+  under concurrent subscription-model eval load; it remains ungoverned until
+  a fresh release baseline passes.
+- **Model-work admission is implicit** — concurrent project prompt-eval runs
+  currently compete directly for subscription capacity. On 2026-07-12 a
+  workspace-charter release call hit the harness's 300s timeout while four
+  command eval processes were active. Until measured capacity supports a
+  larger budget, release evaluations must run one at a time; a shared,
+  telemetry-backed admission mechanism remains an explicit design gap.
 - ~~atlas-runner restart~~ **CLOSED** — restarted 2026-07-11T22:51Z with the
   Phase 2b deploy; picked up `f24d298`.
 - **Codex config migrated 2026-07-11** — legacy `profile = "full_auto"`
