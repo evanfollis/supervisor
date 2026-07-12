@@ -32,6 +32,16 @@ import json
 import re
 import subprocess
 
+from .llm import (
+    AllProvidersThrottled,
+    CliCall,
+    LLMCallError,
+    fallback_model,
+    is_throttle,
+    provider_for_model,
+    run_with_fallback,
+)
+
 DETERMINISTIC_KINDS = {
     "json_valid",
     "json_schema",
@@ -207,23 +217,105 @@ def parse_verdict(reply: str) -> tuple[str, str]:
     return "unknown", "judge reply had no parseable verdict"
 
 
-def call_judge_cli(prompt: str, model: str, timeout: int = 240) -> str:
-    """One judge call via `claude -p`. Raises GradingError on CLI failure."""
-    cmd = ["claude", "-p", "--model", model, prompt]
+def _codex_cmd(model: str) -> list[str]:
+    cmd = [
+        "codex",
+        "-c",
+        'approval_policy="untrusted"',
+        "exec",
+        "--skip-git-repo-check",
+        "--sandbox",
+        "read-only",
+    ]
+    if model:
+        cmd += ["--model", model]
+    return cmd + ["-"]
+
+
+def _claude_text_cmd(model: str, prompt: str) -> list[str]:
+    return [
+        "claude",
+        "-p",
+        "--tools",
+        "",
+        "--disable-slash-commands",
+        "--model",
+        model,
+        prompt,
+    ]
+
+
+def call_judge_cli(
+    prompt: str,
+    model: str,
+    timeout: int = 240,
+    telemetry_context: dict | None = None,
+) -> str:
+    """One judge call with cross-provider fallback.
+
+    One bounded retry on nonzero exit: the CLI intermittently exits 1 with
+    no diagnostic (observed 2026-07-12); the error message includes stdout
+    because the CLIs sometimes report there instead of stderr.
+    """
+    import time
+
+    ctx = telemetry_context or {}
+    primary = provider_for_model(model, default="claude")
+    fallback = "codex" if primary == "claude" else "claude"
+    fallback_judge = (ctx.get("fallback_models") or {}).get(fallback) or fallback_model(fallback)
+    if primary == "claude":
+        calls = [
+            CliCall("claude", model, _claude_text_cmd(model, prompt),
+                    input_text=prompt),
+            CliCall("codex", fallback_judge, _codex_cmd(fallback_judge),
+                    stdin_text=prompt, input_text=prompt, fallback_from="claude"),
+        ]
+    else:
+        calls = [
+            CliCall("codex", model, _codex_cmd(model),
+                    stdin_text=prompt, input_text=prompt),
+            CliCall("claude", fallback_judge,
+                    _claude_text_cmd(fallback_judge, prompt),
+                    input_text=prompt, fallback_from="codex"),
+        ]
     try:
-        proc = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=timeout, check=False
+        return run_with_fallback(
+            calls,
+            timeout=timeout,
+            role="judge",
+            project=ctx.get("project", ""),
+            prompt_id=ctx.get("prompt_id", ""),
+            case_id=ctx.get("case_id", ""),
+            trial=ctx.get("trial"),
         )
-    except FileNotFoundError as exc:
-        raise GradingError("claude CLI not found on PATH") from exc
-    except subprocess.TimeoutExpired as exc:
-        raise GradingError(f"judge timed out after {timeout}s") from exc
-    if proc.returncode != 0:
-        stderr = (proc.stderr or "").strip()[:400]
-        if re.search(r"rate.?limit|overloaded|429|usage limit", stderr, re.IGNORECASE):
-            raise GradingError(f"THROTTLED: {stderr}")
-        raise GradingError(f"judge CLI exited {proc.returncode}: {stderr}")
-    return proc.stdout
+    except AllProvidersThrottled as exc:
+        raise GradingError("THROTTLED: " + str(exc)) from exc
+    except LLMCallError as exc:
+        raise GradingError(str(exc)) from exc
+
+
+def call_claude_judge_cli(prompt: str, model: str, timeout: int = 240) -> str:
+    """Legacy single-provider judge transport, kept for focused tests."""
+    cmd = _claude_text_cmd(model, prompt)
+    last_err = ""
+    for attempt in range(2):
+        try:
+            proc = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=timeout, check=False
+            )
+        except FileNotFoundError as exc:
+            raise GradingError("claude CLI not found on PATH") from exc
+        except subprocess.TimeoutExpired as exc:
+            raise GradingError(f"judge timed out after {timeout}s") from exc
+        if proc.returncode == 0:
+            return proc.stdout
+        diag = ((proc.stderr or "").strip() or (proc.stdout or "").strip())[-400:]
+        if is_throttle(diag):
+            raise GradingError(f"THROTTLED: {diag}")
+        last_err = f"judge CLI exited {proc.returncode}: {diag or '<no output>'}"
+        if attempt == 0:
+            time.sleep(5)
+    raise GradingError(last_err)
 
 
 def run_judge_check(
@@ -233,6 +325,7 @@ def run_judge_check(
     model: str,
     trials: int = 1,
     caller=None,
+    telemetry_context: dict | None = None,
 ) -> tuple[str, str]:
     """Run a judge check with optional self-consistency trials.
 
@@ -246,7 +339,10 @@ def run_judge_check(
     prompt = build_judge_prompt(check, case_input, output)
     votes, reasons = [], []
     for _ in range(max(1, trials)):
-        reply = caller(prompt, model)
+        try:
+            reply = caller(prompt, model, telemetry_context=telemetry_context)
+        except TypeError:
+            reply = caller(prompt, model)
         verdict, reason = parse_verdict(reply)
         votes.append(verdict)
         reasons.append(reason)

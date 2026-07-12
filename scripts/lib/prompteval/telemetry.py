@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from .core import TELEMETRY_PATH, append_jsonl, epoch_ms
 
-EVENT_TYPES = {"info", "failure", "throttled", "escalated"}
+EVENT_TYPES = {"info", "failure", "throttled", "escalated", "llm_call"}
 
 
 def emit(
@@ -40,4 +40,60 @@ def emit(
     except OSError:
         # Telemetry must never take down the gate; the gate's own output
         # is the primary channel, events are the secondary one.
+        pass
+
+
+def emit_llm_call(
+    project: str,
+    prompt_id: str,
+    role: str,
+    provider: str,
+    model: str,
+    status: str,
+    latency_ms: int,
+    input_chars: int,
+    output_chars: int,
+    input_tokens: int,
+    output_tokens: int,
+    token_source: str,
+    case_id: str = "",
+    trial: int | None = None,
+    attempt: int | None = None,
+    fallback_from: str = "",
+    exit_code: int | None = None,
+    detail: str = "",
+) -> None:
+    try:
+        append_jsonl(
+            TELEMETRY_PATH,
+            {
+                "project": project,
+                "source": "prompteval",
+                "eventType": "llm_call",
+                "level": "info" if status == "success" else "warn",
+                "timestamp": epoch_ms(),
+                "sourceType": "system",
+                "note": f"{role} {provider}/{model} {status}"[:400],
+                "ref": prompt_id,
+                "promptId": prompt_id,
+                "caseId": case_id,
+                "trial": trial,
+                "role": role,
+                "provider": provider,
+                "model": model,
+                "status": status,
+                "latencyMs": latency_ms,
+                "inputChars": input_chars,
+                "outputChars": output_chars,
+                "inputTokens": input_tokens,
+                "outputTokens": output_tokens,
+                "totalTokens": input_tokens + output_tokens,
+                "tokenSource": token_source,
+                "attempt": attempt,
+                "fallbackFrom": fallback_from,
+                "exitCode": exit_code,
+                "detail": detail[:800],
+            },
+        )
+    except OSError:
         pass

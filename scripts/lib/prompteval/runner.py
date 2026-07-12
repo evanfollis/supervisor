@@ -47,6 +47,7 @@ from .grading import (
     run_deterministic_check,
     run_judge_check,
 )
+from .llm import AllProvidersThrottled, CliCall, LLMCallError, is_throttle, run_with_fallback
 from .registry import PromptSpec
 
 
@@ -77,57 +78,129 @@ def _render_user(template: str, case_input) -> str:
     return template.format(input=case_input)
 
 
-def _run_cli(cmd: list[str], stdin_text: str | None, timeout: int) -> str:
-    try:
-        proc = subprocess.run(
-            cmd, input=stdin_text, capture_output=True, text=True,
-            timeout=timeout, check=False,
-        )
-    except FileNotFoundError as exc:
-        raise RunError(f"executor binary not found: {cmd[0]}") from exc
-    except subprocess.TimeoutExpired as exc:
-        raise RunError(f"executor timed out after {timeout}s") from exc
-    if proc.returncode != 0:
-        stderr = (proc.stderr or "").strip()[:400]
-        import re
-        if re.search(r"rate.?limit|overloaded|429|usage limit", stderr, re.IGNORECASE):
-            raise Throttled(stderr)
-        raise RunError(f"executor exited {proc.returncode}: {stderr}")
-    return proc.stdout
+def _run_cli(cmd: list[str], stdin_text: str | None, timeout: int,
+             retries: int = 1, cwd: Path | None = None) -> str:
+    """Run an executor command. Nonzero exits get `retries` re-attempts:
+    subscription CLIs intermittently exit 1 with no diagnostic (observed
+    2026-07-12), and a single bounded retry separates transient harness
+    noise from real failures without masking the latter. Error messages
+    include stdout as well — the CLIs sometimes put the error there.
+    """
+    import time
+
+    last_err = ""
+    for attempt in range(retries + 1):
+        try:
+            proc = subprocess.run(
+                cmd, input=stdin_text, capture_output=True, text=True,
+                timeout=timeout, check=False, cwd=str(cwd) if cwd else None,
+            )
+        except FileNotFoundError as exc:
+            raise RunError(f"executor binary not found: {cmd[0]}") from exc
+        except subprocess.TimeoutExpired as exc:
+            raise RunError(f"executor timed out after {timeout}s") from exc
+        if proc.returncode == 0:
+            return proc.stdout
+        diag = ((proc.stderr or "").strip() or (proc.stdout or "").strip())[-400:]
+        if is_throttle(diag):
+            raise Throttled(diag)
+        last_err = f"executor exited {proc.returncode}: {diag or '<no output>'}"
+        if attempt < retries:
+            time.sleep(5)
+    raise RunError(last_err)
 
 
-def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 300) -> str:
+def _codex_cmd(model: str) -> list[str]:
+    cmd = [
+        "codex",
+        "-c",
+        'approval_policy="untrusted"',
+        "exec",
+        "--skip-git-repo-check",
+        "--sandbox",
+        "read-only",
+    ]
+    if model:
+        cmd += ["--model", model]
+    return cmd + ["-"]
+
+
+def _claude_text_cmd(model: str, *args: str) -> list[str]:
+    return [
+        "claude",
+        "-p",
+        "--tools",
+        "",
+        "--disable-slash-commands",
+        "--model",
+        model,
+        *args,
+    ]
+
+
+def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 300,
+                 project: str = "", case_id: str = "", trial: int | None = None) -> str:
     ex = spec.spec["executor"]
     etype = ex.get("type")
     model = spec.spec.get("model", "sonnet")
 
     if etype == "claude_cli":
         user = _render_user(ex.get("user_template", ""), case_input)
-        return _run_cli(
-            ["claude", "-p", "--model", model, "--append-system-prompt", prompt_text, user],
-            None, timeout,
-        )
+        codex_model = ex.get("codex_fallback_model", "")
+        codex_input = f"{prompt_text}\n\n---\n\n{user}"
+        try:
+            return run_with_fallback([
+                CliCall("claude", model,
+                        _claude_text_cmd(model, "--append-system-prompt", prompt_text, user),
+                        input_text=prompt_text + "\n" + user),
+                CliCall("codex", codex_model, _codex_cmd(codex_model),
+                        stdin_text=codex_input, input_text=codex_input,
+                        fallback_from="claude"),
+            ], timeout=timeout, role="executor", project=project,
+                prompt_id=spec.prompt_id, case_id=case_id, trial=trial)
+        except AllProvidersThrottled as exc:
+            raise Throttled(str(exc)) from exc
+        except LLMCallError as exc:
+            raise RunError(str(exc)) from exc
     if etype == "codex_cli":
         user = _render_user(ex.get("user_template", ""), case_input)
         full = f"{prompt_text}\n\n---\n\n{user}"
-        return _run_cli(
-            ["codex", "exec", "--skip-git-repo-check", "--sandbox", "read-only", full],
-            None, timeout,
-        )
+        claude_model = ex.get("claude_fallback_model", "sonnet")
+        try:
+            return run_with_fallback([
+                CliCall("codex", model, _codex_cmd(model),
+                        stdin_text=full, input_text=full),
+                CliCall("claude", claude_model,
+                        _claude_text_cmd(claude_model, "--append-system-prompt", prompt_text, user),
+                        input_text=prompt_text + "\n" + user,
+                        fallback_from="codex"),
+            ], timeout=timeout, role="executor", project=project,
+                prompt_id=spec.prompt_id, case_id=case_id, trial=trial)
+        except AllProvidersThrottled as exc:
+            raise Throttled(str(exc)) from exc
+        except LLMCallError as exc:
+            raise RunError(str(exc)) from exc
     if etype == "command":
         argv = ex.get("argv")
         if not argv:
             raise RunError("command executor needs 'argv'")
+        command_timeout = int(ex.get("timeout", timeout))
         payload = json.dumps(
             {
                 "prompt_text": prompt_text,
                 "model": model,
                 "params": spec.spec.get("params", {}),
                 "input": case_input,
+                "telemetry": {
+                    "project": project,
+                    "prompt_id": spec.prompt_id,
+                    "case_id": case_id,
+                    "trial": trial,
+                },
             },
             ensure_ascii=False,
         )
-        return _run_cli(argv, payload, timeout)
+        return _run_cli(argv, payload, command_timeout, cwd=spec.repo)
     raise RunError(f"unknown executor type: {etype}")
 
 
@@ -140,18 +213,20 @@ def _cache_dir(project: str, prompt_id: str) -> Path:
     return RUNTIME_ROOT / project / prompt_id / "cache"
 
 
-def cached_execute(spec: PromptSpec, project: str, prompt_text: str, version: str,
-                   case: dict, trial: int, no_cache: bool = False) -> str:
+def cached_execute(spec: PromptSpec, storage_key: str, telemetry_project: str,
+                   prompt_text: str, version: str, case: dict, trial: int,
+                   no_cache: bool = False) -> str:
     # spec_hash in the key: executor/adapter/source-pointer changes must
     # invalidate cached outputs (review finding 4 — a cache hit produced by
     # different wiring is not evidence about the current wiring)
     key = cache_key({"v": version, "s": spec.spec_hash(), "c": case["id"], "t": trial})
-    path = _cache_dir(project, spec.prompt_id) / f"{key}.json"
+    path = _cache_dir(storage_key, spec.prompt_id) / f"{key}.json"
     if not no_cache:
         hit = read_json(path)
         if hit is not None:
             return hit["output"]
-    output = execute_case(spec, prompt_text, case["input"])
+    output = execute_case(spec, prompt_text, case["input"], project=telemetry_project,
+                          case_id=case["id"], trial=trial)
     write_json(path, {"version": version, "case": case["id"], "trial": trial,
                       "ts": utcnow_iso(), "output": output})
     return output
@@ -162,7 +237,8 @@ def cached_execute(spec: PromptSpec, project: str, prompt_text: str, version: st
 # --------------------------------------------------------------------------
 
 
-def grade_output(spec: PromptSpec, case: dict, output: str, judge_trials: int) -> dict:
+def grade_output(spec: PromptSpec, case: dict, output: str, judge_trials: int,
+                 project: str = "", trial: int | None = None) -> dict:
     """Grade one output against a case's checks. Deterministic checks run
     first; if any required deterministic check fails, judge checks are
     skipped (no reason to spend judge calls on structurally broken output).
@@ -192,6 +268,12 @@ def grade_output(spec: PromptSpec, case: dict, output: str, judge_trials: int) -
                 verdict, detail = run_judge_check(
                     check, case["input"], output,
                     model=judge_model, trials=judge_trials,
+                    telemetry_context={
+                        "project": project,
+                        "prompt_id": spec.prompt_id,
+                        "case_id": case["id"],
+                        "trial": trial,
+                    },
                 )
             except GradingError as exc:
                 if str(exc).startswith("THROTTLED"):
@@ -232,9 +314,10 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
         log(f"  [{i}/{len(cases)}] {case['id']} ({case.get('provenance')},{case.get('status')})")
         trial_passes, trial_details = [], []
         for t in range(trials):
-            output = cached_execute(spec, storage_key, prompt_text, version, case, t,
-                                    no_cache=no_cache)
-            graded = grade_output(spec, case, output, judge_trials=judge_trials)
+            output = cached_execute(spec, storage_key, project, prompt_text, version,
+                                    case, t, no_cache=no_cache)
+            graded = grade_output(spec, case, output, judge_trials=judge_trials,
+                                  project=project, trial=t)
             trial_passes.append(graded["pass"])
             trial_details.append(graded["checks"])
             for chk in graded["checks"]:
@@ -267,6 +350,8 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
         "spec_hash": spec.spec_hash(),
         "golden_hash": golden_hash(spec.dir, gate_cfg),
         "model": spec.spec.get("model"),
+        "params": spec.spec.get("params", {}),
+        "judge_model": (spec.spec.get("judge") or {}).get("model"),
         "release": release,
         "trials": trials,
         "cached_allowed": not no_cache,
@@ -335,6 +420,9 @@ def update_baseline(spec: PromptSpec, report: dict, allow_cached: bool = False) 
         "prompt_version": report["prompt_version"],
         "spec_hash": report["spec_hash"],
         "golden_hash": report["golden_hash"],
+        "model": report.get("model"),
+        "params": report.get("params", {}),
+        "judge_model": report.get("judge_model"),
         "run_id": report["run_id"],
         "ts": report["ts"],
         "release": report["release"],

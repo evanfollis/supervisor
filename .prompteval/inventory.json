@@ -17,6 +17,15 @@
     {"file": "skills/compress-policy-from-repetition/SKILL.md", "id": null, "status": "ungoverned"},
     {"file": "skills/detect-emerging-ambiguity/SKILL.md", "id": null, "status": "ungoverned"},
     {"file": "skills/pressure-test-novelty/SKILL.md", "id": null, "status": "ungoverned"},
-    {"file": "skills/create-eval-loop/SKILL.md", "id": null, "status": "ungoverned", "note": "the eval skill itself — self-hosting eval loop is a follow-on"}
+    {"file": "skills/create-eval-loop/SKILL.md", "id": null, "status": "ungoverned", "note": "the eval skill itself — self-hosting eval loop is a follow-on"},
+    {"file": "CLAUDE.md", "id": null, "status": "ungoverned", "note": "executive charter — agent charters are prompts under ADR-0039; governance follow-on"},
+    {"file": "AGENT.md", "id": null, "status": "ungoverned", "note": "charter alias of CLAUDE.md"},
+    {"file": "AGENTS.md", "id": null, "status": "ungoverned", "note": "charter alias of CLAUDE.md"},
+    {"file": "workspace-claude.md", "id": null, "status": "ungoverned", "note": "workspace-root CLAUDE.md (symlink target) — charter-class"},
+    {"file": "scripts/lib/prompteval/grading.py", "id": null, "status": "ungoverned", "note": "harness-internal judge prompt template — self-hosting eval loop is a follow-on"},
+    {"file": "scripts/lib/prompteval/*.py", "status": "not-a-prompt", "note": "harness source; docstrings quote check/prompt syntax (grading.py excepted above)"},
+    {"file": "scripts/lib/prompteval-adapters/*.py", "status": "not-a-prompt", "note": "eval executor adapters; substitute templates, contain none"},
+    {"file": "tests/*.py", "status": "not-a-prompt", "note": "test fixtures quote prompt-like strings"},
+    {"file": "decisions/*.md", "status": "not-a-prompt", "note": "ADRs quote prompt fragments in rationale"}
   ]
 }

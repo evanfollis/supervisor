@@ -16,7 +16,12 @@ block ungoverned prompts entirely.
 Harness: `/opt/workspace/supervisor/scripts/prompteval` (docs in
 `scripts/lib/prompteval/*.py` docstrings). All LLM work here runs through
 subscription CLIs (`claude -p` / `codex exec`) per ADR-0036 — never
-metered API keys.
+metered API keys. Provider-capacity failures must route to the sibling
+subscription provider before stopping; hard stops happen only when both
+Claude and Codex are blocked or the error is not a capacity failure.
+Every LLM attempt emits usage telemetry (provider, model, role, status,
+latency, fallback, tokens or explicit token estimates) to the shared
+runtime telemetry log so Command can surface eval cost and reliability.
 
 ## When to use
 
@@ -104,6 +109,23 @@ judge checks will gate this prompt (majority vote absorbs judge noise).
    expert agree? Delete anything you had to squint at. An unaudited
    synthetic case is worse than no case — it can gate real improvements
    out.
+5. **For stateful prompts, primary-verify every expected outcome against
+   live state at authoring time.** If the prompt reads the environment
+   (files, git history, running services), its correct behavior depends
+   on that state — a case whose premise contradicts reality teaches the
+   eval to punish correct behavior. Learned the hard way on the
+   reference implementation (5 of the first 12 cases encoded wrong
+   expectations; the model's verification was right every time):
+   - Emit-path cases: use **additive, self-contained** proposals on real,
+     verified-to-exist paths — additions can't be contradicted by current
+     content, and a patch must not reference variables/structures that
+     don't exist in the target.
+   - Skip-path cases: state-independent constructions (principal-scope,
+     format violations) are stable; already-landed/stale/conflicting
+     constructions must be verified true at authoring time and re-checked
+     when flagged stale.
+   - When live state changes under a case (the environment moved), the
+     case is wrong, not the model — fix the case.
 
 Start with **12–50 active cases**. Small and sharp beats large and mushy;
 grow with production captures.

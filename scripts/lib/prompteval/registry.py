@@ -89,8 +89,9 @@ class PromptSpec:
         keep an old accepted baseline."""
         from .core import _digest
 
+        executor = self.spec.get("executor") or {}
         argv_files = {}
-        for arg in (self.spec.get("executor") or {}).get("argv", []):
+        for arg in executor.get("argv", []):
             path = Path(arg)
             if not path.is_absolute():
                 path = self.repo / arg
@@ -99,11 +100,24 @@ class PromptSpec:
                     argv_files[arg] = _digest(path.read_text(encoding="utf-8"))
                 except OSError:
                     argv_files[arg] = "unreadable"
+        dep_files = {}
+        for rel in executor.get("deps", []):
+            path = Path(rel)
+            if not path.is_absolute():
+                path = self.repo / rel
+            if path.is_file():
+                try:
+                    dep_files[rel] = _digest(path.read_text(encoding="utf-8"))
+                except OSError:
+                    dep_files[rel] = "unreadable"
+            else:
+                dep_files[rel] = "missing"
         return "sh-" + _digest(
             {
                 "source": self.spec.get("source"),
-                "executor": self.spec.get("executor"),
+                "executor": executor,
                 "argv_files": argv_files,
+                "dep_files": dep_files,
                 "judge": self.spec.get("judge"),
                 "gate": self.spec.get("gate"),
             }
@@ -213,7 +227,11 @@ _PROMPT_HINTS = (
     re.compile(r"SYSTEM_PROMPT|system_prompt|buildPrompt|Prompt\s*=\s*`", re.IGNORECASE),
 )
 _SCAN_SUFFIXES = {".py", ".ts", ".tsx", ".js", ".sh", ".md"}
-_SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv", "dist", ".next", ".prompteval"}
+_SKIP_DIRS = {
+    ".git", "node_modules", "__pycache__", ".venv", "venv", "dist", ".next",
+    ".prompteval",
+    ".reviews",  # review-compliance artifacts quote prompts; never runtime prompts
+}
 
 
 def scan(repo: Path) -> list[dict]:

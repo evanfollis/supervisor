@@ -25,7 +25,7 @@ os.environ["PROMPTEVAL_RUNTIME"] = str(TMP / "runtime")
 os.environ["PROMPTEVAL_TELEMETRY"] = str(TMP / "events.jsonl")
 
 from prompteval import check as pe_check  # noqa: E402
-from prompteval import core, goldens, grading, registry, runner  # noqa: E402
+from prompteval import core, goldens, grading, llm, registry, runner  # noqa: E402
 
 
 def make_repo() -> Path:
@@ -152,6 +152,19 @@ class TestExtraction(unittest.TestCase):
         echo_adapter(self.repo, "b")  # adapter edit must change the hash
         self.assertNotEqual(h1, spec.spec_hash())
 
+    def test_spec_hash_covers_declared_executor_deps(self):
+        echo_adapter(self.repo, "a")
+        dep = self.repo / "helper.py"
+        dep.write_text("VALUE = 'one'\n", encoding="utf-8")
+        spec = write_spec(self.repo, executor={
+            "type": "command",
+            "argv": ["python3", "adapter.py"],
+            "deps": ["helper.py"],
+        })
+        h1 = spec.spec_hash()
+        dep.write_text("VALUE = 'two'\n", encoding="utf-8")
+        self.assertNotEqual(h1, spec.spec_hash())
+
     def test_real_synaplex_scorer_extracts(self):
         synaplex = Path("/opt/workspace/projects/synaplex")
         if not (synaplex / "intake" / "score.py").exists():
@@ -263,7 +276,8 @@ class TestRunnerAndGate(unittest.TestCase):
         ok, failures, _ = pe_check.check_repo(self.repo)
         self.assertTrue(ok, failures)
         # weaken the check without re-running -> golden hash mismatch
-        rows = [json.loads(l) for l in open(spec.cases_path)]
+        with open(spec.cases_path, encoding="utf-8") as fh:
+            rows = [json.loads(l) for l in fh]
         rows[0]["checks"] = [{"kind": "json_valid"}]
         spec.cases_path.write_text("".join(json.dumps(r) + "\n" for r in rows))
         ok, failures, _ = pe_check.check_repo(self.repo)
@@ -286,6 +300,21 @@ class TestRunnerAndGate(unittest.TestCase):
         ok, failures, _ = pe_check.check_repo(self.repo)
         self.assertFalse(ok)
         self.assertTrue(any("drifted since baseline" in f for f in failures))
+
+    def test_baseline_records_and_checks_model_identity(self):
+        echo_adapter(self.repo, '{"score": 72}')
+        spec = write_spec(self.repo)
+        add_case(spec, {"title": "identity"}, [{"kind": "json_valid"}])
+        baseline = runner.update_baseline(spec, run_fresh(spec))
+        self.assertEqual(baseline["model"], "sonnet")
+        self.assertEqual(baseline["params"], {})
+        self.assertEqual(baseline["judge_model"], "opus")
+
+        baseline["model"] = "different-model"
+        core.write_json(spec.baseline_path, baseline)
+        ok, failures, _ = pe_check.check_repo(self.repo)
+        self.assertFalse(ok)
+        self.assertTrue(any("accepted model" in f for f in failures))
 
     def test_paired_regression_blocks_but_not_for_advisory(self):
         echo_adapter(self.repo, '{"score": 72, "rationale": "x"}')
@@ -368,6 +397,74 @@ class TestRunnerAndGate(unittest.TestCase):
         echo_adapter(self.repo, '{"score": 72, "v": 2}', count_file=counter)
         runner.run_eval(spec, "test", log=lambda *_: None)  # adapter changed -> miss
         self.assertEqual(counter.read_text(), "2")
+
+    def test_subscription_session_limit_is_throttled(self):
+        with self.assertRaises(runner.Throttled):
+            runner._run_cli(
+                [
+                    "python3", "-c",
+                    "import sys; sys.stderr.write(\"You've hit your session limit\"); sys.exit(1)",
+                ],
+                None,
+                5,
+                retries=0,
+            )
+
+    def test_provider_fallback_and_call_telemetry(self):
+        out = llm.run_with_fallback(
+            [
+                llm.CliCall(
+                    "claude", "sonnet",
+                    [
+                        "python3", "-c",
+                        "import sys; sys.stderr.write(\"You've hit your session limit\"); sys.exit(1)",
+                    ],
+                    input_text="primary prompt",
+                ),
+                llm.CliCall(
+                    "codex", "default",
+                    ["python3", "-c", "print('fallback ok')"],
+                    input_text="fallback prompt",
+                    fallback_from="claude",
+                ),
+            ],
+            timeout=5,
+            retries=0,
+            role="executor",
+            project="test",
+            prompt_id="p1",
+            case_id="c1",
+            trial=0,
+        )
+        self.assertEqual(out.strip(), "fallback ok")
+        events = core.read_jsonl(Path(os.environ["PROMPTEVAL_TELEMETRY"]))
+        calls = [e for e in events if e.get("eventType") == "llm_call"
+                 and e.get("promptId") == "p1" and e.get("caseId") == "c1"]
+        self.assertEqual([c["provider"] for c in calls[-2:]], ["claude", "codex"])
+        self.assertEqual(calls[-2]["status"], "throttled")
+        self.assertEqual(calls[-1]["status"], "success")
+        self.assertGreater(calls[-1]["latencyMs"], -1)
+        self.assertEqual(calls[-1]["tokenSource"], "estimated_chars_div_4")
+
+    def test_all_providers_blocked_is_one_throttle(self):
+        with self.assertRaises(llm.AllProvidersThrottled):
+            llm.run_with_fallback(
+                [
+                    llm.CliCall(
+                        "claude", "sonnet",
+                        ["python3", "-c",
+                         "import sys; sys.stderr.write(\"usage limit\"); sys.exit(1)"],
+                    ),
+                    llm.CliCall(
+                        "codex", "default",
+                        ["python3", "-c",
+                         "import sys; sys.stderr.write(\"rate limit\"); sys.exit(1)"],
+                        fallback_from="claude",
+                    ),
+                ],
+                timeout=5,
+                retries=0,
+            )
 
 
 class TestCheckDiscipline(unittest.TestCase):

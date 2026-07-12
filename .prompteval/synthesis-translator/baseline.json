@@ -1,0 +1,69 @@
+{
+  "prompt_version": "pv-eb2c6067c7b9b9d3",
+  "spec_hash": "sh-d3972bc5d2f35ed0",
+  "golden_hash": "gh-ac36932cdc43a07b",
+  "model": "claude-haiku-4-5-20251001",
+  "params": {},
+  "judge_model": "opus",
+  "run_id": "run-20260712T115327Z-324a7e",
+  "ts": "2026-07-12T11:53:27Z",
+  "release": true,
+  "passed": true,
+  "accepted_from_cache": false,
+  "aggregate": 1.0,
+  "cases": {
+    "gc-0ce8a8a2b12ce926": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-63541f22a84d9849": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-c454aee0b58bc40b": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-54aed68c31eed81b": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-495dcb47452da418": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-283b66e43cd42f11": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-95a74099875aaf3b": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-dcff4931e52a024f": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-63eb8ceed59af3a4": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-6d7feaa07be39754": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-1868b4062e30c031": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-e410dbf643e9800a": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-6d0388f19f21b1c8": {
+      "pass": true,
+      "must_pass": true
+    }
+  },
+  "all_pass_streak": 1
+}

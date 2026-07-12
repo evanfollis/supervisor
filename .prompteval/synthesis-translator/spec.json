@@ -13,6 +13,11 @@
     "argv": [
       "python3",
       "/opt/workspace/supervisor/scripts/lib/prompteval-adapters/synthesis-translator-eval-adapter.py"
+    ],
+    "deps": [
+      "scripts/lib/prompteval/llm.py",
+      "scripts/lib/prompteval/telemetry.py",
+      "scripts/lib/prompteval/core.py"
     ]
   },
   "judge": {

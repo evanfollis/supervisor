@@ -23,6 +23,10 @@ import sys
 import tempfile
 from pathlib import Path
 
+sys.path.insert(0, "/opt/workspace/supervisor/scripts/lib")
+
+from prompteval.llm import AllProvidersThrottled, CliCall, LLMCallError, run_with_fallback  # noqa: E402
+
 DISALLOWED = [
     "Bash(git commit:*)", "Bash(git push:*)", "Bash(git reset:*)",
     "Bash(git rebase:*)", "Bash(git checkout:*)", "Bash(git merge:*)",
@@ -59,19 +63,79 @@ def main() -> int:
 
         cmd = ["claude", "-p", prompt, "--model", model,
                "--permission-mode", "acceptEdits", "--disallowedTools"] + DISALLOWED
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600,
-                              cwd=sandbox, check=False)
-        if proc.returncode != 0:
-            sys.stderr.write(proc.stderr[-500:])
-            return proc.returncode
+        telemetry = payload.get("telemetry") or {}
+        # cwd matches production: synthesize.sh does `cd $WORKSPACE_ROOT`
+        # before invoking the translator, so repo-relative paths in
+        # proposals resolve against the live workspace. Writes still land
+        # only in the sandbox — the two output dirs are absolute temp paths.
+        try:
+            stdout = run_with_fallback(
+                [CliCall("claude", model, cmd, input_text=prompt, cwd="/opt/workspace")],
+                timeout=600,
+                role="executor-adapter",
+                project=telemetry.get("project", "supervisor"),
+                prompt_id=telemetry.get("prompt_id", "synthesis-translator"),
+                case_id=telemetry.get("case_id", ""),
+                trial=telemetry.get("trial"),
+            )
+            emitted = sorted(p for p in list(handoff_dir.rglob("*")) + list(inbox_dir.rglob("*"))
+                             if p.is_file())
+            out = [stdout.strip(), f"===EMITTED:{len(emitted)}==="]
+            for path in emitted:
+                out.append(f"===FILE:{path.relative_to(sandbox)}===")
+                out.append(path.read_text(encoding="utf-8"))
+            print("\n".join(out))
+            return 0
+        except AllProvidersThrottled:
+            fallback_prompt = prompt + """
 
-        emitted = sorted(p for p in list(handoff_dir.rglob("*")) + list(inbox_dir.rglob("*"))
-                         if p.is_file())
-        out = [proc.stdout.strip(), f"===EMITTED:{len(emitted)}==="]
-        for path in emitted:
-            out.append(f"===FILE:{path.relative_to(sandbox)}===")
-            out.append(path.read_text(encoding="utf-8"))
-        print("\n".join(out))
+## Eval fallback output contract
+
+The primary Claude CLI is temporarily blocked, so you are running as the
+Codex subscription fallback for this eval. Do not write files. Instead,
+perform the same analysis, read any needed workspace files, and print the
+translator report followed by the exact machine-gradable footer:
+
+===EMITTED:<count>===
+===FILE:handoff/<project>-proposal-<slug>-{{ISO_FILENAME}}.md===
+<handoff markdown>
+===FILE:inbox/proposal-<slug>-{{ISO_FILENAME}}.md===
+<handoff markdown>
+
+Include one ===FILE block for each handoff you would have written. Use
+the same relative file names the Claude path would have produced under
+HANDOFF_DIR or INBOX_DIR. If no handoffs should be emitted, print only
+the report and ===EMITTED:0===.
+"""
+            try:
+                stdout = run_with_fallback(
+                    [CliCall(
+                        "codex", "",
+                        ["codex", "exec", "--skip-git-repo-check",
+                         "--sandbox", "read-only", "-"],
+                        stdin_text=fallback_prompt,
+                        input_text=fallback_prompt,
+                        cwd="/opt/workspace",
+                        fallback_from="claude",
+                    )],
+                    timeout=600,
+                    role="executor-adapter",
+                    project=telemetry.get("project", "supervisor"),
+                    prompt_id=telemetry.get("prompt_id", "synthesis-translator"),
+                    case_id=telemetry.get("case_id", ""),
+                    trial=telemetry.get("trial"),
+                )
+                print(stdout.strip())
+                return 0
+            except AllProvidersThrottled as exc:
+                sys.stderr.write(str(exc))
+                return 75
+            except LLMCallError as exc:
+                sys.stderr.write(str(exc))
+                return 1
+        except LLMCallError as exc:
+            sys.stderr.write(str(exc))
+            return 1
     return 0
 
 

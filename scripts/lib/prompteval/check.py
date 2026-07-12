@@ -47,8 +47,16 @@ def check_repo(repo: Path) -> tuple[bool, list[str], list[str]]:
     inventory = load_inventory(repo)
     listed_files = {e.get("file") for e in inventory.get("prompts", [])}
 
+    def listed(file: str) -> bool:
+        # inventory "file" entries may be fnmatch globs (e.g. "docs/*.md"
+        # as not-a-prompt) so recurring false-positive classes are silenced
+        # once, not file-by-file
+        from fnmatch import fnmatch
+
+        return file in listed_files or any(fnmatch(file, pat) for pat in listed_files)
+
     # 0. fail-closed scan: unregistered likely prompts block, always
-    scan_findings = [f for f in scan(repo) if f["file"] not in listed_files]
+    scan_findings = [f for f in scan(repo) if not listed(f["file"])]
     if scan_findings:
         if not has_registry:
             failures.append(
@@ -91,6 +99,25 @@ def check_repo(repo: Path) -> tuple[bool, list[str], list[str]]:
         elif not baseline.get("passed"):
             failures.append(f"{pid}: baseline is not a passing run")
         else:
+            # Keep the accepted execution identity human-readable as well as
+            # folded into prompt_version/spec_hash.  A legacy baseline that
+            # predates these fields must be regenerated; silently accepting
+            # it would preserve evidence whose model provenance is opaque.
+            expected_identity = {
+                "model": spec.spec.get("model"),
+                "params": spec.spec.get("params", {}),
+                "judge_model": (spec.spec.get("judge") or {}).get("model"),
+            }
+            for field, expected in expected_identity.items():
+                if field not in baseline:
+                    failures.append(
+                        f"{pid}: baseline lacks {field} provenance {rerun}"
+                    )
+                elif baseline.get(field) != expected:
+                    failures.append(
+                        f"{pid}: accepted {field} {baseline.get(field)!r} != "
+                        f"live {expected!r} {rerun}"
+                    )
             if baseline.get("prompt_version") != live_version:
                 failures.append(
                     f"{pid}: prompt edited without eval — live {live_version} != "

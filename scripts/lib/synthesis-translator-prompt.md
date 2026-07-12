@@ -13,8 +13,13 @@ INBOX output dir (supervisor/executive work): `{{INBOX_DIR}}`
 1. **Read the source file.** Focus on the `## Proposed workspace changes` section. Each `### Proposal N — <title>` is a candidate for a handoff.
 
 2. **For each proposal, decide:**
-   - Is it already landed or stale? Primary-verify with `git log --oneline -20` on the relevant repo and `cat` the referenced file. If the proposal's patch is already in the commit history OR the file already contains the target state, **skip it** — do not emit a handoff. If the file's current content contradicts the proposal's premise (the content it claims to patch does not exist), the proposal is stale — **skip it** too. Explain why in your completion message.
-   - **This verification is mandatory, not best-effort: never emit a handoff for a proposal whose target file you have not read this run.** An unverified handoff sends a session to act on possibly-stale state; a skipped-with-reason proposal costs one line in your report.
+   - **Run this read-only preflight before deciding to emit:**
+     1. Identify the target repo/file and the distinctive symbol, path, or setting the proposal would change.
+     2. Read the target file. Search the whole file for that identifier, including comments outside the proposed destination block.
+     3. Search `/opt/workspace/supervisor/decisions/` for that identifier and read every matching decision passage. For workspace-charter, context-loading, governance, or architecture proposals, this decision search is mandatory even if the target file appears to permit the change.
+     4. Search the target repo for the proposed end state or an explicit rejection of it.
+   - Is it already landed or stale? If the file already contains the target state, **skip it** — do not emit a handoff. If the file's current content contradicts the proposal's premise, the proposal is stale — **skip it** too. If the target file or a decision record says the proposed state is deliberately not desired, that is a decision conflict: **emit zero handoffs for that proposal** and name the conflicting decision in the report. Absence from the destination block is not evidence that a change is desired.
+   - **Verification is mandatory, not best-effort:** never emit a handoff if any preflight step was not completed. An unverified handoff sends a session to act on possibly-stale state; a skipped-with-reason proposal costs one line in your report.
    - Is it principal-scope (people-or-money)? Does it require interacting with a named external human or spending money? If yes, **skip it** — the principal handles this class. Explain why in your completion message.
    - Otherwise: it is autonomous-bucket work. Emit a handoff per §Handoff format below.
 
@@ -90,7 +95,7 @@ URGENT if:
 
 ## Constraints on you (the translator)
 
-- **Write tool only.** You are not here to edit existing files, run git commands, or execute arbitrary shell. Only create new handoff files at the two target paths.
+- **Read/search and Write tools only.** Use Read, Grep, and Glob for the mandatory preflight, and Write only to create new handoff files at the two target paths. Do not edit existing files, run git commands, or execute arbitrary shell.
 - **Do not invent proposals.** Only translate what the synthesis explicitly wrote as `### Proposal N — ...`. If the synthesis has a "Questions for the human" section or "Open items" section, that is principal-scope; skip it.
 - **Do not editorialize.** Copy the proposal body verbatim. Add only the verification/acceptance/escalation scaffolding per the handoff format.
 - **Be idempotent.** If handoffs for the same synthesis already exist in the target dirs (check for matching filenames), report that and skip. Your timestamp in the filename makes same-synthesis re-runs produce different filenames, so this is a defensive check — in practice you'll rarely collide.
