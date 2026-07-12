@@ -68,19 +68,37 @@ if command -v tmux >/dev/null 2>&1 && tmux has-session -t "=$PROJECT_NAME" 2>/de
   fi
 fi
 
-# --- 4. find oldest pending handoff -------------------------------------------
+# --- 4. find highest-priority runnable handoff --------------------------------
+# Handoffs are durable records, so terminal and dependency-blocked files may
+# remain in the directory without clogging execution. Among runnable work,
+# explicit priority wins; age breaks ties.
 HANDOFF_FILE=""
 while IFS= read -r candidate; do
   [[ -f "$candidate" ]] || continue
   HANDOFF_FILE="$candidate"
   break
 done < <(
-  find "$WORKSPACE_HANDOFF_DIR" -maxdepth 1 \
-    -name "${PROJECT_NAME}-*.md" \
-    ! -name "README.md" \
-    -printf '%T@ %p\n' 2>/dev/null \
-    | sort -n \
-    | awk '{print $2}'
+  while IFS= read -r candidate; do
+    status=$(head -n 30 "$candidate" | grep -im1 -E '^status:' | cut -d: -f2- | xargs | tr '[:upper:]' '[:lower:]' || true)
+    case "$status" in
+      blocked|waiting|subsumed|complete|completed|closed|cancelled) continue ;;
+    esac
+
+    priority=$(head -n 30 "$candidate" | grep -im1 -E '^priority:' | cut -d: -f2- | xargs | tr '[:upper:]' '[:lower:]' || true)
+    case "$priority" in
+      critical|urgent) rank=0 ;;
+      high) rank=1 ;;
+      low) rank=3 ;;
+      *) rank=2 ;;
+    esac
+    mtime=$(stat -c '%Y' "$candidate")
+    printf '%d %s %s\n' "$rank" "$mtime" "$candidate"
+  done < <(
+    find "$WORKSPACE_HANDOFF_DIR" -maxdepth 1 \
+      \( -name "${PROJECT_NAME}-*.md" -o -name "$(basename "$PROJECT_CWD")-*.md" \) \
+      ! -name "README.md" \
+      -print 2>/dev/null
+  ) | sort -k1,1n -k2,2n | awk '{print $3}'
 )
 
 if [[ -z "$HANDOFF_FILE" ]]; then

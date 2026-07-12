@@ -142,6 +142,27 @@ else
   exit 2
 fi
 
+# Record the model state of the reflector and the model mix of source
+# assistant messages in the same 12h window. This is a derivative sidecar;
+# capture failure is visible but deliberately non-blocking.
+PROVENANCE_FILE="${OUTPUT_FILE%.md}.provenance.json"
+if ! python3 "$LIB_DIR/reflection-provenance.py" \
+    --trace-file "$WORKSPACE_TELEMETRY_DIR/session-trace.jsonl" \
+    --project-dir "$PROJECT_DIR" \
+    --hours 12 \
+    --reflector-provider anthropic \
+    --reflector-model claude-sonnet-4-6 \
+    --reflector-effort medium \
+    --output "$PROVENANCE_FILE"; then
+  echo "reflect[$PROJECT]: WARNING — model provenance sidecar failed" >&2
+  mkdir -p "$WORKSPACE_TELEMETRY_DIR" 2>/dev/null || true
+  printf '{"project":"%s","source":"%s.reflect","eventType":"failure","level":"warn","sourceType":"system","timestamp":%s,"details":{"reason":"model_provenance_sidecar_failed","reflection":"%s"}}\n' \
+    "$PROJECT" "$PROJECT" "$(date -u +%s%3N)" "$OUTPUT_FILE" \
+    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
+else
+  echo "reflect[$PROJECT]: model provenance -> $PROVENANCE_FILE"
+fi
+
 resolve_claim_path() {
   local raw="$1"
   if [[ "$raw" == /* ]]; then
