@@ -110,6 +110,7 @@ cd "$PROJECT_DIR"
 # --dangerously-skip-permissions is required for non-interactive runs; it
 # bypasses the allowlist, so the safety net is --disallowedTools blocking
 # anything that could mutate the repo, plus the prompt's propose-only contract.
+set +e
 claude -p "$PROMPT" \
   --model claude-sonnet-4-6 \
   --effort medium \
@@ -121,6 +122,14 @@ claude -p "$PROMPT" \
     "Bash(gh release:*)" "Bash(docker:*)" "Bash(systemctl:*)" \
     "Edit" "MultiEdit" "Write" "NotebookEdit" \
   2>&1 | tail -n 80
+CLAUDE_STATUS=${PIPESTATUS[0]}
+set -e
+
+if [[ "$CLAUDE_STATUS" -ne 0 ]]; then
+  echo "reflect[$PROJECT]: ERROR — claude invocation failed with exit code $CLAUDE_STATUS" >&2
+  emit_reflection_failure_telemetry "claude_invocation_failed" "$CLAUDE_STATUS"
+  exit "$CLAUDE_STATUS"
+fi
 
 if [[ -f "$OUTPUT_FILE" ]]; then
   echo "reflect[$PROJECT]: wrote $OUTPUT_FILE"

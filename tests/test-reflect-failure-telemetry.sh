@@ -45,4 +45,33 @@ grep -q '"source":"demo.reflect"' "$EVENT_FILE"
 grep -q '"reason":"no_output_file"' "$EVENT_FILE"
 grep -q '"exitCode":2' "$EVENT_FILE"
 
+cat > "$BIN_DIR/claude" <<'EOF'
+#!/usr/bin/env bash
+echo "fake claude: invocation failed"
+exit 7
+EOF
+chmod +x "$BIN_DIR/claude"
+
+set +e
+WORKSPACE_LAYOUT=split \
+WORKSPACE_ROOT="$WORKSPACE_ROOT" \
+WORKSPACE_META_DIR="$WORKSPACE_ROOT/runtime/.meta" \
+WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
+WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
+PATH="$BIN_DIR:$PATH" \
+  /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" \
+  > "$ROOT/stdout-failed" 2> "$ROOT/stderr-failed"
+status=$?
+set -e
+
+if [[ "$status" -ne 7 ]]; then
+  echo "expected reflect.sh to preserve claude exit 7, got $status" >&2
+  cat "$ROOT/stdout-failed" >&2
+  cat "$ROOT/stderr-failed" >&2
+  exit 1
+fi
+
+grep -q '"reason":"claude_invocation_failed"' "$EVENT_FILE"
+grep -q '"exitCode":7' "$EVENT_FILE"
+
 echo "reflect failure telemetry test passed"
