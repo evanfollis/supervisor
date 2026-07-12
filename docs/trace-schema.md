@@ -59,6 +59,9 @@ Minimum shape:
   "char_count": 412,
   "trace_ref": "/root/.codex/sessions/2026/04/14/rollout-...jsonl:4",
   "thread_id": "019d8cf9-050e-7120-be03-41a58a67f06d",
+  "model": "gpt-5.6-sol",
+  "model_provider": "openai",
+  "reasoning_effort": "high",
   "direct_human_intervention": false
 }
 ```
@@ -80,6 +83,14 @@ Minimum shape:
 - `thread_id`
 - `char_count`
 - `direct_human_intervention`
+- `model` and `model_provider` on generated assistant messages
+- `reasoning_effort` when the source transcript exposes it
+- `context_tokens`, `output_tokens`, and `service_tier` when exposed
+
+Model-state fields describe the inference configuration that generated the
+indexed message. They are empirical provenance, not a claim that the model
+alone explains the message. Raw source transcripts remain authoritative when
+future analysis needs fields the normalized trace did not retain.
 
 ## Direct human intervention
 

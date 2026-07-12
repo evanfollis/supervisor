@@ -36,16 +36,17 @@ interactions.
 - `workspace.sh context` is the preferred way to load the canonical current
   context bundle in one pass.
 
-## Project tier model (ADR-0023)
+## System topology (ADR-0027; supersedes ADR-0023)
 
-The workspace is a two-tier commercial/epistemic system:
-
-- **Products**: `atlas` (systematic crypto trading; epistemic-first, then
-  systematic investing), `skillfoundry` (venture foundry, Stage-1 commercial
-  discovery).
-- **System**: `context-repository` (pattern lab; defines the front-door /
-  frontmatter / always-load / M4+M5 hook contract), `command` (executive
-  control plane + portfolio surface).
+- **synaplex.ai is the system**: methodology, lab, knowledge projection,
+  public surface, and operator surface.
+- **atlas** and **skillfoundry** are domain pods that both contribute and
+  consume system knowledge.
+- **context-repository** owns the formal canon obligations and schemas; it is
+  not the knowledge system or a runtime memory product.
+- **command** is Synaplex's operator surface.
+- Per ADR-0044, the first derived knowledge projection belongs under
+  `projects/synaplex/knowledge/`; it remains subordinate to canon Decisions.
 
 Personal projects (`mentor`, `recruiter`) were removed from this server
 2026-04-18. They remain in GitHub as personal side projects and do not
@@ -67,6 +68,12 @@ consume workspace attention.
   status intervention is needed.
 - Push `command` toward a true executive control-plane product, not a better
   looking collection of session and terminal utilities.
+- Make the first full knowledge cycle the dominant cross-project priority:
+  Claim → Evidence → Decision → invariant → projection → pod consumption →
+  reflection. Do not expand topology ahead of this proof.
+- Retain full-fidelity transcripts, telemetry, reflections, and syntheses while
+  keeping only bounded indexes and recent artifacts on the hot execution path
+  (ADR-0043).
 - Support `atlas` through its epistemic-build phase toward the systematic
   trading threshold. This is the primary commercial compounding path.
 - Support `skillfoundry` through Stage-1 external-evidence accumulation.

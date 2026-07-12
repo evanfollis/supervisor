@@ -199,12 +199,13 @@ def event_for_claude(obj, line_no: int, path: Path, registry):
     msg_type = obj.get("type")
     if msg_type not in {"user", "assistant"}:
         return None
-    text = claude_message_text(obj.get("message"))
+    message = obj.get("message") or {}
+    text = claude_message_text(message)
     if not text:
         return None
     cwd = obj.get("cwd") or ""
     meta = match_registry(cwd, registry)
-    return {
+    event = {
         "ts": obj.get("timestamp") or iso_now(),
         "source": "claude",
         "session_name": meta.get("session_name"),
@@ -218,6 +219,27 @@ def event_for_claude(obj, line_no: int, path: Path, registry):
         "thread_id": obj.get("sessionId"),
         "direct_human_intervention": msg_type == "user" and meta.get("role") in {"project", "feature"},
     }
+    if msg_type == "assistant":
+        model = message.get("model")
+        usage = message.get("usage") or {}
+        if model:
+            event["model"] = model
+            event["model_provider"] = "anthropic"
+        context_tokens = sum(
+            int(usage.get(field) or 0)
+            for field in (
+                "input_tokens",
+                "cache_creation_input_tokens",
+                "cache_read_input_tokens",
+            )
+        )
+        if context_tokens:
+            event["context_tokens"] = context_tokens
+        if usage.get("output_tokens") is not None:
+            event["output_tokens"] = int(usage.get("output_tokens") or 0)
+        if usage.get("service_tier"):
+            event["service_tier"] = usage["service_tier"]
+    return event
 
 
 def event_for_codex(obj, line_no: int, path: Path, registry, file_meta):
@@ -226,6 +248,18 @@ def event_for_codex(obj, line_no: int, path: Path, registry, file_meta):
         if payload.get("cwd"):
             file_meta["cwd"] = payload["cwd"]
             file_meta["thread_id"] = payload.get("id")
+        if payload.get("model_provider"):
+            file_meta["model_provider"] = payload["model_provider"]
+        return None
+
+    if obj.get("type") == "turn_context":
+        payload = obj.get("payload") or {}
+        if payload.get("cwd"):
+            file_meta["cwd"] = payload["cwd"]
+        if payload.get("model"):
+            file_meta["model"] = payload["model"]
+        if payload.get("effort"):
+            file_meta["reasoning_effort"] = payload["effort"]
         return None
 
     if obj.get("type") != "response_item":
@@ -245,7 +279,7 @@ def event_for_codex(obj, line_no: int, path: Path, registry, file_meta):
 
     cwd = file_meta.get("cwd", "")
     meta = match_registry(cwd, registry)
-    return {
+    event = {
         "ts": obj.get("timestamp") or iso_now(),
         "source": "codex",
         "session_name": meta.get("session_name"),
@@ -259,6 +293,13 @@ def event_for_codex(obj, line_no: int, path: Path, registry, file_meta):
         "thread_id": file_meta.get("thread_id"),
         "direct_human_intervention": role == "user" and meta.get("role") in {"project", "feature"},
     }
+    if file_meta.get("model"):
+        event["model"] = file_meta["model"]
+    if file_meta.get("model_provider"):
+        event["model_provider"] = file_meta["model_provider"]
+    if file_meta.get("reasoning_effort"):
+        event["reasoning_effort"] = file_meta["reasoning_effort"]
+    return event
 
 
 def scan_file(path: Path, state: dict, registry, trace_fh):
@@ -271,7 +312,13 @@ def scan_file(path: Path, state: dict, registry, trace_fh):
         offset = 0
         entry["line"] = 0
 
-    file_meta = {"cwd": entry.get("cwd"), "thread_id": entry.get("thread_id")}
+    file_meta = {
+        "cwd": entry.get("cwd"),
+        "thread_id": entry.get("thread_id"),
+        "model": entry.get("model"),
+        "model_provider": entry.get("model_provider"),
+        "reasoning_effort": entry.get("reasoning_effort"),
+    }
     if path.as_posix().startswith("/root/.codex/sessions/"):
         parser = "codex"
     else:
@@ -307,6 +354,9 @@ def scan_file(path: Path, state: dict, registry, trace_fh):
         entry["cwd"] = file_meta["cwd"]
     if file_meta.get("thread_id"):
         entry["thread_id"] = file_meta["thread_id"]
+    for field in ("model", "model_provider", "reasoning_effort"):
+        if file_meta.get(field):
+            entry[field] = file_meta[field]
     entry["offset"] = offset
     entry["mtime"] = int(stat.st_mtime)
     state[key] = entry

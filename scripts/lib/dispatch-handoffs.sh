@@ -60,6 +60,15 @@ target_session_for() {
   # (5-cycle synthesis carry-forward; e.g. URGENT-skillfoundry-valuation-*
   # sat 72h+ while the valuation deadline approached).
   stem="${stem#URGENT-}"
+
+  # The persistent session uses the concise name `context-repo` while the
+  # repository and many durable handoffs use `context-repository`. Keep one
+  # execution owner without forcing historical artifacts to be renamed.
+  if [[ "$stem" == context-repository-* ]]; then
+    echo "context-repo"
+    return
+  fi
+
   local best=""
   for sess in "${KNOWN_SESSIONS[@]}"; do
     if [[ "$stem" == "${sess}-"* ]]; then
@@ -115,11 +124,16 @@ for list_file in "$TMPDIR_PENDING"/*; do
   # The Claude Code REPL wraps long input across display lines and the first
   # Enter can land inside the wrapped buffer instead of submitting. Send the
   # text, wait, then send Enter twice to guarantee submit.
-  tmux send-keys -t "=$target" "$nudge"
+  # `tmux has-session -t "=$target"` accepts exact-session syntax, but
+  # `send-keys -t "=$target"` resolves as a pane target and can silently
+  # select no pane (observed as `can't find pane: =command`). Address the
+  # session's active window explicitly for pane-oriented commands.
+  pane_target="${target}:"
+  tmux send-keys -t "$pane_target" "$nudge"
   sleep 0.3
-  tmux send-keys -t "=$target" Enter
+  tmux send-keys -t "$pane_target" Enter
   sleep 0.3
-  tmux send-keys -t "=$target" Enter
+  tmux send-keys -t "$pane_target" Enter
 
   emit_event "handoff.dispatched" "$target" "$count" "tmux batch nudge"
 
