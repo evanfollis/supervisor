@@ -5,7 +5,7 @@ Also runnable manually:
 `/opt/workspace/supervisor/scripts/lib/supervisor-tick.sh`.
 
 **Owner**: the tick itself (autonomous). Attended sessions supervise
-and merge.
+and disposition the single pending ref.
 
 **Preconditions (interlock stack)**:
 1. No other tick running (flock on
@@ -31,8 +31,7 @@ emits a `session_reflected` event, and exits 0.
   `runtime/.meta/handoff-archive/`
 - Possibly new handoffs to project sessions under
   `/opt/workspace/runtime/.handoff/<project>-*.md`
-- A tick commit on `ticks/<YYYY-MM-DD>-<HH>` branch (never on main,
-  never pushed)
+- A bounded tick commit on `ticks/pending` (never on main, never pushed)
 - Appended events on `runtime/.telemetry/supervisor-events.jsonl` including
   `session_reflected` at end
 
@@ -51,33 +50,34 @@ See ADR-0014 for the full contract. Short form:
 7. Routes synthesis proposals not yet tracked.
 8. Harvests friction signals (FR-NNNN).
 9. Writes the report.
-10. Commits Tier-A writes to `ticks/<date>-<hour>`; rewinds main.
+10. Reserves `ticks/pending`, commits Tier-A writes there, and rewinds main.
+    If no tracked changes remain, it releases the empty pending slot.
 
 ## What an attended general session does to close the loop
 
-Every attended `general` session must, on reentry, handle ticks/*
-branches as part of its session-start sweep. `workspace.sh doctor`
-will warn at 24h and fail at 72h to force this cadence.
+Every attended `general` session must, on reentry, handle the bounded
+`ticks/pending` queue as part of its session-start sweep. Any other local
+`ticks/*` ref is an immediate lifecycle failure. `workspace.sh doctor` warns
+at 24h and fails at 72h for a pending ref.
 
-### Reentry sweep for ticks/* branches
+### Reentry sweep for `ticks/pending`
 
 ```bash
-# 1. List tick branches
-git -C /opt/workspace/supervisor branch --list 'ticks/*' --sort=-committerdate
+# 1. Inspect the one pending ref
+git -C /opt/workspace/supervisor show --stat --oneline ticks/pending
 
-# 2. For each, inspect the commits
-git -C /opt/workspace/supervisor log main..ticks/<date>-<hour> --stat
+# 2. Inspect the commits relative to current main
+git -C /opt/workspace/supervisor log main..ticks/pending --stat
 
-# 3. Decision:
-#    - Good tick work → merge fast-forward or cherry-pick into main, then push
-#    - Mixed (some good, some noisy) → cherry-pick the good commits, delete
-#      the branch, write an INBOX note for the deferred items
-#    - Bad → delete the branch, note in INBOX / friction if the pattern
-#      repeats across ticks
+# 3. Record one disposition before deleting the ref:
+#    - Valid changes → reimplement/promote as a reviewed ordinary commit on main
+#    - Refused → record the evidence and refusal in an INBOX or decision artifact
+#    - No useful work → record the evidence, then delete ticks/pending
 ```
 
-Delete merged tick branches promptly. They are not durable; the
-content they carried lives on main once merged.
+Do not merge or blindly cherry-pick a historical tick branch. The pending ref
+is a review queue, not a second development line. Delete it only after the
+disposition is recorded; the cold archive remains the durable historical copy.
 
 ### What to watch for when reviewing a tick
 
@@ -116,9 +116,8 @@ the tick reports and self-documenting.
 - **Merging ticks branches without reviewing commits.** A tick
   commits on autonomous judgment; the merge is the review gate.
   Skipping review defeats the design.
-- **Letting tick branches accumulate.** Each one is dead weight
-  until merged or deleted. Doctor's 24h/72h checks exist to force
-  the sweep.
+- **Letting `ticks/pending` age.** The single queue slot is dead weight until
+  reviewed or deleted. Doctor's 24h/72h checks exist to force the sweep.
 - **Editing the tick script or prompt mid-attended-session without
   an ADR amendment.** The tick's guardrails are load-bearing; they
   need explicit governance, not ad hoc tweaks.

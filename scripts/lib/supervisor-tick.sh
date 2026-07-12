@@ -7,7 +7,7 @@
 #   2. Snapshot project-repo HEADs for post-run boundary audit.
 #   3. Spawn a headless claude session with a scoped prompt.
 #   4. Audit: git diff filtered by Tier-C globs, per-project HEAD unchanged.
-#   5. Commit Tier-A writes to branch ticks/<YYYY-MM-DD>-<HH>. Never push.
+#   5. Commit Tier-A writes to the single bounded ticks/pending ref. Never push.
 #   6. Emit session_reflected event + a per-tick report.
 
 set -uo pipefail
@@ -15,6 +15,8 @@ set -uo pipefail
 LIB_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 source "$LIB_DIR/workspace-paths.sh"
+# shellcheck disable=SC1091
+source "$LIB_DIR/tick-branch-lifecycle.sh"
 
 TICK_AGENT_LABEL="tick"
 LOCK_DIR="$RUNTIME_ROOT/.locks"
@@ -154,6 +156,15 @@ if [[ -n "$PRE_SUP_DIRTY" ]]; then
   skip_with_reason "supervisor working tree was dirty at tick start; refusing to run"
 fi
 
+# A tick ref is a durable review queue. Never let a later tick overwrite,
+# extend, or hide work that has not been dispositioned by an attended session.
+TICK_BRANCH_CLASS=$(tick_branch_class "$SUP")
+if [[ "$TICK_BRANCH_CLASS" != "empty" ]]; then
+  TICK_BRANCH_COUNT=$(tick_branch_count "$SUP")
+  TICK_BRANCH_REFS=$(tick_branch_blocking_summary "$SUP" | tr '\n' ';' | sed 's/;*$//')
+  skip_with_reason "tick branch backpressure: ${TICK_BRANCH_COUNT} local ref(s) block capture (${TICK_BRANCH_REFS})"
+fi
+
 PRE_SUP_BRANCH=$(git -C "$SUP" symbolic-ref --short HEAD 2>/dev/null || echo detached)
 
 # Refresh verified-state.md so the tick reasons from current host reality,
@@ -185,6 +196,12 @@ PROMPT="$(sed \
   -e "s|{{EVENT_FILE}}|$EVENT_FILE|g" \
   -e "s|{{WORKSPACE_HANDOFF_DIR}}|$WORKSPACE_HANDOFF_DIR|g" \
   "$PROMPT_TEMPLATE")"
+
+# Reserve the one queue slot before invoking the model. `git branch` is
+# intentionally non-forcing and fails if another ref appeared after the gate.
+if ! tick_branch_create_pending "$SUP" "$PRE_SUP_HEAD" >/dev/null 2>&1; then
+  skip_with_reason "tick branch backpressure: ticks/pending appeared before reservation"
+fi
 
 cd "$SUP"
 
@@ -294,15 +311,9 @@ EOF
   exit 3
 fi
 
-# --- 7. commit Tier-A writes to a ticks/ branch (never main) -----------------
+# --- 7. commit Tier-A writes to the bounded pending ref (never push) ---------
 POST_SUP_DIRTY=$(git -C "$SUP" status --porcelain 2>/dev/null || true)
 if [[ -n "$POST_SUP_DIRTY" ]]; then
-  branch="ticks/$(date -u +%Y-%m-%d-%H)"
-  # Flow: stage explicit Tier-A paths, commit on the current branch (advances
-  # main locally), move the new commit onto the ticks/ branch, then rewind the
-  # main branch pointer so main is unchanged. Working tree ends up clean.
-  # The principal has delegated approval authority (2026-04-16); push the tick
-  # branch to origin so governance artifacts are backed up and visible.
   git -C "$SUP" add \
     friction/ handoffs/ system/ ideas/ decisions/ \
     2>/dev/null || true
@@ -319,24 +330,25 @@ agent: tick" || {
         exit 4
       }
     new_sha=$(git -C "$SUP" rev-parse HEAD)
-    git -C "$SUP" branch -f "$branch" "$new_sha"
-    # Rewind the primary branch to its pre-tick HEAD. --hard on a clean tree
-    # (everything was just committed) is safe; it restores the checked-out
-    # files to the pre-tick state while the tick's commit lives on $branch.
-    git -C "$SUP" reset --hard "$PRE_SUP_HEAD" >/dev/null
-    # Push tick branch to origin — non-fatal; a failed push is escalated but
-    # doesn't abort the tick (the commit is safe locally on $branch).
-    if git -C "$SUP" push origin "${branch}:${branch}" 2>&1; then
-      emit_event "session_reflected" "tick committed + pushed $branch (sha=${new_sha:0:12})"
-      echo "supervisor-tick: committed Tier-A writes to $branch and pushed to origin"
-    else
-      emit_event "escalated" "tick committed to $branch but push to origin failed — manual push required"
-      echo "supervisor-tick: committed to $branch; push to origin failed (non-fatal)" >&2
+    if ! git -C "$SUP" update-ref refs/heads/ticks/pending "$new_sha" "$PRE_SUP_HEAD"; then
+      emit_event "escalated" "tick could not publish commit to ticks/pending; review required"
+      echo "supervisor-tick: failed to publish commit to ticks/pending" >&2
+      exit 4
     fi
+    # Rewind the primary branch to its pre-tick HEAD. The pending ref retains
+    # the commit while main remains exactly where it was at capture time.
+    git -C "$SUP" reset --hard "$PRE_SUP_HEAD" >/dev/null
+    emit_event "session_reflected" "tick committed to ticks/pending (sha=${new_sha:0:12}); no push performed"
+    echo "supervisor-tick: committed Tier-A writes to ticks/pending (not pushed)"
   else
     # Changes were all in gitignored paths (events/, .meta/ etc.) — nothing to
     # commit. Leave them as-is.
-    echo "supervisor-tick: changes were gitignored; no commit needed"
+    if ! tick_branch_delete_empty_pending "$SUP" "$PRE_SUP_HEAD"; then
+      emit_event "escalated" "empty ticks/pending could not be removed; manual review required"
+      echo "supervisor-tick: empty ticks/pending could not be removed" >&2
+      exit 4
+    fi
+    echo "supervisor-tick: changes were gitignored; no commit needed; pending slot released"
   fi
 fi
 

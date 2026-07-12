@@ -16,6 +16,8 @@ set -uo pipefail
 LIB_DIR="$(cd "$(dirname "$0")" && pwd)"
 # shellcheck disable=SC1091
 source "$LIB_DIR/workspace-paths.sh"
+# shellcheck disable=SC1091
+source "$LIB_DIR/tick-branch-lifecycle.sh"
 
 FAIL=0
 WARN=0
@@ -316,7 +318,7 @@ else
   say_warn "no synthesis pointer at $ptr"
 fi
 
-# --- supervisor tick: timer + recent report + ticks/ branch age (ADR-0014) ---
+# --- supervisor tick: timer + recent report + bounded queue -------------------
 section "supervisor tick"
 if (( ! systemctl_ok )); then
   say_warn "systemctl unavailable in current harness; skipped supervisor-tick timer state check"
@@ -349,39 +351,41 @@ else
   fi
 fi
 
-# Ticks branch age — attended sessions must merge/delete within 24h/72h.
+# Bounded tick queue. Remote-tracking refs are drift: fetch/prune should remove
+# them once the corresponding remote historical refs are deleted.
 if [[ -d "$SUPERVISOR_ROOT/.git" ]]; then
-  stale_tick_count=0
-  aging_tick_count=0
-  fresh_tick_count=0
-  oldest_tick_hours=0
-  stale_tick_sample=()
-  while IFS= read -r b; do
-    [[ -z "$b" ]] && continue
-    committer_ts=$(git -C "$SUPERVISOR_ROOT" log -1 --format='%ct' "$b" 2>/dev/null || echo 0)
-    age=$(( now_epoch - committer_ts ))
-    age_h=$(age_hours "$age")
-    (( age_h > oldest_tick_hours )) && oldest_tick_hours=$age_h
-    if (( age > 259200 )); then
-      stale_tick_count=$((stale_tick_count + 1))
-      if (( ${#stale_tick_sample[@]} < 5 )); then
-        stale_tick_sample+=("$b (${age_h}h)")
+  tick_class=$(tick_branch_class "$SUPERVISOR_ROOT")
+  tick_count=$(tick_branch_count "$SUPERVISOR_ROOT")
+  case "$tick_class" in
+    empty)
+      say_ok "tick queue empty (no local tick ref)" ;;
+    pending)
+      pending_ts=$(git -C "$SUPERVISOR_ROOT" log -1 --format='%ct' refs/heads/ticks/pending 2>/dev/null || echo 0)
+      pending_age=$(( now_epoch - pending_ts ))
+      pending_age_h=$(age_hours "$pending_age")
+      pending_tip=$(git -C "$SUPERVISOR_ROOT" rev-parse --short refs/heads/ticks/pending 2>/dev/null || echo unknown)
+      if (( pending_age > 259200 )); then
+        say_fail "ticks/pending is ${pending_age_h}h old (tip ${pending_tip}); disposition required"
+      elif (( pending_age > 86400 )); then
+        say_warn "ticks/pending is ${pending_age_h}h old (tip ${pending_tip}); disposition required"
+      else
+        say_ok "ticks/pending is ${pending_age_h}h old (tip ${pending_tip}); attended review required"
       fi
-    elif (( age > 86400 )); then
-      aging_tick_count=$((aging_tick_count + 1))
-    else
-      fresh_tick_count=$((fresh_tick_count + 1))
-    fi
-  done < <(git -C "$SUPERVISOR_ROOT" branch --list 'ticks/*' --format='%(refname:short)' 2>/dev/null)
-  if (( stale_tick_count > 0 )); then
-    say_fail "$stale_tick_count tick branch(es) older than 72h; oldest ${oldest_tick_hours}h"
-    note "sample: ${stale_tick_sample[*]}"
-  fi
-  if (( aging_tick_count > 0 )); then
-    say_warn "$aging_tick_count tick branch(es) aged 24–72h need attended merge"
-  fi
-  if (( fresh_tick_count > 0 )); then
-    say_ok "$fresh_tick_count tick branch(es) are younger than 24h"
+      ;;
+    unexpected)
+      unexpected_ref=$(tick_branch_refs "$SUPERVISOR_ROOT" | head -1)
+      say_fail "unexpected local tick ref ($unexpected_ref); only ticks/pending is valid" ;;
+    multiple)
+      sample=$(tick_branch_refs "$SUPERVISOR_ROOT" | head -5 | paste -sd ', ' -)
+      say_fail "$tick_count local tick refs; queue is bounded to one ticks/pending ref"
+      note "sample: $sample" ;;
+  esac
+
+  tracking_count=$(git -C "$SUPERVISOR_ROOT" for-each-ref --format='%(refname)' refs/remotes/origin/ticks | wc -l)
+  if (( tracking_count > 0 )); then
+    say_warn "$tracking_count remote-tracking tick ref(s) show drift; fetch/prune after remote disposition"
+  else
+    say_ok "no remote-tracking tick refs"
   fi
 fi
 

@@ -399,6 +399,13 @@ At the start of every workspace-root executive session, do this (in order):
 9. List project-level URGENTs in `runtime/.handoff/`: `ls /opt/workspace/runtime/.handoff/URGENT-* 2>/dev/null`. Project sessions write these when a project-specific urgency needs the executive's attention (e.g. deadline edits on an orphan project without `sessions.conf` registration). Act on them before routine reentry work.
 10. Skim the last three entries in `decisions/` — these shape what you should and shouldn't touch.
 
+11. Inspect `refs/heads/ticks/pending` if present. Review its commits against
+    current `main`, then record exactly one disposition: promote the valid
+    changes as reviewed ordinary commits, explicitly refuse them with
+    evidence, or delete the pending ref after recording that no useful work
+    remains. Any other `refs/heads/ticks/*` ref is a lifecycle failure and must
+    be resolved before the tick is allowed to run.
+
 Do not treat `ideas/`, `docs/`, `playbooks/`, transcript stores, or telemetry
 logs as default session-start reading. Open them only when the current-state
 bundle points at them.
