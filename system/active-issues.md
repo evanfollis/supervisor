@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-07-12T12:56Z
+updated: 2026-07-12T15:00Z
 ---
 
 # Active issues
@@ -50,7 +50,12 @@ _(none as of 2026-07-11T23:15Z)_
 - **Requirement-provenance enforcement (ADR-0047)** — a Letta example was
   promoted into an unauthorized vendor/key blocker despite ADR-0036. Dispatch
   now quarantines handoffs missing provenance declarations. Semantic truth is
-  still model/PM-reviewed, not machine-proven; Synaplex correction is active.
+  still model/PM-reviewed, not machine-proven. Synaplex's vendor route is now
+  canonically withdrawn with zero Evidence; the internal prospective Claim is
+  registered but the full Evidence-to-reflection loop is not yet complete.
+- **Prompt governance coverage is incomplete** — `prompteval check` validates
+  one governed prompt but reports 20 ungoverned prompt surfaces, including
+  tick, reflection, maintenance, skill, and workspace-charter prompts.
 - ~~atlas-runner restart~~ **CLOSED** — restarted 2026-07-11T22:51Z with the
   Phase 2b deploy; picked up `f24d298`.
 - **Codex config migrated 2026-07-11** — legacy `profile = "full_auto"`
