@@ -26,6 +26,16 @@ actively holding on behalf of the principal.
 - What "better" looks like: `command` is on normal git footing and the review
   gate becomes real there instead of nominal.
 
+### Command login double-submission cannot remain ambient
+
+- Owner: supervisor -> `command` PM
+- Why pressure exists: the login double-submission issue has been unresolved
+  for 34+ days and 10+ reflection cycles despite a small known implementation
+  option, so it is now evidence of drift rather than a normal backlog item.
+- What "better" looks like: the next attended `command` session either ships
+  the small fix, records an explicit won't-fix verdict, or explains why a
+  different login-flow correction is the accepted path.
+
 ### Telemetry minimum contract still needs to exist
 
 - Owner: supervisor
