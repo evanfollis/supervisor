@@ -110,6 +110,13 @@ fi
 
 cd "$PROJECT_DIR"
 
+# Package manager cache paths: headless sessions run under a systemd unit where
+# ~/.npm and ~/.cache may be on a read-only mount. Redirect to writable runtime
+# paths so npm/pip never fail with EROFS.
+export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-/opt/workspace/runtime/.npm-cache}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/opt/workspace/runtime/.pip-cache}"
+mkdir -p "$NPM_CONFIG_CACHE" "$PIP_CACHE_DIR"
+
 # --dangerously-skip-permissions is required for non-interactive runs; it
 # bypasses the allowlist, so the safety net is --disallowedTools blocking
 # anything that could mutate the repo, plus the prompt's propose-only contract.

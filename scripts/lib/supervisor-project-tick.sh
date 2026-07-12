@@ -191,6 +191,13 @@ fi
 # --- 6. run the headless session ----------------------------------------------
 cd "$PROJECT_CWD"
 
+# Package manager cache paths: headless sessions run under a systemd unit where
+# ~/.npm and ~/.cache may be on a read-only mount. Redirect to writable runtime
+# paths so npm/pip never fail with EROFS inside a tick session.
+export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-/opt/workspace/runtime/.npm-cache}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/opt/workspace/runtime/.pip-cache}"
+mkdir -p "$NPM_CONFIG_CACHE" "$PIP_CACHE_DIR"
+
 EXIT_CODE=0
 claude -p "$(cat "$PROMPT_FILE")" \
   --model claude-sonnet-4-6 \
