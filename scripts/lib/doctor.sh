@@ -45,38 +45,15 @@ age_hours() {  # seconds → rounded hours
   echo $(( s / 3600 ))
 }
 
-# --- durability: supervisor repo has a remote and HEAD is pushed (FR-0003) ---
+# --- durability: every managed committed history is verified remotely ---
 section "durability"
-if [[ -d "$SUPERVISOR_ROOT/.git" ]]; then
-  remotes=$(git -C "$SUPERVISOR_ROOT" remote 2>/dev/null)
-  if [[ -z "$remotes" ]]; then
-    say_fail "supervisor repo has no git remote configured"
-    note "fix: git -C $SUPERVISOR_ROOT remote add origin <url>"
-  else
-    say_ok "supervisor repo has remote(s): $(echo $remotes | tr '\n' ' ')"
-    head_sha=$(git -C "$SUPERVISOR_ROOT" rev-parse HEAD 2>/dev/null || echo "")
-    cur_branch=$(git -C "$SUPERVISOR_ROOT" symbolic-ref --short HEAD 2>/dev/null || echo "")
-    if [[ -n "$cur_branch" ]]; then
-      upstream=$(git -C "$SUPERVISOR_ROOT" rev-parse --abbrev-ref --symbolic-full-name "@{u}" 2>/dev/null || echo "")
-      if [[ -z "$upstream" ]]; then
-        say_warn "branch '$cur_branch' has no upstream tracking ref"
-        note "fix: git -C $SUPERVISOR_ROOT push -u origin $cur_branch"
-      else
-        ahead=$(git -C "$SUPERVISOR_ROOT" rev-list --count "@{u}..HEAD" 2>/dev/null || echo 0)
-        behind=$(git -C "$SUPERVISOR_ROOT" rev-list --count "HEAD..@{u}" 2>/dev/null || echo 0)
-        if [[ "$ahead" -gt 0 ]]; then
-          say_warn "branch '$cur_branch' is $ahead commit(s) ahead of $upstream (unpushed work)"
-        else
-          say_ok "branch '$cur_branch' is up to date with $upstream"
-        fi
-        if [[ "$behind" -gt 0 ]]; then
-          note "behind upstream by $behind; review before next push"
-        fi
-      fi
-    fi
-  fi
+if durability_output=$("$LIB_DIR/remote-durability.sh" --audit --source system 2>&1); then
+  say_ok "all managed repository HEADs are durable on origin/main"
+  while IFS= read -r line; do note "$line"; done <<< "$durability_output"
 else
-  say_fail "supervisor repo is not a git repository"
+  say_fail "remote durability is incomplete or ambiguous"
+  while IFS= read -r line; do note "$line"; done <<< "$durability_output"
+  note "repair: $SUPERVISOR_ROOT/workspace.sh durability --repair"
 fi
 
 # --- secrets: no real bot tokens or private keys committed ---

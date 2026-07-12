@@ -1,0 +1,11 @@
+[Unit]
+Description=Publish safe committed workspace histories
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+RandomizedDelaySec=60
+Persistent=true
+
+[Install]
+WantedBy=timers.target
