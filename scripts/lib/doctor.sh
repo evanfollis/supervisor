@@ -351,18 +351,38 @@ fi
 
 # Ticks branch age — attended sessions must merge/delete within 24h/72h.
 if [[ -d "$SUPERVISOR_ROOT/.git" ]]; then
+  stale_tick_count=0
+  aging_tick_count=0
+  fresh_tick_count=0
+  oldest_tick_hours=0
+  stale_tick_sample=()
   while IFS= read -r b; do
     [[ -z "$b" ]] && continue
     committer_ts=$(git -C "$SUPERVISOR_ROOT" log -1 --format='%ct' "$b" 2>/dev/null || echo 0)
     age=$(( now_epoch - committer_ts ))
+    age_h=$(age_hours "$age")
+    (( age_h > oldest_tick_hours )) && oldest_tick_hours=$age_h
     if (( age > 259200 )); then
-      say_fail "tick branch '$b' aged $(age_hours "$age")h (>72h — attended merge overdue)"
+      stale_tick_count=$((stale_tick_count + 1))
+      if (( ${#stale_tick_sample[@]} < 5 )); then
+        stale_tick_sample+=("$b (${age_h}h)")
+      fi
     elif (( age > 86400 )); then
-      say_warn "tick branch '$b' aged $(age_hours "$age")h (>24h — attended merge needed)"
+      aging_tick_count=$((aging_tick_count + 1))
     else
-      say_ok "tick branch '$b' fresh ($(age_hours "$age")h)"
+      fresh_tick_count=$((fresh_tick_count + 1))
     fi
   done < <(git -C "$SUPERVISOR_ROOT" branch --list 'ticks/*' --format='%(refname:short)' 2>/dev/null)
+  if (( stale_tick_count > 0 )); then
+    say_fail "$stale_tick_count tick branch(es) older than 72h; oldest ${oldest_tick_hours}h"
+    note "sample: ${stale_tick_sample[*]}"
+  fi
+  if (( aging_tick_count > 0 )); then
+    say_warn "$aging_tick_count tick branch(es) aged 24–72h need attended merge"
+  fi
+  if (( fresh_tick_count > 0 )); then
+    say_ok "$fresh_tick_count tick branch(es) are younger than 24h"
+  fi
 fi
 
 # Hold file reminder — if present, the tick is suspended.
