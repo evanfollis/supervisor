@@ -84,6 +84,20 @@ else
   echo "synthesize: translator missing or not executable; skipping translation step" >&2
 fi
 
+# Prompt-eval freshness watchdog (ADR-0039 §6). Runs each synthesis cycle
+# (~12h): writes runtime/prompteval/<project>/status.json and, after 3
+# consecutive flagged runs, emits an `escalated` telemetry event (S3-P2)
+# so a decaying golden set surfaces as pressure instead of rotting quietly.
+# Non-fatal, no LLM calls.
+if [[ -x /opt/workspace/supervisor/scripts/prompteval ]]; then
+  for pe_repo in /opt/workspace/supervisor /opt/workspace/projects/*; do
+    if [[ -d "$pe_repo/.prompteval" ]]; then
+      /opt/workspace/supervisor/scripts/prompteval status "$pe_repo" --source-type cron \
+        || echo "synthesize: prompteval status failed for $pe_repo (non-fatal)" >&2
+    fi
+  done
+fi
+
 # Notify the 'general' tmux session if it's alive. Uses display-message so
 # we don't touch whatever's focused in the session (e.g. an open Claude prompt).
 if command -v tmux >/dev/null 2>&1 && tmux has-session -t general 2>/dev/null; then

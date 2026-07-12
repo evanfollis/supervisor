@@ -1,17 +1,64 @@
 # ADR-0040: A canon emission path for the synaplex lab
 
 Date: 2026-07-12
-Status: **proposed**
-Accepted: —
+Status: **rejected — superseded-by-0041**
+Accepted: — (never accepted)
+Rejected: 2026-07-12, executive (general), after cross-agent adversarial review
 Author: synaplex session, 2026-07-12
 References: ADR-0038 (programmes as discovery plane), ADR-0027 (synaplex is the system), ADR-0029 (five-layer pipeline), ADR-0019 (self-generated traffic), workspace rule S1-P3 (two write paths to one store)
+Review artifact: `supervisor/.reviews/adr-0040-codex-2026-07-12T03-30Z.md`
 
-> **This ADR is a proposal. It is not accepted and confers no authorization.**
-> No code may be written against it until an executive/principal acceptance is
-> recorded in the `Accepted:` field above. It exists because ADR-0038 §Cleanup is
-> explicit that the reverted `lab/campaign` kernel is not authorization for
-> building an emission path — so the path needs its own decision, made
-> deliberately, rather than arriving as a side effect of some other task.
+> **REJECTED. Confers no authorization. Do not implement against this document.**
+> The *direction* — a minimal, validated, append-only emission path — is endorsed
+> and carried forward in **ADR-0041**. This proposal is rejected because review
+> falsified its scope, not its intent. Read 0041, not this.
+
+## Review verdict (2026-07-12)
+
+Cross-agent adversarial review (Codex, read-only) plus executive primary
+verification. What survived and what did not:
+
+**Falsified — blocking:**
+
+1. **The scope is provably wrong.** §In scope excludes Policy. But
+   `decision.schema.json` requires `policies_in_force` with `minItems: 1`, and
+   `canon.md` validator rule 5 requires the cited Policy version to exist. No
+   eval-terminating Decision can be emitted without a Policy envelope. The stated
+   scope — "what it takes to run one evaluation end to end" — cannot run one
+   evaluation end to end.
+2. **The pre-registration conflicts with canon, and neither this ADR nor the
+   handoff saw it.** `methodology.md` — hash-bound and immutable — pre-registers
+   "Policy (eval promotion-gate): declared inline in the Claim's `thresholds`; **no
+   separate Policy object for v1**." The eval as pre-registered declines to emit the
+   object canon requires its Decision to cite. That is a defect in the eval, not in
+   the emitter, and it cannot be repaired in the artifact.
+3. **Open question 2 rests on a factual error.** It asserts atlas and synaplex use
+   "a *different* id contract." Verified false: atlas's `claim_hash()` reproduces
+   `b7ff216f4eec6e58` exactly. The contracts are the same hash family; atlas's is a
+   strict refinement in normalization. The recommendation to "keep separate and
+   document the divergence" was about to settle an open question on a false premise.
+
+**Overclaimed — serious:**
+
+4. §ADR-0038 alignment calls its four constraints "all mechanically enforceable."
+   ADR-0038 §Reference direction says the opposite in terms: path guards cannot
+   catch copied content. Three are mechanical; the write-side content-laundering
+   ban is not.
+5. Acceptance criterion 7 ("No file under `lab/campaign/` exists") binds a *path*,
+   not a *behavior*. The same kernel rebuilt at `lab/pressure/` satisfies it.
+6. §Context frames the missing emitter as *the* blocker. The eval runner does not
+   exist either (0 python files under `lab/`). The emitter is necessary, not
+   sufficient.
+
+**Survived:**
+
+- Every factual claim about the store's state, the reverse-engineered id contract,
+  the case-collision hazard, and the hand-authoring drift. All independently
+  re-verified.
+- The core argument: hand-authoring is not the conservative option; it is the
+  option that produced the current drift.
+- The out-of-scope list (no campaign kernel, no schema bump, no automation) and the
+  ADR-0038 laundering analysis, modulo the overclaim in (4).
 
 ## Context
 

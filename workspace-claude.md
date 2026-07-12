@@ -153,6 +153,13 @@ These apply across all projects. Don't re-derive them — they're settled.
 - **Understand the causal chain before proposing a fix.** Articulate: where does the bad behavior originate, what assumption is violated, what's the smallest change that restores the invariant. If you can't state this, you don't understand the bug yet — don't ship a guess.
 - **Speed is not a goal. Quality and emergence are.** Evan has said this explicitly. Slow down, call advisor(), re-read the logs. Fake confidence on a shaky fix is worse than admitting you're stuck.
 
+### Quality: Prompt Eval Loops (ADR-0039)
+- **Every prompt is a versioned, eval-gated artifact.** A prompt (system prompt, prompt builder, agent charter, SKILL file) must be registered in its repo's `.prompteval/` with a golden set, graders, and a passing baseline before it ships; `preflight-deploy.sh` enforces this fail-closed (repos without a registry are scanned; likely prompt artifacts block deploy). Editing a governed prompt, its criteria, or its executor wiring without a fresh passing `prompteval run --no-cache --update-baseline` blocks deploy.
+- **Creating a loop is the `create-eval-loop` skill.** If you touch a prompt that has no eval loop, stop and run the skill first. Harness: `/opt/workspace/supervisor/scripts/prompteval`.
+- **Golden sets are living artifacts.** Seed from real logged inputs and failures before synthesizing; label provenance (`synthetic|production|human`) forever; promote captured production interactions so synthetic cases phase out; act on stale/saturated/candidate-backlog flags (they escalate via telemetry after 3 flagged status cycles).
+- **Holdouts are sealed.** `golden/holdout.jsonl` is never opened during iteration or optimization; baselines are accepted via `run --release`. Optimized prompts pass the same gate as hand edits — never auto-promote.
+- **All eval LLM calls run on subscription CLIs (ADR-0036)** — never metered API keys. Throttled eval runs are blocked-not-failed (`eventType: "throttled"`).
+
 ### Quality: Adversarial Review
 - **Use `/review` after completing any significant feature, refactor, or architectural change.** This sends your recent work to a different AI agent (Codex or Claude) that challenges your design decisions, assumptions, and failure modes. It is not a style check — it's a pressure test.
 - **Route to the opposing agent.** If you are Claude Code, review with Codex. If you are Codex, review with Claude. The value is in the different perspective.

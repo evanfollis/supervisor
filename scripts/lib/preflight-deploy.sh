@@ -71,6 +71,22 @@ if git rev-parse --git-dir >/dev/null 2>&1; then
   fi
 fi
 
+# --- Prompt-eval gate (ADR-0039) ---
+# Fail-closed: runs for EVERY repo. Registered prompts must hash to their
+# accepted baseline (live text, spec, and golden set all verified); repos
+# with no registry are scanned, and likely prompt artifacts block deploy
+# until governed (or listed as 'not-a-prompt' with a reason). Pure-local,
+# no LLM calls. The create-eval-loop skill is the remediation path.
+if PROMPTEVAL_OUT=$(/opt/workspace/supervisor/scripts/prompteval check . 2>&1); then
+  say "Prompt evals (ADR-0039)" "✓"
+  # surface warnings (staleness/saturation/backlog) without failing deploy
+  echo "$PROMPTEVAL_OUT" | grep '^  warn:' || true
+else
+  say "Prompt evals (ADR-0039)" "✗"
+  echo "$PROMPTEVAL_OUT" | sed 's/^/    /'
+  FAIL=1
+fi
+
 # --- README / metadata (soft; warn-only could be added later) ---
 check "README present"                    "test -f README.md -o -f README.rst -o -f README"
 

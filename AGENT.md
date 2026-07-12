@@ -471,13 +471,20 @@ Workspace-level architectural choices get a numbered ADR under `decisions/`. One
 ```
 # ADR-NNNN: <title>
 Date: YYYY-MM-DD
-Status: proposed | accepted | superseded-by-NNNN
+Status: proposed | accepted | rejected | superseded-by-NNNN
 
 ## Context
 ## Decision
 ## Consequences
 ## Alternatives considered
 ```
+
+`rejected` is a terminal state for a proposal that review killed (added by ADR-0042). A
+rejected ADR stays in `decisions/` with a **Review verdict** section recording what was
+falsified and what survived — it is not deleted, and its analysis usually feeds the
+successor. A governance surface that can only record approvals is not a governance surface:
+the rejections are the load-bearing part of the record, because they are what a later session
+would otherwise rediscover the hard way.
 
 Before adding an ADR, check whether it duplicates an existing decision or contradicts `/opt/workspace/CLAUDE.md`. If it contradicts CLAUDE.md, propose the CLAUDE.md amendment in the ADR and flag to the human.
 

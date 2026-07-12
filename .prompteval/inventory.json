@@ -1,0 +1,22 @@
+{
+  "enforce": false,
+  "note": "Coverage ratchet (ADR-0039 §4). Flip enforce:true when every entry is governed; from then on the deploy gate fails on ungoverned prompts. Governed = has a .prompteval/<id>/ registry entry with passing baseline.",
+  "prompts": [
+    {"file": "scripts/lib/synthesis-translator-prompt.md", "id": "synthesis-translator", "status": "governed"},
+    {"file": "scripts/lib/reflect-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/reflect-supervisor-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/synthesize-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/supervisor-tick-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/supervisor-project-tick-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/supervisor-tick-observer-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/server-maintenance-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/server-maintenance-schedule-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/adversarial-review.sh", "id": null, "status": "ungoverned", "note": "review prompt embedded in script; needs region markers"},
+    {"file": "skills/analyze-recurring-friction/SKILL.md", "id": null, "status": "ungoverned"},
+    {"file": "skills/audit-trace-coverage/SKILL.md", "id": null, "status": "ungoverned"},
+    {"file": "skills/compress-policy-from-repetition/SKILL.md", "id": null, "status": "ungoverned"},
+    {"file": "skills/detect-emerging-ambiguity/SKILL.md", "id": null, "status": "ungoverned"},
+    {"file": "skills/pressure-test-novelty/SKILL.md", "id": null, "status": "ungoverned"},
+    {"file": "skills/create-eval-loop/SKILL.md", "id": null, "status": "ungoverned", "note": "the eval skill itself — self-hosting eval loop is a follow-on"}
+  ]
+}

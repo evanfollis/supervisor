@@ -13,7 +13,8 @@ INBOX output dir (supervisor/executive work): `{{INBOX_DIR}}`
 1. **Read the source file.** Focus on the `## Proposed workspace changes` section. Each `### Proposal N — <title>` is a candidate for a handoff.
 
 2. **For each proposal, decide:**
-   - Is it already landed? Primary-verify with `git log --oneline -20` on the relevant repo and `cat` the referenced file. If the proposal's patch is already in the commit history OR the file already contains the target state, **skip it** — do not emit a handoff. Explain why in your completion message.
+   - Is it already landed or stale? Primary-verify with `git log --oneline -20` on the relevant repo and `cat` the referenced file. If the proposal's patch is already in the commit history OR the file already contains the target state, **skip it** — do not emit a handoff. If the file's current content contradicts the proposal's premise (the content it claims to patch does not exist), the proposal is stale — **skip it** too. Explain why in your completion message.
+   - **This verification is mandatory, not best-effort: never emit a handoff for a proposal whose target file you have not read this run.** An unverified handoff sends a session to act on possibly-stale state; a skipped-with-reason proposal costs one line in your report.
    - Is it principal-scope (people-or-money)? Does it require interacting with a named external human or spending money? If yes, **skip it** — the principal handles this class. Explain why in your completion message.
    - Otherwise: it is autonomous-bucket work. Emit a handoff per §Handoff format below.
 

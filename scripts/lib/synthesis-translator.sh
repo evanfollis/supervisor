@@ -94,4 +94,34 @@ mkdir -p "$(dirname "$EVENTS_FILE")"
 printf '{"ts":"%s","layer":"validation","source":"synthesis-translator","eventType":"success","reason":"translation complete","ref":"%s"}\n' \
   "$ISO_TS" "$SYNTHESIS_FILE" >> "$EVENTS_FILE"
 
+# Prompt-eval flywheel (ADR-0039): every real synthesis this prompt
+# processed becomes a golden-set candidate for the synthesis-translator
+# eval loop. Dedup by input hash is handled inside append_candidate.
+# Non-fatal: candidate capture must never break the translation path.
+python3 - "$SYNTHESIS_FILE" "$ISO_TS" <<'PYEOF' || echo "synthesis-translator: candidate capture failed (non-fatal)" >&2
+import sys
+from pathlib import Path
+sys.path.insert(0, "/opt/workspace/supervisor/scripts/lib")
+from prompteval.goldens import append_candidate
+from prompteval.telemetry import emit
+synthesis_file, iso_ts = sys.argv[1], sys.argv[2]
+spec_dir = Path("/opt/workspace/supervisor/.prompteval/synthesis-translator")
+if spec_dir.exists():
+    try:
+        content = Path(synthesis_file).read_text(encoding="utf-8")
+        entry = append_candidate(
+            spec_dir,
+            {"synthesis": content, "iso_now": iso_ts,
+             "iso_filename": iso_ts.replace(":", "-")},
+            source=f"live-run:{synthesis_file}",
+        )
+        print(f"synthesis-translator: golden candidate "
+              f"{'captured' if entry else 'already present'}")
+    except Exception as exc:  # capture failure must be visible, not silent
+        emit("supervisor", "failure",
+             f"synthesis-translator: candidate capture failed: {exc}",
+             ref=synthesis_file, source_type="cron")
+        raise
+PYEOF
+
 echo "synthesis-translator: complete at $ISO_TS (log: $LOG_FILE)"
