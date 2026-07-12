@@ -47,6 +47,9 @@ interactions.
 - **command** is Synaplex's operator surface.
 - Per ADR-0044, the first derived knowledge projection belongs under
   `projects/synaplex/knowledge/`; it remains subordinate to canon Decisions.
+- Per ADR-0046, `synaplex.ai` is the static public-safe knowledge projection;
+  `command.synaplex.ai` is the authenticated owner projection over the same
+  contract with private operational overlays.
 
 Personal projects (`mentor`, `recruiter`) were removed from this server
 2026-04-18. They remain in GitHub as personal side projects and do not
@@ -66,8 +69,11 @@ consume workspace attention.
   moving the whole stack up, analogous to a policy-search loop.
 - The reflect loop ran clean for the current 2026-07-12 cycle; no supervisor
   status intervention is needed.
-- Push `command` toward a true executive control-plane product, not a better
-  looking collection of session and terminal utilities.
+- Restore Command's atomic deployment boundary, then refocus it as the owner
+  dashboard: decisions, anomalies, loop health, evaluation/model telemetry,
+  and private operational pressure first; session/terminal tools second.
+- Make `synaplex.ai` the human- and agent-addressable public projection of live
+  accepted knowledge, derived research artifacts, and cited expert insight.
 - Make the first full knowledge cycle the dominant cross-project priority:
   Claim → Evidence → Decision → invariant → projection → pod consumption →
   reflection. Do not expand topology ahead of this proof.
