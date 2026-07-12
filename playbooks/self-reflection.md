@@ -11,7 +11,7 @@ end-of-session-only, not dependent on principal prompting.
 - Zero or more `friction/FR-NNNN-*.md` records for frictions surfaced.
 - Zero or more `ideas/IDEA-NNNN-*.json` records for compounding
   patterns.
-- A session-end extraction line in `events/supervisor-events.jsonl`.
+- A session-end extraction line in `runtime/.telemetry/supervisor-events.jsonl`.
 - Any promotion-worthy friction routed into an ADR, handoff, or issue.
 
 ## Stance

@@ -43,9 +43,14 @@ tracked as a separate task, not bundled here.
 
 ## Execution
 
-Migration is a multi-file coordinated change to live automation. It is
-**not** bundled with this ADR because the notifier is on a 60s cadence;
-an atomic path swap is required. Tracked in the supervisor task list.
+Executed 2026-07-12. All live writers and readers now use runtime paths;
+the installed SessionEnd hook writes directly to
+`runtime/.meta/handoff-archive/`; and the historical Git-resident corpus was
+checksum-verified after copying to runtime before its repository copies were
+removed. ADR-0043 supersedes the original delete-on-resolution detail:
+processed handoffs remain retained as empirical evidence, but only on the
+cold runtime surface. Both event streams rotate into immutable compressed
+segments without blocking writers.
 
 ## Consequences
 

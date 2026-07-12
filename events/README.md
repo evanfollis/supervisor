@@ -1,6 +1,10 @@
 # Events
 
-Append-only log of supervisor actions. One file: `supervisor-events.jsonl`.
+The append-only supervisor action log lives at
+`/opt/workspace/runtime/.telemetry/supervisor-events.jsonl`.
+
+This directory is a durable pointer only. Runtime observations are retained
+outside Git so continuous capture cannot dirty or enlarge the governance repo.
 
 ## Purpose
 

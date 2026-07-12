@@ -65,7 +65,7 @@ supervisor drain before further accumulation.
 
 ## Events
 
-Emitted to `supervisor/events/supervisor-events.jsonl`:
+Emitted to `runtime/.telemetry/supervisor-events.jsonl`:
 
 - `note_captured` — write
 - `note_triaged` — move to real substrate or archive

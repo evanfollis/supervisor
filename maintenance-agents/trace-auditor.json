@@ -9,7 +9,7 @@
   "inputs": [
     "runtime/.telemetry/session-trace.jsonl",
     "runtime/.telemetry/events.jsonl",
-    "supervisor/events/supervisor-events.jsonl",
+    "runtime/.telemetry/supervisor-events.jsonl",
     "runtime/.meta/LATEST_IDEA_FOCUS",
     "supervisor/ideas/"
   ],

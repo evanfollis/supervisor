@@ -46,7 +46,7 @@ will look like.
 | `ideas/` | Durable ledger of novel ideas, experiments, and structural proposals |
 | `maintenance-agents/` | Declared asynchronous maintenance roles and their manifests |
 | `handoffs/INBOX/` | New handoffs between supervisor instances — read at session start |
-| `handoffs/ARCHIVE/` | Processed handoffs kept for history |
+| `runtime/.meta/handoff-archive/` | Processed handoffs retained outside the governance repo |
 | `skills/` | Shared skills (agent-agnostic recipes) |
 | `playbooks/` | Step-by-step runbooks for recurring supervisor tasks |
 | `events/` | Append-only event log of supervisor actions |

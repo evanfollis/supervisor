@@ -88,7 +88,7 @@ def now_iso() -> str:
 
 
 def source_supervisor_events(state: dict) -> Iterator[Card]:
-    path = SUPERVISOR_ROOT / "events" / "supervisor-events.jsonl"
+    path = TELEMETRY_DIR / "supervisor-events.jsonl"
     if not path.exists():
         return
     key = "supervisor_events_offset"

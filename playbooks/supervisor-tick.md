@@ -28,12 +28,12 @@ emits a `session_reflected` event, and exits 0.
   `/opt/workspace/runtime/.meta/supervisor-tick-<iso>.md`
 - Possibly new `friction/FR-NNNN-*.md`, new
   `handoffs/INBOX/<iso>-*.md`, updates to `system/*.md`, moved
-  `handoffs/ARCHIVE/`
+  `runtime/.meta/handoff-archive/`
 - Possibly new handoffs to project sessions under
   `/opt/workspace/runtime/.handoff/<project>-*.md`
 - A tick commit on `ticks/<YYYY-MM-DD>-<HH>` branch (never on main,
   never pushed)
-- Appended events on `events/supervisor-events.jsonl` including
+- Appended events on `runtime/.telemetry/supervisor-events.jsonl` including
   `session_reflected` at end
 
 ## What the tick does

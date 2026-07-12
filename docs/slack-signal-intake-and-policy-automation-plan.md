@@ -60,7 +60,7 @@ All already exist. The notifier is a reader, not a producer.
 - `/opt/workspace/runtime/.meta/LATEST_SERVER_HEALTH` — host snapshot pointer
 - `/opt/workspace/runtime/.meta/LATEST_SERVER_MAINTENANCE` — maintenance report pointer
 - `/opt/workspace/runtime/.meta/LATEST_IDEA_FOCUS` — idea-focus pointer
-- `supervisor/events/supervisor-events.jsonl` — supervisor-scoped events
+- `runtime/.telemetry/supervisor-events.jsonl` — supervisor-scoped events
 - `supervisor/decisions/*.md` — new or status-changed ADRs
 - `supervisor/ideas/*.json` — new or disposition-changed idea records
 

@@ -391,7 +391,7 @@ At the start of every workspace-root executive session, do this (in order):
    - `system/active-ideas.md`
    - relevant `projects/*.md`
    - relevant `roles/*.md`
-4. Read all files in `/opt/workspace/supervisor/handoffs/INBOX/`. Act on them, then move each to `handoffs/ARCHIVE/YYYY-MM/` when resolved.
+4. Read all files in `/opt/workspace/supervisor/handoffs/INBOX/`. Act on them, then move each to `/opt/workspace/runtime/.meta/handoff-archive/YYYY-MM-DD/` when resolved.
 5. Check `/opt/workspace/runtime/.meta/LATEST_SYNTHESIS` — read the pointed-to synthesis file if it's newer than your most recent handoff.
 6. Check `/opt/workspace/runtime/.meta/LATEST_IDEA_FOCUS` — read the pointed-to idea-focus file if present.
 7. Check `/opt/workspace/runtime/.health-status.txt` for the latest host snapshot.
@@ -405,7 +405,7 @@ bundle points at them.
 
 ## Event model
 
-Append-only events live at `events/supervisor-events.jsonl`. Emit events for:
+Append-only events live at `/opt/workspace/runtime/.telemetry/supervisor-events.jsonl`. Emit events for:
 
 - `handoff_received` — when you process an INBOX file
 - `decision_recorded` — when you add an ADR to `decisions/`

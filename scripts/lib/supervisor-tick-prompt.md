@@ -24,9 +24,9 @@ requiring judgment that the attended session will verify.
 - `{{SUPERVISOR_ROOT}}/friction/FR-NNNN-*.md` — new records
 - `{{SUPERVISOR_ROOT}}/handoffs/INBOX/<iso>-*.md` — new entries
   (use `URGENT-*.md` for escalations)
-- `{{SUPERVISOR_ROOT}}/handoffs/ARCHIVE/YYYY-MM/` — moving processed
+- `/opt/workspace/runtime/.meta/handoff-archive/YYYY-MM-DD/` — moving processed
   INBOX files
-- `{{SUPERVISOR_ROOT}}/events/supervisor-events.jsonl` — append only
+- `{{EVENT_FILE}}` — append-only runtime event stream
 - `{{SUPERVISOR_ROOT}}/system/status.md`,
   `{{SUPERVISOR_ROOT}}/system/active-issues.md`,
   `{{SUPERVISOR_ROOT}}/system/active-ideas.md` — operational state
@@ -65,7 +65,7 @@ cannot violate it even if you tried. But do not try.
    `{{SUPERVISOR_ROOT}}/handoffs/INBOX/`:
    - If it is pure routing (e.g., "project X needs a decision on Y"),
      write `{{WORKSPACE_HANDOFF_DIR}}/<project>-*.md` and move the
-     INBOX file to `{{SUPERVISOR_ROOT}}/handoffs/ARCHIVE/YYYY-MM/`.
+     INBOX file to `/opt/workspace/runtime/.meta/handoff-archive/YYYY-MM-DD/`.
      Emit `delegated` + `handoff_received` events.
    - If it requires attended judgment (ADR acceptance, charter
      change, structural decision), leave it in INBOX and note in
@@ -109,7 +109,7 @@ cannot violate it even if you tried. But do not try.
      entry (mark Resolved, strike to the Closed section, or update
      status). Do not leave closed items sitting in the Immediate list.
    - If this tick consumed an INBOX handoff, move it to
-     `{{SUPERVISOR_ROOT}}/handoffs/ARCHIVE/YYYY-MM/`.
+     `/opt/workspace/runtime/.meta/handoff-archive/YYYY-MM-DD/`.
    - Do not leave governance surfaces stale. A tick that closes work
      without touching active-issues leaves the next session misallocating
      attention for 12h+.

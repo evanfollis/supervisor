@@ -37,7 +37,7 @@ assuming the transcript is right.
 1. `git -C {{PROJECT_DIR}} log --since="12 hours ago" --stat --oneline`
    — what the supervisor changed about itself
 2. `git -C {{PROJECT_DIR}} status` — uncommitted supervisor work
-3. `{{PROJECT_DIR}}/events/supervisor-events.jsonl` — tail the last ~200
+3. `/opt/workspace/runtime/.telemetry/supervisor-events.jsonl` — tail the last ~200
    lines; confirm expected event types fired for the activity seen
    (`handoff_received`, `decision_recorded`, `delegated`, `escalated`,
    `synthesis_reviewed`, `session_reflected`, `feature_opened`,
@@ -153,7 +153,7 @@ answers it.
 
 ## After writing the output file
 
-Append one event to `{{PROJECT_DIR}}/events/supervisor-events.jsonl`
+Append one event to `/opt/workspace/runtime/.telemetry/supervisor-events.jsonl`
 (one line, JSON, no trailing comma):
 
 ```

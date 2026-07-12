@@ -16,7 +16,7 @@ the project's main session.
 - Branch `feat/<slug>` tracking the project's default branch
 - Tmux session `<project>--<slug>` running the chosen agent
 - Metadata file `/opt/workspace/supervisor/sessions/<project>--<slug>.json`
-- Event `feature_opened` appended to `supervisor/events/supervisor-events.jsonl`
+- Event `feature_opened` appended to `runtime/.telemetry/supervisor-events.jsonl`
 
 ## Steps
 

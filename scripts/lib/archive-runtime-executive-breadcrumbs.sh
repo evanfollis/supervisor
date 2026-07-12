@@ -5,7 +5,7 @@
 set -euo pipefail
 
 HANDOFF_DIR="/opt/workspace/runtime/.handoff"
-ARCHIVE_ROOT="${HANDOFF_DIR}/ARCHIVE"
+ARCHIVE_ROOT="/opt/workspace/runtime/.meta/handoff-archive"
 ARCHIVE_DAY="$(date -u +%Y-%m-%d)"
 ARCHIVE_DIR="${ARCHIVE_ROOT}/${ARCHIVE_DAY}"
 

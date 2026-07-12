@@ -16,7 +16,7 @@ covered by standing policy.
 - A durable markdown artifact under `supervisor/docs/` or `supervisor/decisions/`
   when the idea changes workspace governance
 - A refreshed idea-focus artifact under `runtime/.meta/idea-focus-*.md`
-- A one-line event in `supervisor/events/supervisor-events.jsonl` if the idea
+- A one-line event in `runtime/.telemetry/supervisor-events.jsonl` if the idea
   produces a decision or delegation
 - A disposition of `adopted`, `sandboxed`, `deferred`, or `rejected`
 

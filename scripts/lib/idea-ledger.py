@@ -199,7 +199,7 @@ def cmd_show(args):
 def build_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--ideas-dir", default="/opt/workspace/supervisor/ideas")
-    parser.add_argument("--events-file", default="/opt/workspace/supervisor/events/supervisor-events.jsonl")
+    parser.add_argument("--events-file", default="/opt/workspace/runtime/.telemetry/supervisor-events.jsonl")
     parser.add_argument("--actor", default=os.environ.get("WORKSPACE_AGENT", "unknown"))
     sub = parser.add_subparsers(dest="command", required=True)
 
