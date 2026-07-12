@@ -44,7 +44,8 @@ RUNTIME_ROOT="$tmp/runtime" WORKSPACE_TELEMETRY_DIR="$tmp/runtime/telemetry" \
   "$ROOT/scripts/lib/remote-durability.sh" --repair --repo "$repo" >/dev/null
 [[ "$(git -C "$repo" rev-parse HEAD)" == "$(git --git-dir="$remote" rev-parse main)" ]]
 
-printf 'ghp_123456789012345678901234567890123456\n' >> "$repo/file"
+fake_token="ghp_$(printf '1%.0s' {1..36})"
+printf '%s\n' "$fake_token" >> "$repo/file"
 git -C "$repo" commit -qam 'add fake credential-shaped fixture'
 if RUNTIME_ROOT="$tmp/runtime" WORKSPACE_TELEMETRY_DIR="$tmp/runtime/telemetry" \
   REMOTE_DURABILITY_LOCK_DIR="$tmp/runtime/.locks" \
@@ -65,7 +66,7 @@ PY
 # Credential-shaped commit messages are public metadata and must also block.
 git -C "$repo" reset -q --hard origin/main
 printf 'safe content\n' >> "$repo/file"
-git -C "$repo" commit -qam 'contains ghp_123456789012345678901234567890123456'
+git -C "$repo" commit -qam "contains $fake_token"
 if RUNTIME_ROOT="$tmp/runtime" WORKSPACE_TELEMETRY_DIR="$tmp/runtime/telemetry" \
   REMOTE_DURABILITY_LOCK_DIR="$tmp/runtime/.locks" \
   "$ROOT/scripts/lib/remote-durability.sh" --repair --repo "$repo" >/dev/null 2>&1; then

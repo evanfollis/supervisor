@@ -388,7 +388,7 @@ if [[ -d "$fric" ]]; then
   # FR Status discipline (synthesis 2026-04-17: FR-0015/0019/0020 missing Status)
   missing_status=()
   while IFS= read -r -d '' f; do
-    if ! grep -qE '^(\*\*)?Status(\*\*)?:' "$f" 2>/dev/null; then
+    if ! grep -qE '^(status|(\*\*)?Status(\*\*)?):' "$f" 2>/dev/null; then
       missing_status+=("$(basename "$f")")
     fi
   done < <(find "$fric" -maxdepth 1 -name 'FR-*.md' -print0 2>/dev/null)
