@@ -1,7 +1,7 @@
 ---
 name: FR-0038
 slug: consecutive-tick-invocation-failures
-status: Open
+status: open
 created: 2026-04-30
 source: supervisor-tick-2026-04-30T14-49-54Z
 ---
