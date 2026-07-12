@@ -17,6 +17,20 @@ PROJECT_DIR="${2:?project dir required}"
 PROMPT_TEMPLATE_OVERRIDE="${3:-}"
 LIB_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$LIB_DIR/workspace-paths.sh"
+META_DIR="$WORKSPACE_META_DIR"
+ISO_NOW="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+OUTPUT_FILE="$META_DIR/${PROJECT}-reflection-${ISO_NOW}.md"
+
+emit_reflection_failure_telemetry() {
+  local reason="$1"
+  local exit_code="$2"
+
+  mkdir -p "$WORKSPACE_TELEMETRY_DIR" 2>/dev/null || return 0
+  printf '{"project":"%s","source":"%s.reflect","eventType":"failure","level":"error","sourceType":"system","timestamp":%s,"note":"reflection failed: %s","ref":"%s","details":{"reason":"%s","exitCode":%d,"outputFile":"%s"}}\n' \
+    "$PROJECT" "$PROJECT" "$(date -u +%s%3N)" "$reason" "$OUTPUT_FILE" "$reason" "$exit_code" "$OUTPUT_FILE" \
+    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
+}
+
 if [[ -n "$PROMPT_TEMPLATE_OVERRIDE" ]]; then
   # Allow either absolute path or a basename resolved under LIB_DIR.
   if [[ "$PROMPT_TEMPLATE_OVERRIDE" == /* ]]; then
@@ -29,29 +43,18 @@ else
 fi
 if [[ ! -f "$PROMPT_TEMPLATE" ]]; then
   echo "reflect: prompt template not found: $PROMPT_TEMPLATE" >&2
+  emit_reflection_failure_telemetry "prompt_template_not_found" 1
   exit 1
 fi
 
 if [[ ! -d "$PROJECT_DIR" ]]; then
   echo "reflect: project dir not found: $PROJECT_DIR" >&2
+  emit_reflection_failure_telemetry "project_dir_not_found" 1
   exit 1
 fi
 
-META_DIR="$WORKSPACE_META_DIR"
 mkdir -p "$META_DIR"
-ISO_NOW="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
-OUTPUT_FILE="$META_DIR/${PROJECT}-reflection-${ISO_NOW}.md"
 WORKSPACE_SESSION_MEMORY_DIR="/root/.claude/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
-
-emit_reflection_failure_telemetry() {
-  local reason="$1"
-  local exit_code="$2"
-
-  mkdir -p "$WORKSPACE_TELEMETRY_DIR" 2>/dev/null || return 0
-  printf '{"project":"%s","source":"%s.reflect","eventType":"failure","level":"error","sourceType":"system","timestamp":%s,"note":"reflection failed: %s","ref":"%s","details":{"reason":"%s","exitCode":%d,"outputFile":"%s"}}\n' \
-    "$PROJECT" "$PROJECT" "$(date -u +%s%3N)" "$reason" "$OUTPUT_FILE" "$reason" "$exit_code" "$OUTPUT_FILE" \
-    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
-}
 
 # Claude Code's per-cwd JSONL directory. Encoding: slashes → hyphens, prefix "-".
 # e.g. /opt/workspace/projects/atlas → -opt-workspace-projects-atlas
@@ -178,6 +181,7 @@ if [[ -d "$PROJECT_DIR/.git" ]]; then
   mkdir -p "$WORKSPACE_HANDOFF_DIR"
   if [[ "$BEFORE_HEAD" != "$AFTER_HEAD" ]]; then
     echo "reflect[$PROJECT]: CRITICAL — HEAD changed ($BEFORE_HEAD → $AFTER_HEAD). Reflection is supposed to be read-only." >&2
+    emit_reflection_failure_telemetry "head_changed" 3
     cat > "$WORKSPACE_HANDOFF_DIR/URGENT-${PROJECT}-reflection-mutated-head.md" <<EOF
 Reflection session for ${PROJECT} at ${ISO_NOW} advanced HEAD from
 ${BEFORE_HEAD} to ${AFTER_HEAD}. --disallowedTools did not catch it.

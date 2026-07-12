@@ -11,6 +11,51 @@ BIN_DIR="$ROOT/bin"
 mkdir -p "$PROJECT_DIR" "$BIN_DIR" "$WORKSPACE_ROOT/runtime/.telemetry"
 printf '{"project":"demo","source":"test","eventType":"info","level":"info","sourceType":"system","timestamp":1}\n' \
   > "$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
+EVENT_FILE="$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
+
+set +e
+WORKSPACE_LAYOUT=split \
+WORKSPACE_ROOT="$WORKSPACE_ROOT" \
+WORKSPACE_META_DIR="$WORKSPACE_ROOT/runtime/.meta" \
+WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
+WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
+PATH="$BIN_DIR:$PATH" \
+  /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" missing-reflect-prompt.md \
+  > "$ROOT/stdout-missing-prompt" 2> "$ROOT/stderr-missing-prompt"
+status=$?
+set -e
+
+if [[ "$status" -ne 1 ]]; then
+  echo "expected reflect.sh to exit 1 for missing prompt, got $status" >&2
+  cat "$ROOT/stdout-missing-prompt" >&2
+  cat "$ROOT/stderr-missing-prompt" >&2
+  exit 1
+fi
+
+grep -q '"reason":"prompt_template_not_found"' "$EVENT_FILE"
+grep -q '"exitCode":1' "$EVENT_FILE"
+
+set +e
+WORKSPACE_LAYOUT=split \
+WORKSPACE_ROOT="$WORKSPACE_ROOT" \
+WORKSPACE_META_DIR="$WORKSPACE_ROOT/runtime/.meta" \
+WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
+WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
+PATH="$BIN_DIR:$PATH" \
+  /opt/workspace/supervisor/scripts/lib/reflect.sh missing "$WORKSPACE_ROOT/projects/missing" \
+  > "$ROOT/stdout-missing-project" 2> "$ROOT/stderr-missing-project"
+status=$?
+set -e
+
+if [[ "$status" -ne 1 ]]; then
+  echo "expected reflect.sh to exit 1 for missing project dir, got $status" >&2
+  cat "$ROOT/stdout-missing-project" >&2
+  cat "$ROOT/stderr-missing-project" >&2
+  exit 1
+fi
+
+grep -q '"source":"missing.reflect"' "$EVENT_FILE"
+grep -q '"reason":"project_dir_not_found"' "$EVENT_FILE"
 
 cat > "$BIN_DIR/claude" <<'EOF'
 #!/usr/bin/env bash
@@ -38,7 +83,6 @@ if [[ "$status" -ne 2 ]]; then
   exit 1
 fi
 
-EVENT_FILE="$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
 grep -q '"eventType":"failure"' "$EVENT_FILE"
 grep -q '"sourceType":"system"' "$EVENT_FILE"
 grep -q '"source":"demo.reflect"' "$EVENT_FILE"
