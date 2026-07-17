@@ -94,3 +94,26 @@ actively holding on behalf of the principal.
 - What "better" looks like: session recovery is reachable from the supervisor's
   normal operating surface, or the system clearly exposes a sanctioned host-side
   recovery path that does not require the principal to rediscover it.
+
+### Project sessions cannot run their own mandatory eval gates (sandbox vs ADR-0039)
+
+- Owner: supervisor / workspace infrastructure -> then `command` PM
+- Why pressure exists: ADR-0039 makes a passing `prompteval` baseline a
+  fail-closed precondition for every project deploy, but the project-session
+  sandbox blocks the subscription-CLI calls prompteval needs (`command`'s
+  session hit an approval-reviewer wall on external-provider calls + baseline
+  mutation and escalated for *principal approval*). The identical run is
+  unblocked from the operator surface. So a mandatory, autonomous, zero-cost
+  gate is unreachable by the layer that owns it — which stalled `command`'s
+  deploy gate for 6 reflection cycles and, on 2026-07-17, pulled the executive
+  into running the baselines directly. This is the mechanism behind the
+  standing "executive must not relapse into direct project implementation"
+  pressure: the PM keeps routing sanctioned work up because it physically
+  cannot run it down here.
+- What "better" looks like: a sanctioned bridge so a project session can run
+  its own `prompteval` release baselines without a false principal-approval
+  wall — either a scoped allowlist/sandbox exception for the specific
+  `prompteval run` command, or an explicit operator-run baseline capability the
+  PM invokes by handoff to `general` (not by escalating to the principal).
+  Until then, blocked baseline runs route to `general`, never to the principal.
+  Candidate for an ADR once the sandbox posture is decided with the principal.
