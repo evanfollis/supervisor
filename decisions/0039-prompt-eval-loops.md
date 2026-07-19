@@ -15,7 +15,7 @@ the LLM-generated golden set; golden sets stay current as the system
 evolves; the same loops feed prompt optimization. "Because this will become
 so foundational, it MUST be built of the highest quality."
 
-Inventory (2026-07-12): the workspace has ~2 SDK system prompts (synaplex
+Inventory (2026-07-12): the workspace had ~2 SDK system prompts (synaplex
 `intake/score.py`, `intake/synthesize.py`), ~4 TS prompt builders (command
 `review.ts`, `executor.ts`, `threadConversation.ts`, `metaLearning.ts`),
 9 externalized `*-prompt.md` files + 5 `SKILL.md` files (supervisor), and
@@ -187,10 +187,13 @@ deploy-gate extension. The contract:
   session (the skill instructs this) — not by the deploy webhook, so the
   gate stays deterministic and fast. Runs execute N trials per stochastic
   case (default 1 for deterministic-graded prompts, 3 where judges gate),
-  gate on **pass^k for must-pass cases** and **paired per-case regression
-  vs baseline** (a case that passed at baseline and fails now blocks,
-  regardless of aggregate), plus an aggregate floor. Response caching by
-  (version, case, trial) key makes re-runs cheap.
+  gate on **pass^k for must-pass cases** and **paired must-pass regression
+  vs baseline** (a required case that passed at baseline and fails now
+  blocks), plus a must-pass aggregate floor. The all-case aggregate is
+  retained as an observational quality signal, but an explicitly advisory
+  (`must_pass: false`) case cannot block release indirectly through that
+  aggregate. Response caching by (version, case, trial) key makes re-runs
+  cheap.
 - **Coverage ratchet:** each repo's `.prompteval/inventory.json` lists
   known prompt artifacts (seeded by `prompteval scan`, curated by the
   project session). Inventory entries are `governed` or `ungoverned`.

@@ -165,14 +165,13 @@ class TestExtraction(unittest.TestCase):
         dep.write_text("VALUE = 'two'\n", encoding="utf-8")
         self.assertNotEqual(h1, spec.spec_hash())
 
-    def test_real_synaplex_scorer_extracts(self):
+    def test_real_synaplex_scorer_has_no_metered_llm_prompt(self):
         synaplex = Path("/opt/workspace/projects/synaplex")
         if not (synaplex / "intake" / "score.py").exists():
             self.skipTest("synaplex not present")
-        text = registry.extract_prompt(
-            synaplex, {"type": "py_var", "file": "intake/score.py", "var": "SONNET_SYSTEM_PROMPT"}
-        )
-        self.assertIn("beat editor", text)
+        text = (synaplex / "intake" / "score.py").read_text(encoding="utf-8")
+        self.assertNotIn("SONNET_SYSTEM_PROMPT", text)
+        self.assertIn('return "heuristic"', text)
 
 
 class TestGrading(unittest.TestCase):
@@ -252,6 +251,13 @@ class TestRunnerAndGate(unittest.TestCase):
     def setUp(self):
         self.repo = make_repo()
         write_inventory(self.repo)
+        # Unit tests must never read or mutate the workspace's live provider
+        # availability state; each test gets an independent circuit.
+        self._circuit_state = llm.circuit.STATE_FILE
+        llm.circuit.STATE_FILE = Path(tempfile.mkdtemp(dir=TMP)) / "circuit.json"
+
+    def tearDown(self):
+        llm.circuit.STATE_FILE = self._circuit_state
 
     def test_pass_run_updates_baseline_then_edit_trips_check(self):
         echo_adapter(self.repo, '{"score": 72, "rationale": "primary source"}')
@@ -343,6 +349,45 @@ class TestRunnerAndGate(unittest.TestCase):
                 [c for c in report2["cases"] if report2["cases"][c]["must_pass"] is False][0],
                 reason,
             )
+
+    def test_advisory_failures_are_observed_but_do_not_gate_aggregate(self):
+        report = {
+            "cases": {
+                "required": {"pass": True, "must_pass": True, "status": "active"},
+                "advisory": {"pass": False, "must_pass": False, "status": "active"},
+            },
+            "aggregate": 0.5,
+            "required_aggregate": 1.0,
+            "judge_unknown_ratio": 0.0,
+        }
+        baseline = {
+            "passed": True,
+            "prompt_version": "pv-old",
+            "aggregate": 1.0,
+            # Exercise migration from a legacy baseline with no
+            # required_aggregate field.
+            "cases": {
+                "required": {"pass": True, "must_pass": True},
+                "advisory": {"pass": True, "must_pass": False},
+            },
+        }
+        gate = {"aggregate_floor_delta": 0.02, "max_unknown_ratio": 0.2}
+        result = runner.evaluate_gate(report, baseline, gate)
+        self.assertTrue(result["passed"], result["reasons"])
+
+    def test_run_reports_required_and_observational_aggregates(self):
+        echo_adapter(self.repo, '{"score": 72}')
+        spec = write_spec(self.repo)
+        add_case(spec, {"title": "required"}, [
+            {"kind": "numeric_band", "path": "score", "min": 50},
+        ])
+        add_case(spec, {"title": "advisory"}, [
+            {"kind": "numeric_band", "path": "score", "min": 90},
+        ], must_pass=False)
+        report = run_fresh(spec)
+        self.assertEqual(report["aggregate"], 0.5)
+        self.assertEqual(report["required_aggregate"], 1.0)
+        self.assertTrue(report["gate"]["passed"])
 
     def test_unknown_ratio_fails_run(self):
         echo_adapter(self.repo, "free text output")

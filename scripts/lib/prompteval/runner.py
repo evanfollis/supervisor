@@ -20,9 +20,12 @@ prompt under test for one case. All LLM paths are subscription CLIs
 
 Gate semantics (ADR-0039 §4): a run PASSES iff
   1. every runnable must-pass case passes in ALL trials (pass^k), and
-  2. no case that passed at baseline fails now (paired regression), and
-  3. aggregate pass rate >= baseline aggregate - gate.aggregate_floor_delta, and
+  2. no must-pass case that passed at baseline fails now (paired regression), and
+  3. must-pass aggregate >= its baseline - gate.aggregate_floor_delta, and
   4. judge "unknown" verdicts / judge checks <= gate.max_unknown_ratio.
+The all-case aggregate remains in every report as an observational quality
+signal; explicitly advisory cases cannot become release blockers through the
+aggregate comparison.
 A THROTTLED run (provider rate limit) is not-run, never failed.
 """
 
@@ -352,6 +355,11 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
 
     gated = [r for cid, r in case_results.items() if r["status"] in ("active", "holdout")]
     aggregate = round(sum(1 for r in gated if r["pass"]) / max(1, len(gated)), 4)
+    required = [r for r in gated if r["must_pass"]]
+    required_aggregate = (
+        round(sum(1 for r in required if r["pass"]) / len(required), 4)
+        if required else 1.0
+    )
     unknown_ratio = round(judge_unknown / judge_total, 4) if judge_total else 0.0
 
     from .goldens import golden_hash
@@ -372,6 +380,7 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
         "cached_allowed": not no_cache,
         "cases": case_results,
         "aggregate": aggregate,
+        "required_aggregate": required_aggregate,
         "judge_unknown_ratio": unknown_ratio,
     }
     report["gate"] = evaluate_gate(report, read_json(spec.baseline_path), gate_cfg)
@@ -400,9 +409,27 @@ def evaluate_gate(report: dict, baseline: dict | None, gate_cfg: dict) -> dict:
         if regressions:
             reasons.append(f"paired regression vs baseline {baseline.get('prompt_version')}: "
                            + ", ".join(regressions[:5]))
-        floor = (baseline.get("aggregate") or 0) - gate_cfg["aggregate_floor_delta"]
-        if report["aggregate"] < floor:
-            reasons.append(f"aggregate {report['aggregate']} < floor {round(floor, 4)}")
+        baseline_required = baseline.get("required_aggregate")
+        if baseline_required is None:
+            # Backward-compatible migration for baselines written before the
+            # required/advisory distinction was made internally consistent.
+            baseline_required_cases = [
+                r for r in (baseline.get("cases") or {}).values()
+                if r.get("must_pass", True)
+            ]
+            baseline_required = (
+                round(
+                    sum(1 for r in baseline_required_cases if r.get("pass"))
+                    / len(baseline_required_cases),
+                    4,
+                )
+                if baseline_required_cases else 1.0
+            )
+        floor = baseline_required - gate_cfg["aggregate_floor_delta"]
+        if report["required_aggregate"] < floor:
+            reasons.append(
+                f"required aggregate {report['required_aggregate']} < floor {round(floor, 4)}"
+            )
     if report["judge_unknown_ratio"] > gate_cfg["max_unknown_ratio"]:
         reasons.append(
             f"judge unknown ratio {report['judge_unknown_ratio']} > "
@@ -444,6 +471,7 @@ def update_baseline(spec: PromptSpec, report: dict, allow_cached: bool = False) 
         "passed": True,
         "accepted_from_cache": bool(report.get("cached_allowed")),
         "aggregate": report["aggregate"],
+        "required_aggregate": report["required_aggregate"],
         "cases": {cid: {"pass": r["pass"], "must_pass": r["must_pass"]}
                   for cid, r in report["cases"].items()},
         "all_pass_streak": streak,
