@@ -1,20 +1,22 @@
 {
-  "acceptance_evidence": [],
+  "acceptance_evidence": [
+    "supervisor commit 15eac37; tests/test-prompteval.py now asserts the current heuristic-only Synaplex scorer contract"
+  ],
   "attempt_count": 0,
   "blocker_class": null,
-  "completion_receipt": "",
+  "completion_receipt": "Removed stale SONNET_SYSTEM_PROMPT extraction assumption and passed the complete 42-test prompt-eval suite.",
   "created_at": "2026-07-19T16:49:15Z",
   "dedup_key": "synaplex-scorer-prompt-extract",
   "exec_class": "review",
   "id": "ACT-0025",
-  "last_transition_at": "2026-07-19T16:49:15Z",
+  "last_transition_at": "2026-07-19T19:42:49Z",
   "owner": "synaplex",
   "reopened_count": 0,
   "reversible": false,
   "risk": "medium",
   "slug": "prompteval-registry-cannot-extract-synaplex-sonnet-system-prompt-score-py-refactored",
   "source": "tests/test-prompteval.py::test_real_synaplex_scorer_extracts (pre-existing, not closure-engine)",
-  "state": "open",
+  "state": "done",
   "summary": "",
   "title": "prompteval registry cannot extract synaplex SONNET_SYSTEM_PROMPT (score.py refactored)",
   "transitions": [
@@ -24,7 +26,14 @@
       "note": "intake/score.py has no module-level SONNET_SYSTEM_PROMPT; registry.extract_prompt raises",
       "to": "open",
       "ts": "2026-07-19T16:49:15Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T19:42:49Z"
     }
   ],
-  "updated_at": "2026-07-19T16:49:15Z"
+  "updated_at": "2026-07-19T19:42:49Z"
 }
