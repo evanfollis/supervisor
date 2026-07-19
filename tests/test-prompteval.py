@@ -197,6 +197,13 @@ class TestGrading(unittest.TestCase):
         )
         self.assertFalse(ok)
 
+    def test_json_schema_allowed_is_true_top_level_key_check(self):
+        check={"kind":"json_schema","required":["kind","rationale"],"allowed":["kind","rationale"]}
+        self.assertTrue(grading.run_deterministic_check(check,'{"kind":"rejection","rationale":"mention observation_route in prose"}')[0])
+        ok, detail=grading.run_deterministic_check(check,'{"kind":"rejection","rationale":"x","observation_route":"forbidden key"}')
+        self.assertFalse(ok)
+        self.assertIn("unexpected top-level keys: observation_route",detail)
+
     def test_verdict_parsing(self):
         self.assertEqual(
             grading.parse_verdict('reasoning...\n{"verdict": "pass", "reason": "ok"}'),
@@ -463,6 +470,45 @@ class TestRunnerAndGate(unittest.TestCase):
         self.assertEqual(calls[-1]["status"], "success")
         self.assertGreater(calls[-1]["latencyMs"], -1)
         self.assertEqual(calls[-1]["tokenSource"], "estimated_chars_div_4")
+
+    def test_provider_timeout_is_instrumented_and_falls_back(self):
+        original_state=llm.circuit.STATE_FILE
+        llm.circuit.STATE_FILE=Path(tempfile.mkdtemp(dir=TMP))/"circuit.json"
+        try:
+            out = llm.run_with_fallback(
+                [
+                    llm.CliCall(
+                        "claude", "sonnet",
+                        ["python3", "-c", "import time; time.sleep(2)"],
+                        input_text="primary prompt",
+                    ),
+                    llm.CliCall(
+                        "codex", "default",
+                        ["python3", "-c", "print('fallback after timeout')"],
+                        input_text="fallback prompt",
+                        fallback_from="claude",
+                    ),
+                ],
+                timeout=1,
+                retries=0,
+                role="executor",
+                project="test",
+                prompt_id="timeout-fallback",
+                case_id="c1",
+                trial=0,
+            )
+        finally:
+            llm.circuit.STATE_FILE=original_state
+        self.assertEqual(out.strip(), "fallback after timeout")
+        events = core.read_jsonl(Path(os.environ["PROMPTEVAL_TELEMETRY"]))
+        calls = [e for e in events if e.get("eventType") == "llm_call"
+                 and e.get("promptId") == "timeout-fallback"]
+        self.assertEqual([c["provider"] for c in calls[-2:]], ["claude", "codex"])
+        self.assertEqual(calls[-2]["model"], "sonnet")
+        self.assertEqual(calls[-2]["status"], "unavailable")
+        self.assertGreaterEqual(calls[-2]["latencyMs"], 900)
+        self.assertEqual(calls[-1]["status"], "success")
+        self.assertEqual(calls[-1]["fallbackFrom"], "claude")
 
     def test_all_providers_blocked_is_one_throttle(self):
         with self.assertRaises(llm.AllProvidersThrottled):

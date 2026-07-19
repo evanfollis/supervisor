@@ -143,6 +143,11 @@ def run_deterministic_check(check: dict, output: str) -> tuple[bool, str]:
                     return False, f"key '{key}' is boolean, expected {tname}"
                 if not isinstance(obj[key], expected):
                     return False, f"key '{key}' is {type(obj[key]).__name__}, expected {tname}"
+        if "allowed" in check:
+            allowed = set(check["allowed"])
+            unexpected = sorted(set(obj) - allowed)
+            if unexpected:
+                return False, f"unexpected top-level keys: {', '.join(unexpected)}"
         return True, "schema ok"
 
     if kind == "exact":
