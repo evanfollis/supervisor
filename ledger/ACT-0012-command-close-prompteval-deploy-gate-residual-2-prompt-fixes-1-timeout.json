@@ -1,20 +1,22 @@
 {
-  "acceptance_evidence": [],
-  "attempt_count": 0,
+  "acceptance_evidence": [
+    "Command eb9f908 removed legacy operations; fresh release run run-20260719T195258Z-eec522 failed closed and is under evidence-driven correction"
+  ],
+  "attempt_count": 1,
   "blocker_class": null,
   "completion_receipt": "",
   "created_at": "2026-07-19T16:18:33Z",
   "dedup_key": "qrec:command-prompteval",
   "exec_class": "review",
   "id": "ACT-0012",
-  "last_transition_at": "2026-07-19T16:18:33Z",
+  "last_transition_at": "2026-07-19T19:55:32Z",
   "owner": "command",
   "reopened_count": 0,
   "reversible": false,
   "risk": "medium",
   "slug": "command-close-prompteval-deploy-gate-residual-2-prompt-fixes-1-timeout",
   "source": "quarantine-recovery:command-prompteval",
-  "state": "dispatched",
+  "state": "in_progress",
   "summary": "",
   "title": "command: close prompteval deploy-gate residual (2 prompt fixes + 1 timeout)",
   "transitions": [
@@ -24,7 +26,14 @@
       "note": "re-delivered after ADR-0047 quarantine dropped the 2026-07-17 handoff",
       "to": "dispatched",
       "ts": "2026-07-19T16:18:33Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "dispatched",
+      "note": "Two active contract failures are being corrected; sealed holdout remains untouched and no baseline was accepted.",
+      "to": "in_progress",
+      "ts": "2026-07-19T19:55:32Z"
     }
   ],
-  "updated_at": "2026-07-19T16:18:33Z"
+  "updated_at": "2026-07-19T19:55:32Z"
 }
