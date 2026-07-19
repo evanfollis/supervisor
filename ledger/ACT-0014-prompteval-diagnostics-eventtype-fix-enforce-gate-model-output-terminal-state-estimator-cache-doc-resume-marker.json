@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-prompteval-diagnostics",
+  "exec_class": "review",
+  "id": "ACT-0014",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "prompteval-diagnostics-eventtype-fix-enforce-gate-model-output-terminal-state-estimator-cache-doc-resume-marker",
+  "source": "inbox:proposal-prompteval-{eventtype-gate-check-fix,enforce-gate,model-output-persistence,terminal-state-logging,baseline-estimator,cache-documentation},eval-retry-marker",
+  "state": "open",
+  "summary": "",
+  "title": "Prompteval diagnostics: eventtype-fix, enforce-gate, model-output, terminal-state, estimator, cache-doc, resume-marker",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "area in active flux (5673555); reconcile before batch-applying",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

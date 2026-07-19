@@ -67,7 +67,16 @@ export WORKSPACE_FEATURES_ROOT="${WORKSPACE_FEATURES_ROOT:-$RUNTIME_ROOT/.featur
 export WORKSPACE_TELEMETRY_DIR="${WORKSPACE_TELEMETRY_DIR:-$RUNTIME_ROOT/.telemetry}"
 export WORKSPACE_HEALTH_STATUS_FILE="${WORKSPACE_HEALTH_STATUS_FILE:-$RUNTIME_ROOT/.health-status.txt}"
 
-export WORKSPACE_SUPERVISOR_EVENTS_FILE="${WORKSPACE_SUPERVISOR_EVENTS_FILE:-$WORKSPACE_TELEMETRY_DIR/supervisor-events.jsonl}"
+# The supervisor event stream lives on runtime storage, never inside the git
+# repo (ADR-0012). Guard against a stale env export that points at the legacy
+# repo path (supervisor/events/…): force it back to runtime so no inherited
+# shell environment can reopen the git-resident event surface.
+_ws_ev="${WORKSPACE_SUPERVISOR_EVENTS_FILE:-$WORKSPACE_TELEMETRY_DIR/supervisor-events.jsonl}"
+case "$_ws_ev" in
+  "$SUPERVISOR_ROOT"/events/*) _ws_ev="$WORKSPACE_TELEMETRY_DIR/supervisor-events.jsonl" ;;
+esac
+export WORKSPACE_SUPERVISOR_EVENTS_FILE="$_ws_ev"
+unset _ws_ev
 export WORKSPACE_SUPERVISOR_SESSIONS_DIR="${WORKSPACE_SUPERVISOR_SESSIONS_DIR:-$SUPERVISOR_ROOT/sessions}"
 export WORKSPACE_SUPERVISOR_HANDOFF_INBOX="${WORKSPACE_SUPERVISOR_HANDOFF_INBOX:-$SUPERVISOR_ROOT/handoffs/INBOX}"
 export WORKSPACE_SUPERVISOR_DECISIONS_DIR="${WORKSPACE_SUPERVISOR_DECISIONS_DIR:-$SUPERVISOR_ROOT/decisions}"

@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "projection generated; metrics computed from transition lineage"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "action-ledger metrics subcommand + runtime/.telemetry/action-ledger-metrics.json projection",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-4",
+  "exec_class": "auto",
+  "id": "ACT-0004",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "low",
+  "slug": "closure-latency-metrics-bounded-projection-to-command",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#4",
+  "state": "done",
+  "summary": "",
+  "title": "Closure/latency metrics + bounded projection to Command",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "metrics subcommand built; projection pending",
+      "to": "in_progress",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

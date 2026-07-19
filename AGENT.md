@@ -373,7 +373,7 @@ choices. Use `decisions/` for durable claims.
 ## Session unit
 
 - **Unit**: an executive/supervisor interaction episode. Starts when a human attaches to the `general` session or a scheduled job invokes workspace-root work. Ends when the human detaches without scheduled follow-up, or when the scheduled job exits.
-- **Durable state between units**: `handoffs/INBOX/`, `decisions/`, `events/`, `.meta/` artifacts referenced by pointers.
+- **Durable state between units**: `handoffs/INBOX/`, `decisions/`, `runtime/.telemetry/` (events — never `events/` inside the repo; see ADR-0012), `.meta/` artifacts referenced by pointers.
 - **Session hierarchy**: `general` (executive surface; normally carries supervisor posture and sometimes operator posture) → per-project sessions (systemd-supervised) → feature sessions (ephemeral, tracked in `sessions/`). See `decisions/0002-feature-sessions.md`. You may open feature sessions for cross-project coordination, but prefer delegating to the relevant project session — features are usually a project-session concern.
 - **Session transcript** (JSONL at `/root/.claude/projects/-opt-workspace/` or the legacy `/root/.claude/projects/-opt-workspace-supervisor/` for Claude, or `/root/.codex/sessions/**/` with cwd `/opt/workspace` or legacy `/opt/workspace/supervisor` for Codex) is **not durable state**. The preferred executive cwd is `/opt/workspace`; legacy supervisor-cwd transcripts remain readable but should not drive new launch assumptions. Promote anything load-bearing to `decisions/` or `playbooks/` before the session ends.
 

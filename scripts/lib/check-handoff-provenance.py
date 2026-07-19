@@ -12,6 +12,11 @@ from pathlib import Path
 EMPTY_VALUES = {"", "''", '""', "null", "~", "tbd", "todo"}
 REQUIRED = ("authority", "external_dependencies", "policy_compatibility")
 
+# Sentinel: key is present but its value is a YAML block scalar (|,>) or a list.
+# The ADR-0047 contract requires single-line scalars; a non-scalar value must be
+# reported as such, not silently dropped (which produced a misleading "missing").
+NON_SCALAR = "\x00non-scalar"
+
 
 def fail(message: str) -> None:
     print(message)
@@ -28,11 +33,27 @@ def scalar_frontmatter(path: Path) -> dict[str, str]:
         fail("missing or unclosed YAML frontmatter")
 
     values: dict[str, str] = {}
+    last_key: str | None = None
     for line in lines[1:end]:
-        if ":" not in line or line[:1].isspace():
+        if not line.strip():
+            last_key = None
+            continue
+        if line[:1].isspace():
+            # Indented continuation: a block-scalar body or a "- item" list
+            # element. Its parent key is therefore non-scalar. Record that
+            # instead of dropping it (the old behavior misreported it as missing).
+            if last_key is not None:
+                values[last_key] = NON_SCALAR
+            continue
+        if ":" not in line:
+            last_key = None
             continue
         key, value = line.split(":", 1)
-        values[key.strip()] = value.strip()
+        key, value = key.strip(), value.strip()
+        if value[:1] in ("|", ">"):  # YAML block-scalar indicator
+            value = NON_SCALAR
+        values[key] = value
+        last_key = key
     return values
 
 
@@ -57,6 +78,10 @@ def main() -> None:
         return
 
     values = scalar_frontmatter(path)
+    nonscalar = [key for key in REQUIRED if values.get(key) == NON_SCALAR]
+    if nonscalar:
+        fail("non-scalar provenance fields (must be single-line scalars): "
+             + " ".join(nonscalar))
     missing = [key for key in REQUIRED if not meaningful(values.get(key))]
     if missing:
         fail(f"missing required provenance fields: {' '.join(missing)}")

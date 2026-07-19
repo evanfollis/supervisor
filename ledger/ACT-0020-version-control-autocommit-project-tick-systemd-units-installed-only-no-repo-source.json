@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:23:54Z",
+  "dedup_key": "units-not-in-repo",
+  "exec_class": "review",
+  "id": "ACT-0020",
+  "last_transition_at": "2026-07-19T16:23:54Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "version-control-autocommit-project-tick-systemd-units-installed-only-no-repo-source",
+  "source": "closure-engine-2026-07-19-finding",
+  "state": "open",
+  "summary": "",
+  "title": "Version-control autocommit + project-tick@ systemd units (installed-only, no repo source)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "found while removing events/ RW path; both edited in /etc only",
+      "to": "open",
+      "ts": "2026-07-19T16:23:54Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:23:54Z"
+}

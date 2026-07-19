@@ -23,8 +23,15 @@ class ProviderThrottled(Exception):
         super().__init__(f"{provider}: {detail}")
 
 
+class ProviderUnavailable(Exception):
+    def __init__(self, provider: str, detail: str):
+        self.provider = provider
+        self.detail = detail
+        super().__init__(f"{provider}: {detail}")
+
+
 class AllProvidersThrottled(Exception):
-    def __init__(self, throttles: list[ProviderThrottled]):
+    def __init__(self, throttles: list[ProviderThrottled | ProviderUnavailable]):
         self.throttles = throttles
         detail = " | ".join(f"{t.provider}: {t.detail}" for t in throttles)
         super().__init__("all providers blocked: " + detail)
@@ -108,13 +115,16 @@ def run_cli_call(
             detail = f"binary not found: {call.cmd[0]}"
             raise LLMCallError(detail) from exc
         except subprocess.TimeoutExpired as exc:
-            status = "timeout"
+            status = "unavailable"
             detail = f"timed out after {timeout}s"
-            raise LLMCallError(detail) from exc
+            raise ProviderUnavailable(call.provider, detail) from exc
         finally:
             latency_ms = int((time.monotonic() - started) * 1000)
             if exit_code == 0:
-                status = "success"
+                # Exit 0 with empty/whitespace output is NOT success — the
+                # provider ran but produced nothing (the "Claude returned empty"
+                # failure). Record it truthfully so it can't read as a clean run.
+                status = "success" if (stdout or "").strip() else "empty"
             elif exit_code is not None:
                 diag = ((stderr or "").strip() or (stdout or "").strip())[-800:]
                 status = "throttled" if is_throttle(diag) else "error"
@@ -140,7 +150,12 @@ def run_cli_call(
                 detail=detail,
             )
         if exit_code == 0:
-            return stdout
+            if (stdout or "").strip():
+                return stdout
+            # Exit 0 but empty output: an availability failure, not a result.
+            # Fall back to the sibling subscription CLI once (via run_with_fallback)
+            # instead of returning "" as a falsely-successful answer.
+            raise ProviderUnavailable(call.provider, "exit 0 with empty output")
         diag = ((stderr or "").strip() or (stdout or "").strip())[-800:]
         if is_throttle(diag):
             raise ProviderThrottled(call.provider, diag)
@@ -160,7 +175,7 @@ def run_with_fallback(
     case_id: str = "",
     trial: int | None = None,
 ) -> str:
-    throttles: list[ProviderThrottled] = []
+    throttles: list[ProviderThrottled | ProviderUnavailable] = []
     for call in calls:
         try:
             return run_cli_call(
@@ -173,7 +188,7 @@ def run_with_fallback(
                 case_id=case_id,
                 trial=trial,
             )
-        except ProviderThrottled as exc:
+        except (ProviderThrottled, ProviderUnavailable) as exc:
             throttles.append(exc)
             continue
     if throttles:

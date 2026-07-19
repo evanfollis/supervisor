@@ -90,6 +90,9 @@ case "${1:-status}" in
   idea)
     exec "$WORKSPACE_SCRIPTS_ROOT/idea-ledger.py" "${@:2}"
     ;;
+  ledger)
+    exec "$WORKSPACE_SCRIPTS_ROOT/action-ledger.py" "${@:2}"
+    ;;
   idea-focus)
     exec "$WORKSPACE_SCRIPTS_ROOT/idea-focus.sh"
     ;;
@@ -112,6 +115,7 @@ case "${1:-status}" in
     echo "       workspace.sh close <tmux_name> [--force]"
     echo "       workspace.sh tree"
     echo "       workspace.sh idea {new|update|list|show} ..."
+    echo "       workspace.sh ledger {new|transition|list|show|check|metrics} ..."
     echo "       workspace.sh idea-focus"
     echo "       workspace.sh context"
     echo "       workspace.sh doctor"

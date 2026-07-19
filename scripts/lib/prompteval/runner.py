@@ -99,12 +99,19 @@ def _run_cli(cmd: list[str], stdin_text: str | None, timeout: int,
             raise RunError(f"executor binary not found: {cmd[0]}") from exc
         except subprocess.TimeoutExpired as exc:
             raise RunError(f"executor timed out after {timeout}s") from exc
-        if proc.returncode == 0:
+        if proc.returncode == 0 and (proc.stdout or "").strip():
             return proc.stdout
         diag = ((proc.stderr or "").strip() or (proc.stdout or "").strip())[-400:]
-        if is_throttle(diag):
-            raise Throttled(diag)
-        last_err = f"executor exited {proc.returncode}: {diag or '<no output>'}"
+        if proc.returncode == 0:
+            # Exit 0 with empty/whitespace output is the "Claude hung/returned
+            # empty" failure — transient harness noise, not a valid result. Give
+            # it the same bounded retry as a nonzero exit, then fail truthfully
+            # instead of returning "" and scoring an empty answer as success.
+            last_err = "executor exited 0 with empty output"
+        else:
+            if is_throttle(diag):
+                raise Throttled(diag)
+            last_err = f"executor exited {proc.returncode}: {diag or '<no output>'}"
         if attempt < retries:
             time.sleep(5)
     raise RunError(last_err)
@@ -143,6 +150,7 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
     ex = spec.spec["executor"]
     etype = ex.get("type")
     model = spec.spec.get("model", "sonnet")
+    timeout = int(ex.get("timeout", timeout))
 
     if etype == "claude_cli":
         user = _render_user(ex.get("user_template", ""), case_input)

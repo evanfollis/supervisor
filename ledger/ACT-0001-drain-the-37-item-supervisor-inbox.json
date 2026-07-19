@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "handoffs/INBOX empty"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "37 INBOX items archived to runtime/.meta/handoff-archive/inbox-2026-07; residual routed to ledger clusters",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-1",
+  "exec_class": "auto",
+  "id": "ACT-0001",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "low",
+  "slug": "drain-the-37-item-supervisor-inbox",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#1",
+  "state": "done",
+  "summary": "",
+  "title": "Drain the 37-item supervisor INBOX",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "triage agent running",
+      "to": "in_progress",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

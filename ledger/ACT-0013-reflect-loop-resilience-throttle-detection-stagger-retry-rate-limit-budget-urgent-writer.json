@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-reflect-resilience",
+  "exec_class": "review",
+  "id": "ACT-0013",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "reflect-loop-resilience-throttle-detection-stagger-retry-rate-limit-budget-urgent-writer",
+  "source": "inbox:proposal-reflect-throttle-detection,reflect-stagger-retry,reflect-rate-limit-budget,reflect-urgent-writer",
+  "state": "open",
+  "summary": "",
+  "title": "Reflect-loop resilience: throttle-detection, stagger/retry, rate-limit budget, URGENT-writer",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "keystone #10 gates #11/#12/#13",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

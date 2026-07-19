@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:49:15Z",
+  "dedup_key": "synaplex-scorer-prompt-extract",
+  "exec_class": "review",
+  "id": "ACT-0025",
+  "last_transition_at": "2026-07-19T16:49:15Z",
+  "owner": "synaplex",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "prompteval-registry-cannot-extract-synaplex-sonnet-system-prompt-score-py-refactored",
+  "source": "tests/test-prompteval.py::test_real_synaplex_scorer_extracts (pre-existing, not closure-engine)",
+  "state": "open",
+  "summary": "",
+  "title": "prompteval registry cannot extract synaplex SONNET_SYSTEM_PROMPT (score.py refactored)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "intake/score.py has no module-level SONNET_SYSTEM_PROMPT; registry.extract_prompt raises",
+      "to": "open",
+      "ts": "2026-07-19T16:49:15Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:49:15Z"
+}

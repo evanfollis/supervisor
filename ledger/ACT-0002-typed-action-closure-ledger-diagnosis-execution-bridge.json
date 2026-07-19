@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "action-ledger check OK 23 records; doctor action-ledger \u2713"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "scripts/lib/action-ledger.py + workspace.sh ledger + doctor action-ledger section + autocommit ledger/ + tick RW path",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-2",
+  "exec_class": "review",
+  "id": "ACT-0002",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "typed-action-closure-ledger-diagnosis-execution-bridge",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#2",
+  "state": "done",
+  "summary": "",
+  "title": "Typed action/closure ledger (diagnosis->execution bridge)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "built+smoke-tested; wiring pending",
+      "to": "in_progress",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

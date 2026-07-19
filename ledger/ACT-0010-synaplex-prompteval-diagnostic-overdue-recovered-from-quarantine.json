@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:18:33Z",
+  "dedup_key": "qrec:29201a9a90cc-URGENT-synaplex-prompteval-diagnostic-overdue.md",
+  "exec_class": "review",
+  "id": "ACT-0010",
+  "last_transition_at": "2026-07-19T16:18:33Z",
+  "owner": "synaplex",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "synaplex-prompteval-diagnostic-overdue-recovered-from-quarantine",
+  "source": "quarantine-recovery:29201a9a90cc-URGENT-synaplex-prompteval-diagnostic-overdue.md",
+  "state": "open",
+  "summary": "",
+  "title": "synaplex prompteval diagnostic overdue (recovered from quarantine)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "recovered 2026-07-19; triage vs current synaplex state, may be consumed",
+      "to": "open",
+      "ts": "2026-07-19T16:18:33Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:18:33Z"
+}

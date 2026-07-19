@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-tick-dirty-gate",
+  "exec_class": "review",
+  "id": "ACT-0018",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "tick-dirty-tree-gate-must-not-hard-block-on-preserved-tier-b-wip",
+  "source": "inbox:proposal-exec-checklist-1-5,URGENT-tick-escalation-9c6d9d393b",
+  "state": "open",
+  "summary": "",
+  "title": "Tick dirty-tree gate must not hard-block on preserved Tier-B WIP",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "tick skipped 8x on 11-day-stale charter-eval WIP",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

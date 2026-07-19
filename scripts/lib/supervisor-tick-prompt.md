@@ -53,6 +53,23 @@ cannot violate it even if you tried. But do not try.
 
 ## What to do, in order
 
+**Consume the action ledger before anything else — advance it, do not restate it.**
+The ledger at `{{SUPERVISOR_ROOT}}/ledger/` is the canonical bridge from diagnosis
+to execution. Re-describing an open item without moving it IS the dispatch-inertia
+failure this loop exists to kill.
+- Run `python3 {{SUPERVISOR_ROOT}}/scripts/lib/action-ledger.py list --open` and
+  `python3 {{SUPERVISOR_ROOT}}/scripts/lib/action-ledger.py metrics` — read the open
+  queue and the closure metrics.
+- For every `open` item with `exec_class: auto` that is reversible and in-scope:
+  execute it this tick, then
+  `action-ledger.py transition <ID> --to done --completion-receipt <ref> --evidence <ref>`.
+- For `dispatched` items awaiting a PM: verify the handoff exists and re-nudge an idle
+  owner; move to `blocked --blocker-class <class>` only when you can name the concrete blocker.
+- Never open a new INBOX proposal for work already in the ledger — add/transition the
+  ledger entry instead.
+- Refresh the bounded Command projection:
+  `action-ledger.py metrics --json --out /opt/workspace/runtime/.telemetry/action-ledger-metrics.json`.
+
 1. **Read context** (5 min budget):
    - `{{SUPERVISOR_ROOT}}/system/status.md`
    - `{{SUPERVISOR_ROOT}}/system/active-issues.md`

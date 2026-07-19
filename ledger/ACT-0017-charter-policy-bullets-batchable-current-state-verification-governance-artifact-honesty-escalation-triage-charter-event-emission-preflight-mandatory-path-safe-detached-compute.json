@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-charter-policy-bullets",
+  "exec_class": "review",
+  "id": "ACT-0017",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "low",
+  "slug": "charter-policy-bullets-batchable-current-state-verification-governance-artifact-honesty-escalation-triage-charter-event-emission-preflight-mandatory-path-safe-detached-compute",
+  "source": "inbox:proposal-current-state-verification-2026-07-16,claude-governance-artifacts-amendment,escalation-triage-before-work,charter-event-emission,preflight-deploy-mandatory,path-safe-detached-compute",
+  "state": "open",
+  "summary": "",
+  "title": "Charter policy bullets (batchable): current-state verification, governance-artifact honesty, escalation-triage, charter-event-emission, preflight-mandatory, path-safe-detached-compute",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "one CLAUDE.md/AGENT.md commit under adversarial review",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

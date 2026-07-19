@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "Part A/B fixtures pass; REJECTED/ cleared; command residual re-delivered via write-handoff.sh"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "check-handoff-provenance hardening + write-handoff.sh + dispatch routing fallback + reflect-prompt fix + 6 quarantined dispositioned",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-5",
+  "exec_class": "review",
+  "id": "ACT-0005",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "fix-adr-0047-handoff-writer-frontmatter-regression",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#5",
+  "state": "done",
+  "summary": "",
+  "title": "Fix ADR-0047 handoff-writer frontmatter regression",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "checker hardening + write-handoff.sh + recover 6 quarantined",
+      "to": "in_progress",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

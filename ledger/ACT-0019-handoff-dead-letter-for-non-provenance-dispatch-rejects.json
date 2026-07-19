@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-handoff-dead-letter",
+  "exec_class": "auto",
+  "id": "ACT-0019",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "low",
+  "slug": "handoff-dead-letter-for-non-provenance-dispatch-rejects",
+  "source": "inbox:proposal-handoff-dead-letter",
+  "state": "open",
+  "summary": "",
+  "title": "Handoff dead-letter for non-provenance dispatch rejects",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "provenance quarantine already exists (ADR-0047); only non-provenance reject path residual",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:18:33Z",
+  "dedup_key": "qrec:178d30cfb021-synaplex-public-projection-and-site-2026-07-12.md",
+  "exec_class": "review",
+  "id": "ACT-0009",
+  "last_transition_at": "2026-07-19T16:18:33Z",
+  "owner": "synaplex",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "synaplex-public-projection-site-build-directive-recovered-from-quarantine",
+  "source": "quarantine-recovery:178d30cfb021-synaplex-public-projection-and-site-2026-07-12.md",
+  "state": "open",
+  "summary": "",
+  "title": "synaplex public projection + site build directive (recovered from quarantine)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "recovered 2026-07-19; triage vs current synaplex state, may be consumed",
+      "to": "open",
+      "ts": "2026-07-19T16:18:33Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:18:33Z"
+}

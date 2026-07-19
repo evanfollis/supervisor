@@ -1,0 +1,37 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:38:23Z",
+  "dedup_key": "command-sandbox-exec-block",
+  "exec_class": "principal",
+  "id": "ACT-0022",
+  "last_transition_at": "2026-07-19T16:38:58Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "command-blocked-from-git-push-and-prompteval-by-session-sandbox-2nd-instance-of-execution-sandbox-class",
+  "source": "command-status-2026-07-19: push denied unverified-remote, prompteval denied external-CLI-export",
+  "state": "dropped",
+  "summary": "",
+  "title": "command blocked from git push AND prompteval by session sandbox (2nd instance of execution-sandbox class)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "command ahead 2 (91a3eb4,74c6ca8) verified 25/25; deploy intentionally held on prompteval 1/4; do not auto-push (autodeploy risk)",
+      "to": "blocked",
+      "ts": "2026-07-19T16:38:23Z"
+    },
+    {
+      "actor": "claude",
+      "from": "blocked",
+      "note": "push auto-resolved by durability automation (origin/main=74c6ca8); prompteval sandbox-block already tracked by ACT-0012 + pressure-queue \u2014 dedup",
+      "to": "dropped",
+      "ts": "2026-07-19T16:38:58Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:38:58Z"
+}

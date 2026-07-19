@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "workspace.sh doctor exit 0 all checks passed"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "doctor + regression tests + ledger check run; supervisor green",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-8",
+  "exec_class": "review",
+  "id": "ACT-0008",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "honest-green-health-gate-doctor-tests-or-exact-failures",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#8",
+  "state": "done",
+  "summary": "",
+  "title": "Honest green health gate (doctor + tests) or exact failures",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "run at close",
+      "to": "open",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "open",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

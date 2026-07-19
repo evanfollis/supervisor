@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:18:33Z",
+  "dedup_key": "qrec:b7be9fc6d40e-synaplex-lab-method-prospective-cycle-v2-2026-07-12.md",
+  "exec_class": "review",
+  "id": "ACT-0011",
+  "last_transition_at": "2026-07-19T16:18:33Z",
+  "owner": "synaplex",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "synaplex-lab-method-prospective-cycle-v2-handoff-recovered-from-quarantine",
+  "source": "quarantine-recovery:b7be9fc6d40e-synaplex-lab-method-prospective-cycle-v2-2026-07-12.md",
+  "state": "open",
+  "summary": "",
+  "title": "synaplex lab-method prospective cycle-v2 handoff (recovered from quarantine)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "recovered 2026-07-19; triage vs current synaplex state, may be consumed",
+      "to": "open",
+      "ts": "2026-07-19T16:18:33Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:18:33Z"
+}

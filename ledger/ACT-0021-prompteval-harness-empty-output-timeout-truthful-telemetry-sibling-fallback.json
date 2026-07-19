@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "scripts/lib/prompteval/tests/test_harness_fallback.py 7/7 pass"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "llm.py empty-output->ProviderUnavailable fallback + runner _run_cli truthful RunError",
+  "created_at": "2026-07-19T16:29:41Z",
+  "dedup_key": "prompteval-harness-fallback",
+  "exec_class": "review",
+  "id": "ACT-0021",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "prompteval-harness-empty-output-timeout-truthful-telemetry-sibling-fallback",
+  "source": "principal-directive-2026-07-19-mid-turn",
+  "state": "done",
+  "summary": "",
+  "title": "prompteval harness: empty-output/timeout truthful telemetry + sibling fallback",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "llm.py empty-output->ProviderUnavailable fallback; runner _run_cli empty->truthful RunError",
+      "to": "in_progress",
+      "ts": "2026-07-19T16:29:41Z"
+    },
+    {
+      "actor": "claude",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

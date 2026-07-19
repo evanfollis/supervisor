@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-session-commit-discipline",
+  "exec_class": "review",
+  "id": "ACT-0016",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "low",
+  "slug": "session-commit-discipline-commit-obligation-session-end-dirty-tree-check-hook",
+  "source": "inbox:proposal-session-commit-obligation,session-dirty-tree-check",
+  "state": "open",
+  "summary": "",
+  "title": "Session commit discipline: commit-obligation + session-end dirty-tree-check hook",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "created",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

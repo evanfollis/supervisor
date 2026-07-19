@@ -127,6 +127,30 @@ target_session_for() {
   echo "$best"
 }
 
+# Fallback router: read the `to:` (or legacy `target:`) scalar from a handoff's
+# YAML frontmatter and, if it names a known session, use it. This catches
+# handoffs whose filename does not start with a session prefix (e.g.
+# `dispatch-<date>-<slug>.md`), which the filename-prefix router silently drops.
+frontmatter_target() {
+  local path="$1" val=""
+  # only inspect the frontmatter block (up to the second '---')
+  val="$(awk '
+    NR==1 && $0!="---" {exit}
+    NR>1 && $0=="---" {exit}
+    /^(to|target):[[:space:]]*/ {
+      sub(/^(to|target):[[:space:]]*/, ""); gsub(/[[:space:]]+$/, ""); print; exit
+    }' "$path" 2>/dev/null)"
+  val="${val//[$'\r\n']/}"
+  [[ "$val" == "context-repository" ]] && val="context-repo"
+  local sess
+  for sess in "${KNOWN_SESSIONS[@]}"; do
+    if [[ "$val" == "$sess" ]]; then
+      echo "$sess"
+      return
+    fi
+  done
+}
+
 # Build per-target pending lists as newline-delimited strings in tmpfiles.
 TMPDIR_PENDING="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR_PENDING"' EXIT
@@ -142,7 +166,12 @@ for f in "$HANDOFF_DIR"/*.md; do
   fi
   target="$(target_session_for "$base")"
   if [[ -z "$target" ]]; then
-    # Not a project handoff; mark seen and skip
+    # Filename prefix did not resolve; try the `to:`/`target:` frontmatter
+    # before giving up, so non-prefixed handoffs are delivered, not dropped.
+    target="$(frontmatter_target "$f")"
+  fi
+  if [[ -z "$target" ]]; then
+    # Not a project handoff (or addressed to the executive itself); mark seen.
     mark_dispatched "$f"
     continue
   fi

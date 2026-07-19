@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "tick prompt updated; reversible auto items executed this session"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "exec_class taxonomy (auto/review/principal) + supervisor-tick-prompt consume-ledger directive",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-3",
+  "exec_class": "review",
+  "id": "ACT-0003",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "execute-by-default-policy-for-reversible-in-scope-actions",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#3",
+  "state": "done",
+  "summary": "",
+  "title": "Execute-by-default policy for reversible in-scope actions",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "codify in ledger exec_class + charter",
+      "to": "open",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "open",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

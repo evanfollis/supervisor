@@ -50,7 +50,7 @@ scan() {
   local label="$1"
   shift
   local matches
-  matches="$(rg -n '/opt/projects' "$@" "${exclude_patterns[@]}" 2>/dev/null || true)"
+  matches="$(/usr/bin/rg -n '/opt/projects' "$@" "${exclude_patterns[@]}" 2>/dev/null || true)"
   matches="$(printf '%s\n' "$matches" \
     | grep -Ev ':[0-9]+:[[:space:]]*#' \
     | grep -Ev '/(sessions|projects)\.conf:' \

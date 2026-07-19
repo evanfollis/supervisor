@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:18:33Z",
+  "dedup_key": "qrec:command-prompteval",
+  "exec_class": "review",
+  "id": "ACT-0012",
+  "last_transition_at": "2026-07-19T16:18:33Z",
+  "owner": "command",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "medium",
+  "slug": "command-close-prompteval-deploy-gate-residual-2-prompt-fixes-1-timeout",
+  "source": "quarantine-recovery:command-prompteval",
+  "state": "dispatched",
+  "summary": "",
+  "title": "command: close prompteval deploy-gate residual (2 prompt fixes + 1 timeout)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "re-delivered after ADR-0047 quarantine dropped the 2026-07-17 handoff",
+      "to": "dispatched",
+      "ts": "2026-07-19T16:18:33Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:18:33Z"
+}

@@ -402,6 +402,22 @@ else
   say_fail "friction/ surface missing at $fric"
 fi
 
+# --- action ledger: the diagnosis→execution bridge must stay well-formed ---
+section "action ledger"
+ledger_py="$LIB_DIR/action-ledger.py"
+if [[ -x "$ledger_py" ]]; then
+  if ledger_check=$(python3 "$ledger_py" check 2>&1); then
+    say_ok "$ledger_check"
+    ledger_metrics=$(python3 "$ledger_py" metrics 2>/dev/null | head -1)
+    [[ -n "$ledger_metrics" ]] && note "$ledger_metrics"
+  else
+    say_fail "action-ledger invariants violated"
+    while IFS= read -r line; do note "$line"; done <<< "$ledger_check"
+  fi
+else
+  say_warn "action-ledger.py missing or not executable at $ledger_py"
+fi
+
 # --- summary ---
 section "summary"
 if (( FAIL )); then

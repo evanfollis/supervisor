@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:39:57Z",
+  "dedup_key": "aged-general-breadcrumbs-triage",
+  "exec_class": "review",
+  "id": "ACT-0023",
+  "last_transition_at": "2026-07-19T16:39:57Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "low",
+  "slug": "triage-5-aged-general-blocker-pressure-breadcrumbs-may-be-resolved-since-07-12",
+  "source": "runtime/.handoff: pressure-queue-login-double-submit, public-surface-blocked-on-runner, synaplex-cycle-v2-method-blocked, prompteval-validity-hardening, vendor-route-correction",
+  "state": "open",
+  "summary": "",
+  "title": "Triage 5 aged general-* blocker/pressure breadcrumbs (may be resolved since 07-12)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "workspace moved on since 07-12; verify each vs current state, close or re-route",
+      "to": "open",
+      "ts": "2026-07-19T16:39:57Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:39:57Z"
+}

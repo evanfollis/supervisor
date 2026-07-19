@@ -1,0 +1,39 @@
+{
+  "acceptance_evidence": [
+    "systemctl --failed = 0"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "ripgrep 14.1.0 installed /usr/bin/rg; workspace-audit.sh pinned; systemctl reset-failed",
+  "created_at": "2026-07-19T16:13:33Z",
+  "dedup_key": "dispatch-2026-07-19-supervisor-closure-engine-7",
+  "exec_class": "auto",
+  "id": "ACT-0007",
+  "last_transition_at": "2026-07-19T16:41:09Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "low",
+  "slug": "clear-stale-rg-path-failed-unit-noise-absolute-path-launchers",
+  "source": "dispatch-2026-07-19-supervisor-closure-engine#7",
+  "state": "done",
+  "summary": "",
+  "title": "Clear stale rg-PATH failed-unit noise; absolute-path launchers",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "ripgrep installed; audit.sh pinned; reset-failed pending",
+      "to": "in_progress",
+      "ts": "2026-07-19T16:13:33Z"
+    },
+    {
+      "actor": "claude",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T16:41:09Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:41:09Z"
+}

@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T16:20:30Z",
+  "dedup_key": "cluster-throttle-escalation",
+  "exec_class": "review",
+  "id": "ACT-0015",
+  "last_transition_at": "2026-07-19T16:20:30Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "low",
+  "slug": "throttle-escalation-surfacing-synthesis-urgent-dedup-inbox-cap-tick-skip-notify-session-start-urgent-gate",
+  "source": "inbox:proposal-synthesis-urgent-dedup,inbox-cap-escalation,tick-skip-notification,session-start-urgent-gate",
+  "state": "open",
+  "summary": "",
+  "title": "Throttle/escalation surfacing: synthesis-urgent-dedup, inbox-cap, tick-skip-notify, session-start-urgent-gate",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "some already practiced informally",
+      "to": "open",
+      "ts": "2026-07-19T16:20:30Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:20:30Z"
+}

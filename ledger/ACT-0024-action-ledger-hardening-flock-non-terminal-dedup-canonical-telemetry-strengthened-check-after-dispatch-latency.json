@@ -1,0 +1,32 @@
+{
+  "acceptance_evidence": [
+    "scripts/lib/tests/test_action_ledger.py 6/6 concurrency+lifecycle pass"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "action-ledger.py hardened per 6-point pressure-test",
+  "created_at": "2026-07-19T16:49:15Z",
+  "dedup_key": "ledger-hardening",
+  "exec_class": "review",
+  "id": "ACT-0024",
+  "last_transition_at": "2026-07-19T16:49:15Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "action-ledger-hardening-flock-non-terminal-dedup-canonical-telemetry-strengthened-check-after-dispatch-latency",
+  "source": "principal-pressure-test-2026-07-19-mid-turn",
+  "state": "done",
+  "summary": "",
+  "title": "Action-ledger hardening: flock, non-terminal dedup, canonical telemetry, strengthened check, after-dispatch latency",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "pre-commit adversarial review by principal",
+      "to": "done",
+      "ts": "2026-07-19T16:49:15Z"
+    }
+  ],
+  "updated_at": "2026-07-19T16:49:15Z"
+}
