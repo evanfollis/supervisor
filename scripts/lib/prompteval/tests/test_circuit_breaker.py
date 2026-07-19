@@ -39,17 +39,61 @@ def _state(provider="claude"):
 
 # ---- unit: state machine ----
 
-def test_opens_after_threshold_consecutive_failures():
+def test_throttle_opens_only_after_threshold():
+    # Throttle is a TRANSIENT capacity signal — a single 429 must not open.
     with tempfile.TemporaryDirectory() as tmp:
         _setup(tmp, threshold=3)
         assert circuit.allow("claude") == "attempt"
-        circuit.record_failure("claude", "sonnet", "timeout")
-        circuit.record_failure("claude", "sonnet", "timeout")
-        assert circuit.allow("claude") == "attempt", "must not open before threshold"
-        circuit.record_failure("claude", "sonnet", "timeout")  # 3rd -> open
+        circuit.record_failure("claude", "sonnet", "throttle")
+        circuit.record_failure("claude", "sonnet", "throttle")
+        assert circuit.allow("claude") == "attempt", "transient throttle must not open before threshold"
+        circuit.record_failure("claude", "sonnet", "throttle")  # 3rd -> open
         assert _state()["state"] == "open"
         assert circuit.allow("claude") == "skip", "open circuit within cooldown must skip"
-        print("ok: opens after threshold; skips during cooldown")
+        print("ok: throttle opens only after threshold; skips during cooldown")
+
+
+def test_timeout_opens_immediately():
+    # A full subprocess timeout is DECISIVE — one occurrence opens the circuit,
+    # regardless of the (throttle) threshold, so we never pay it N more times.
+    with tempfile.TemporaryDirectory() as tmp:
+        _setup(tmp, threshold=3)
+        circuit.record_failure("claude", "sonnet", "timeout")  # single decisive failure
+        assert _state()["state"] == "open", "one timeout must open the circuit"
+        assert circuit.allow("claude") == "skip"
+        print("ok: timeout opens immediately (decisive), ignoring the throttle threshold")
+
+
+def test_empty_output_opens_immediately():
+    with tempfile.TemporaryDirectory() as tmp:
+        _setup(tmp, threshold=3)
+        circuit.record_failure("claude", "sonnet", "empty")  # single decisive failure
+        assert _state()["state"] == "open", "one empty-output must open the circuit"
+        print("ok: empty-output opens immediately (decisive)")
+
+
+def test_per_spec_config_override():
+    # threshold override (raise the throttle threshold) — no env vars
+    with tempfile.TemporaryDirectory() as tmp:
+        _setup(tmp, threshold=3, cooldown=120.0, t0=500.0)
+        cfg = {"threshold": 5}
+        for _ in range(4):
+            circuit.record_failure("claude", "sonnet", "throttle", config=cfg)
+        assert _state()["state"] == "closed", "override threshold=5 not reached at 4 throttles"
+        circuit.record_failure("claude", "sonnet", "throttle", config=cfg)  # 5th -> open
+        assert _state()["state"] == "open"
+    # cooldown override applied at open time
+    with tempfile.TemporaryDirectory() as tmp:
+        _setup(tmp, cooldown=120.0, t0=500.0)
+        circuit.record_failure("claude", "sonnet", "throttle",
+                               config={"threshold": 1, "cooldown_s": 300.0})
+        assert _state()["cooldown_until"] == 500.0 + 300.0, _state()["cooldown_until"]
+    # decisive_reasons override: make timeout transient for this spec
+    with tempfile.TemporaryDirectory() as tmp:
+        _setup(tmp, threshold=3)
+        circuit.record_failure("claude", "sonnet", "timeout", config={"decisive_reasons": ["empty"]})
+        assert _state()["state"] == "closed", "timeout is transient when excluded from decisive_reasons"
+        print("ok: per-spec config overrides threshold, cooldown, and decisive_reasons (no env)")
 
 
 def test_probe_after_cooldown_then_close_on_success():
@@ -148,7 +192,7 @@ def test_concurrent_failures_are_not_lost():
     with tempfile.TemporaryDirectory() as tmp:
         sf = Path(tmp) / "c.json"
         n = 8
-        procs = [_sub(sf, "circuit.record_failure('claude','sonnet','timeout')",
+        procs = [_sub(sf, "circuit.record_failure('claude','sonnet','throttle')",
                       threshold=1000) for _ in range(n)]
         for p in procs:
             p.communicate(timeout=30)

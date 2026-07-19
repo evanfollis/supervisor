@@ -1,0 +1,32 @@
+{
+  "acceptance_evidence": [
+    "test_circuit_breaker.py 12/12 (incl reason-specific + per-spec override); fallback 7/7; committed suite 0 failures"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "timeout/empty open immediately; throttle threshold-gated; run_with_fallback+CliCall+runner circuit_config; default cooldown 120s",
+  "created_at": "2026-07-19T17:27:46Z",
+  "dedup_key": "circuit-decisive-policy",
+  "exec_class": "review",
+  "id": "ACT-0028",
+  "last_transition_at": "2026-07-19T17:27:46Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "circuit-breaker-refinement-decisive-failure-kind-policy-per-spec-config-overrides",
+  "source": "principal-directive-2026-07-19-circuit-refinement",
+  "state": "done",
+  "summary": "",
+  "title": "Circuit breaker refinement: decisive failure-kind policy + per-spec config overrides",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "created",
+      "to": "done",
+      "ts": "2026-07-19T17:27:46Z"
+    }
+  ],
+  "updated_at": "2026-07-19T17:27:46Z"
+}

@@ -27,6 +27,9 @@ from unittest import mock
 os.environ["PROMPTEVAL_CIRCUIT_FILE"] = os.path.join(
     tempfile.gettempdir(), f"pe-circuit-fallback-test-{os.getpid()}.json")
 os.environ["PROMPTEVAL_CIRCUIT_THRESHOLD"] = "999999"
+# Decisive reasons (timeout/empty) open on first failure regardless of threshold,
+# so also empty the decisive set to keep the breaker fully transparent here.
+os.environ["PROMPTEVAL_CIRCUIT_DECISIVE_REASONS"] = ""
 
 # Make `prompteval` importable when run directly.
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))

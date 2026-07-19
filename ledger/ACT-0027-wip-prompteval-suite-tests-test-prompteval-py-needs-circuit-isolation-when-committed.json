@@ -1,20 +1,22 @@
 {
-  "acceptance_evidence": [],
+  "acceptance_evidence": [
+    "tests/test-prompteval.py:475-501 isolates llm.circuit.STATE_FILE; suite 0 failures with decisive policy"
+  ],
   "attempt_count": 0,
   "blocker_class": null,
-  "completion_receipt": "",
+  "completion_receipt": "resolved by concurrent commit 148b1e2 (added per-test circuit STATE_FILE isolation)",
   "created_at": "2026-07-19T17:08:24Z",
   "dedup_key": "wip-prompteval-circuit-isolation",
   "exec_class": "review",
   "id": "ACT-0027",
-  "last_transition_at": "2026-07-19T17:08:24Z",
+  "last_transition_at": "2026-07-19T17:27:46Z",
   "owner": "general",
   "reopened_count": 0,
   "reversible": false,
   "risk": "low",
   "slug": "wip-prompteval-suite-tests-test-prompteval-py-needs-circuit-isolation-when-committed",
   "source": "circuit-breaker integration; WIP file left untouched",
-  "state": "open",
+  "state": "done",
   "summary": "",
   "title": "WIP prompteval suite (tests/test-prompteval.py) needs circuit isolation when committed",
   "transitions": [
@@ -24,7 +26,14 @@
       "note": "set PROMPTEVAL_CIRCUIT_FILE+THRESHOLD before import (as scripts/lib/prompteval/tests/* do); passes in isolation today",
       "to": "open",
       "ts": "2026-07-19T17:08:24Z"
+    },
+    {
+      "actor": "claude",
+      "from": "open",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-19T17:27:46Z"
     }
   ],
-  "updated_at": "2026-07-19T17:08:24Z"
+  "updated_at": "2026-07-19T17:27:46Z"
 }

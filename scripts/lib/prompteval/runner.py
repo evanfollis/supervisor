@@ -165,7 +165,8 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
                         stdin_text=codex_input, input_text=codex_input,
                         fallback_from="claude"),
             ], timeout=timeout, role="executor", project=project,
-                prompt_id=spec.prompt_id, case_id=case_id, trial=trial)
+                prompt_id=spec.prompt_id, case_id=case_id, trial=trial,
+                circuit_config=ex.get("circuit"))
         except AllProvidersThrottled as exc:
             raise Throttled(str(exc)) from exc
         except LLMCallError as exc:
@@ -183,7 +184,8 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
                         input_text=prompt_text + "\n" + user,
                         fallback_from="codex"),
             ], timeout=timeout, role="executor", project=project,
-                prompt_id=spec.prompt_id, case_id=case_id, trial=trial)
+                prompt_id=spec.prompt_id, case_id=case_id, trial=trial,
+                circuit_config=ex.get("circuit"))
         except AllProvidersThrottled as exc:
             raise Throttled(str(exc)) from exc
         except LLMCallError as exc:

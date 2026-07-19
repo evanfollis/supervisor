@@ -46,9 +46,33 @@ THRESHOLD = int(os.environ.get("PROMPTEVAL_CIRCUIT_THRESHOLD", "3"))
 COOLDOWN_S = float(os.environ.get("PROMPTEVAL_CIRCUIT_COOLDOWN", "120"))
 PROBE_GRACE_S = float(os.environ.get("PROMPTEVAL_CIRCUIT_PROBE_GRACE", "60"))
 
+# Decisive failure kinds open the circuit on the FIRST occurrence. A full
+# subprocess timeout or an exit-0-empty response is a definitive availability
+# failure for that provider — we must not keep paying its (e.g. 380s) timeout
+# THRESHOLD times before skipping it. Transient capacity diagnostics (throttle)
+# stay threshold-gated, since a single 429 is often a brief blip.
+DECISIVE_REASONS = set(
+    r.strip() for r in os.environ.get(
+        "PROMPTEVAL_CIRCUIT_DECISIVE_REASONS", "timeout,empty").split(",")
+    if r.strip())
+
+
 # Injectable clock so tests are deterministic (monkeypatch circuit.now).
 def now() -> float:
     return time.time()
+
+
+def _resolve(config):
+    """Merge a per-spec/per-provider override dict over the module defaults, so
+    thresholds/cooldowns can be set programmatically (no ad-hoc env vars)."""
+    config = config or {}
+    decisive = config.get("decisive_reasons")
+    return {
+        "threshold": int(config.get("threshold", THRESHOLD)),
+        "cooldown_s": float(config.get("cooldown_s", COOLDOWN_S)),
+        "probe_grace_s": float(config.get("probe_grace_s", PROBE_GRACE_S)),
+        "decisive_reasons": set(decisive) if decisive is not None else DECISIVE_REASONS,
+    }
 
 
 def _default_rec():
@@ -116,13 +140,14 @@ def _emit(event, provider, model, reason):
         pass
 
 
-def allow(provider: str, model: str = "") -> str:
+def allow(provider: str, model: str = "", config=None) -> str:
     """Decide whether to attempt `provider` now.
 
     Returns "attempt" (call it), "skip" (circuit open, go to sibling), or
     "probe" (half-open single trial). Best-effort: on any state error, "attempt".
     """
     t = now()
+    cfg = _resolve(config)
     try:
         with _lock() as held:
             if not held:
@@ -134,7 +159,7 @@ def allow(provider: str, model: str = "") -> str:
             if st == "open":
                 if t >= rec.get("cooldown_until", 0.0):
                     rec["state"] = "half_open"
-                    rec["probe_deadline"] = t + PROBE_GRACE_S
+                    rec["probe_deadline"] = t + cfg["probe_grace_s"]
                     decision = "probe"
                     _emit("circuit_half_open", provider,
                           rec.get("last_model") or model, rec.get("last_reason") or "")
@@ -144,7 +169,7 @@ def allow(provider: str, model: str = "") -> str:
             elif st == "half_open":
                 if t >= rec.get("probe_deadline", 0.0):
                     # prior probe never resolved (crash/stall) — take over the probe
-                    rec["probe_deadline"] = t + PROBE_GRACE_S
+                    rec["probe_deadline"] = t + cfg["probe_grace_s"]
                     decision = "probe"
                     _emit("circuit_half_open", provider,
                           rec.get("last_model") or model, rec.get("last_reason") or "")
@@ -158,9 +183,14 @@ def allow(provider: str, model: str = "") -> str:
         return "attempt"
 
 
-def record_failure(provider: str, model: str, reason: str) -> None:
-    """A capacity/availability failure (timeout | throttle | empty). May open."""
+def record_failure(provider: str, model: str, reason: str, config=None) -> None:
+    """A capacity/availability failure. DECISIVE kinds (timeout, empty) open the
+    circuit on the first occurrence — the provider is definitively unavailable
+    for this call, so we must not pay its timeout THRESHOLD more times. TRANSIENT
+    kinds (throttle) open only after the configured threshold of consecutive
+    failures. A HALF_OPEN probe failure always re-opens."""
     t = now()
+    cfg = _resolve(config)
     try:
         with _lock() as held:
             if not held:
@@ -171,10 +201,11 @@ def record_failure(provider: str, model: str, reason: str) -> None:
             rec["last_reason"] = reason
             rec["last_model"] = model
             was_open = rec.get("state") == "open"
-            if rec.get("state") == "half_open" or rec["consecutive_failures"] >= THRESHOLD:
+            effective_threshold = 1 if reason in cfg["decisive_reasons"] else cfg["threshold"]
+            if rec.get("state") == "half_open" or rec["consecutive_failures"] >= effective_threshold:
                 rec["state"] = "open"
                 rec["opened_at"] = t
-                rec["cooldown_until"] = t + COOLDOWN_S
+                rec["cooldown_until"] = t + cfg["cooldown_s"]
                 rec["probe_deadline"] = 0.0
                 if not was_open:
                     _emit("circuit_open", provider, model, reason)
@@ -184,7 +215,7 @@ def record_failure(provider: str, model: str, reason: str) -> None:
         pass
 
 
-def record_success(provider: str, model: str = "") -> None:
+def record_success(provider: str, model: str = "", config=None) -> None:
     """A real result. Closes the circuit and resets the failure count."""
     try:
         with _lock() as held:

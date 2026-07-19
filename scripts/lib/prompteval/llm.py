@@ -25,9 +25,10 @@ class ProviderThrottled(Exception):
 
 
 class ProviderUnavailable(Exception):
-    def __init__(self, provider: str, detail: str):
+    def __init__(self, provider: str, detail: str, kind: str = "unavailable"):
         self.provider = provider
         self.detail = detail
+        self.kind = kind  # "timeout" | "empty" | "unavailable" — drives circuit policy
         super().__init__(f"{provider}: {detail}")
 
 
@@ -51,6 +52,10 @@ class CliCall:
     input_text: str = ""
     cwd: str | None = None
     fallback_from: str = ""
+    # Per-provider circuit override (threshold / cooldown_s / probe_grace_s /
+    # decisive_reasons). Lets a spec or adapter tune the breaker programmatically
+    # without ad-hoc environment variables. None → module defaults.
+    circuit_config: dict | None = None
 
 
 def estimate_tokens(text: str | None) -> int:
@@ -116,9 +121,12 @@ def run_cli_call(
             detail = f"binary not found: {call.cmd[0]}"
             raise LLMCallError(detail) from exc
         except subprocess.TimeoutExpired as exc:
+            # llm_call telemetry status stays "unavailable"; the precise kind
+            # ("timeout") rides on the exception and drives circuit policy, and
+            # the circuit's own event carries reason=timeout.
             status = "unavailable"
             detail = f"timed out after {timeout}s"
-            raise ProviderUnavailable(call.provider, detail) from exc
+            raise ProviderUnavailable(call.provider, detail, kind="timeout") from exc
         finally:
             latency_ms = int((time.monotonic() - started) * 1000)
             if exit_code == 0:
@@ -156,7 +164,7 @@ def run_cli_call(
             # Exit 0 but empty output: an availability failure, not a result.
             # Fall back to the sibling subscription CLI once (via run_with_fallback)
             # instead of returning "" as a falsely-successful answer.
-            raise ProviderUnavailable(call.provider, "exit 0 with empty output")
+            raise ProviderUnavailable(call.provider, "exit 0 with empty output", kind="empty")
         diag = ((stderr or "").strip() or (stdout or "").strip())[-800:]
         if is_throttle(diag):
             raise ProviderThrottled(call.provider, diag)
@@ -175,13 +183,17 @@ def run_with_fallback(
     prompt_id: str = "",
     case_id: str = "",
     trial: int | None = None,
+    circuit_config: dict | None = None,
 ) -> str:
     unavailable: list[ProviderThrottled | ProviderUnavailable] = []
     for call in calls:
         model = call.model or "default"
+        # Per-provider override (CliCall.circuit_config) beats the spec-level
+        # default (circuit_config); either beats module defaults.
+        cfg = call.circuit_config or circuit_config
         # Circuit breaker: skip a provider that is in cooldown so we don't pay
         # its timeout on every case. "probe" and "attempt" both make the call.
-        if circuit.allow(call.provider, model) == "skip":
+        if circuit.allow(call.provider, model, config=cfg) == "skip":
             unavailable.append(
                 ProviderUnavailable(call.provider, "circuit open — skipped (cooldown)"))
             continue
@@ -197,15 +209,20 @@ def run_with_fallback(
                 trial=trial,
             )
         except (ProviderThrottled, ProviderUnavailable) as exc:
-            # capacity/availability failure — counts toward opening the circuit
-            reason = "throttle" if isinstance(exc, ProviderThrottled) else "unavailable"
-            circuit.record_failure(call.provider, model, reason)
+            # capacity/availability failure — counts toward opening the circuit.
+            # Reason drives failure-kind policy: throttle is transient (threshold-
+            # gated); timeout/empty are decisive (open on first occurrence).
+            if isinstance(exc, ProviderThrottled):
+                reason = "throttle"
+            else:
+                reason = getattr(exc, "kind", "unavailable")
+            circuit.record_failure(call.provider, model, reason, config=cfg)
             unavailable.append(exc)
             continue
         # NOTE: LLMCallError (a semantic/non-capacity error) is intentionally not
         # caught here — it propagates fail-closed and leaves the circuit untouched
         # (semantic errors must never open the circuit, and must not fall back).
-        circuit.record_success(call.provider, model)
+        circuit.record_success(call.provider, model, config=cfg)
         return result
     if unavailable:
         raise AllProvidersThrottled(unavailable)
