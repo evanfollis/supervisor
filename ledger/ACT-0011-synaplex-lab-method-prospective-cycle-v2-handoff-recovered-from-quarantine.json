@@ -1,20 +1,23 @@
 {
-  "acceptance_evidence": [],
+  "acceptance_evidence": [
+    "claim:e1c51ab0d83be772",
+    "policy:7628c88b8f08c7e8"
+  ],
   "attempt_count": 0,
-  "blocker_class": null,
+  "blocker_class": "review",
   "completion_receipt": "",
   "created_at": "2026-07-19T16:18:33Z",
   "dedup_key": "qrec:b7be9fc6d40e-synaplex-lab-method-prospective-cycle-v2-2026-07-12.md",
   "exec_class": "review",
   "id": "ACT-0011",
-  "last_transition_at": "2026-07-19T16:18:33Z",
+  "last_transition_at": "2026-07-19T17:52:33Z",
   "owner": "synaplex",
   "reopened_count": 0,
   "reversible": false,
   "risk": "medium",
   "slug": "synaplex-lab-method-prospective-cycle-v2-handoff-recovered-from-quarantine",
   "source": "quarantine-recovery:b7be9fc6d40e-synaplex-lab-method-prospective-cycle-v2-2026-07-12.md",
-  "state": "open",
+  "state": "blocked",
   "summary": "",
   "title": "synaplex lab-method prospective cycle-v2 handoff (recovered from quarantine)",
   "transitions": [
@@ -24,7 +27,14 @@
       "note": "recovered 2026-07-19; triage vs current synaplex state, may be consumed",
       "to": "open",
       "ts": "2026-07-19T16:18:33Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "Phase A artifacts are frozen, but PROTOCOL_READY has not been obtained; no subject access or Evidence is authorized.",
+      "to": "blocked",
+      "ts": "2026-07-19T17:52:33Z"
     }
   ],
-  "updated_at": "2026-07-19T16:18:33Z"
+  "updated_at": "2026-07-19T17:52:33Z"
 }

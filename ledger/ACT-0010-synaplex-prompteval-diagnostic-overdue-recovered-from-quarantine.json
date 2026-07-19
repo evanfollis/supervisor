@@ -1,20 +1,22 @@
 {
-  "acceptance_evidence": [],
+  "acceptance_evidence": [
+    "/opt/workspace/projects/synaplex/lab/evals/artifact-delivery-instrument-v2/reviews/pre-entry-review-continuation-blocked-2026-07-12.md"
+  ],
   "attempt_count": 0,
-  "blocker_class": null,
+  "blocker_class": "review",
   "completion_receipt": "",
   "created_at": "2026-07-19T16:18:33Z",
   "dedup_key": "qrec:29201a9a90cc-URGENT-synaplex-prompteval-diagnostic-overdue.md",
   "exec_class": "review",
   "id": "ACT-0010",
-  "last_transition_at": "2026-07-19T16:18:33Z",
+  "last_transition_at": "2026-07-19T17:52:33Z",
   "owner": "synaplex",
   "reopened_count": 0,
   "reversible": false,
   "risk": "medium",
   "slug": "synaplex-prompteval-diagnostic-overdue-recovered-from-quarantine",
   "source": "quarantine-recovery:29201a9a90cc-URGENT-synaplex-prompteval-diagnostic-overdue.md",
-  "state": "open",
+  "state": "blocked",
   "summary": "",
   "title": "synaplex prompteval diagnostic overdue (recovered from quarantine)",
   "transitions": [
@@ -24,7 +26,14 @@
       "note": "recovered 2026-07-19; triage vs current synaplex state, may be consumed",
       "to": "open",
       "ts": "2026-07-19T16:18:33Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "Still genuinely blocked: artifact-delivery-v2-method-review has no accepted baseline; Phase B remains BLOCKED_PRE_ENTRY.",
+      "to": "blocked",
+      "ts": "2026-07-19T17:52:33Z"
     }
   ],
-  "updated_at": "2026-07-19T16:18:33Z"
+  "updated_at": "2026-07-19T17:52:33Z"
 }
