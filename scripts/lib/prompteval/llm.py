@@ -8,6 +8,7 @@ import subprocess
 import time
 from dataclasses import dataclass
 
+from . import circuit
 from .telemetry import emit_llm_call
 
 THROTTLE_RE = re.compile(
@@ -175,10 +176,17 @@ def run_with_fallback(
     case_id: str = "",
     trial: int | None = None,
 ) -> str:
-    throttles: list[ProviderThrottled | ProviderUnavailable] = []
+    unavailable: list[ProviderThrottled | ProviderUnavailable] = []
     for call in calls:
+        model = call.model or "default"
+        # Circuit breaker: skip a provider that is in cooldown so we don't pay
+        # its timeout on every case. "probe" and "attempt" both make the call.
+        if circuit.allow(call.provider, model) == "skip":
+            unavailable.append(
+                ProviderUnavailable(call.provider, "circuit open — skipped (cooldown)"))
+            continue
         try:
-            return run_cli_call(
+            result = run_cli_call(
                 call,
                 timeout=timeout,
                 retries=retries,
@@ -189,8 +197,16 @@ def run_with_fallback(
                 trial=trial,
             )
         except (ProviderThrottled, ProviderUnavailable) as exc:
-            throttles.append(exc)
+            # capacity/availability failure — counts toward opening the circuit
+            reason = "throttle" if isinstance(exc, ProviderThrottled) else "unavailable"
+            circuit.record_failure(call.provider, model, reason)
+            unavailable.append(exc)
             continue
-    if throttles:
-        raise AllProvidersThrottled(throttles)
+        # NOTE: LLMCallError (a semantic/non-capacity error) is intentionally not
+        # caught here — it propagates fail-closed and leaves the circuit untouched
+        # (semantic errors must never open the circuit, and must not fall back).
+        circuit.record_success(call.provider, model)
+        return result
+    if unavailable:
+        raise AllProvidersThrottled(unavailable)
     raise LLMCallError("no provider calls configured")

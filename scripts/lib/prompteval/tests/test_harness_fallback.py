@@ -13,10 +13,20 @@ success and never fell back to the sibling subscription CLI:
 Runnable standalone (`python3 test_harness_fallback.py`) or under pytest.
 """
 
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from unittest import mock
+
+# Isolate the circuit breaker from these fallback-focused tests: a throwaway
+# state file and an unreachable threshold keep it transparent (always "attempt",
+# never opens), so real runtime state is untouched and no state bleeds between
+# tests. Must be set before importing the package (constants read at import).
+os.environ["PROMPTEVAL_CIRCUIT_FILE"] = os.path.join(
+    tempfile.gettempdir(), f"pe-circuit-fallback-test-{os.getpid()}.json")
+os.environ["PROMPTEVAL_CIRCUIT_THRESHOLD"] = "999999"
 
 # Make `prompteval` importable when run directly.
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))

@@ -1,0 +1,32 @@
+{
+  "acceptance_evidence": [
+    "test_circuit_breaker.py 9/9 (incl restart persistence + concurrency); test_harness_fallback.py 7/7"
+  ],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "scripts/lib/prompteval/circuit.py + run_with_fallback integration",
+  "created_at": "2026-07-19T17:08:24Z",
+  "dedup_key": "prompteval-circuit-breaker",
+  "exec_class": "review",
+  "id": "ACT-0026",
+  "last_transition_at": "2026-07-19T17:08:24Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": true,
+  "risk": "medium",
+  "slug": "provider-availability-circuit-breaker-in-subscription-cli-harness-durable-per-provider-cooldown",
+  "source": "principal-directive-2026-07-19-circuit-breaker",
+  "state": "done",
+  "summary": "",
+  "title": "Provider-availability circuit breaker in subscription-CLI harness (durable, per-provider cooldown)",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "opens after 3 consecutive timeout/throttle/empty; runtime-persisted; skip/probe telemetry; semantic errors never open",
+      "to": "done",
+      "ts": "2026-07-19T17:08:24Z"
+    }
+  ],
+  "updated_at": "2026-07-19T17:08:24Z"
+}

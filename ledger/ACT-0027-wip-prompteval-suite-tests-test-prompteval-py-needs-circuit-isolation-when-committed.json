@@ -1,0 +1,30 @@
+{
+  "acceptance_evidence": [],
+  "attempt_count": 0,
+  "blocker_class": null,
+  "completion_receipt": "",
+  "created_at": "2026-07-19T17:08:24Z",
+  "dedup_key": "wip-prompteval-circuit-isolation",
+  "exec_class": "review",
+  "id": "ACT-0027",
+  "last_transition_at": "2026-07-19T17:08:24Z",
+  "owner": "general",
+  "reopened_count": 0,
+  "reversible": false,
+  "risk": "low",
+  "slug": "wip-prompteval-suite-tests-test-prompteval-py-needs-circuit-isolation-when-committed",
+  "source": "circuit-breaker integration; WIP file left untouched",
+  "state": "open",
+  "summary": "",
+  "title": "WIP prompteval suite (tests/test-prompteval.py) needs circuit isolation when committed",
+  "transitions": [
+    {
+      "actor": "claude",
+      "from": null,
+      "note": "set PROMPTEVAL_CIRCUIT_FILE+THRESHOLD before import (as scripts/lib/prompteval/tests/* do); passes in isolation today",
+      "to": "open",
+      "ts": "2026-07-19T17:08:24Z"
+    }
+  ],
+  "updated_at": "2026-07-19T17:08:24Z"
+}
