@@ -55,6 +55,8 @@ DETERMINISTIC_KINDS = {
 
 JUDGE_PROMPT_TEMPLATE = """You are a strict evaluator grading one output from another AI system against one specific failure mode. You are NOT the system under test. Do not rewrite or improve the output — only grade it.
 
+This is a closed-book grading task. Do not call, invoke, simulate, or request tools and do not inspect external files. The case input and output below are the complete admissible record. Grade whether the output itself supplies the evidence required by the rubric; do not independently verify its factual claims against a repository.
+
 ## Failure mode being checked
 {failure_mode}
 
@@ -235,10 +237,13 @@ def parse_verdict(reply: str) -> tuple[str, str]:
 
 
 def build_verdict_repair_prompt(original_prompt: str, reply: str) -> str:
-    return f"""Normalize a prior evaluator reply into the required verdict object.
-Do not re-grade the underlying output and do not add new reasoning. Infer the verdict only
-from the evaluator's stated conclusion. If its conclusion is genuinely absent or ambiguous,
-use unknown. Return exactly one JSON object and nothing else:
+    return f"""Complete a malformed evaluator turn as one verdict object.
+Do not call, invoke, simulate, or request tools. The original grading request below is the
+complete admissible record. If the prior reply states a clear conclusion, normalize it. If
+the prior reply only announces a tool check, verification step, or other unfinished work,
+discard that preamble and grade the original request directly from the supplied case input
+and output. Use unknown only when the original rubric genuinely cannot be applied to the
+supplied output. Return exactly one JSON object and nothing else:
 {{"verdict":"pass"|"fail"|"unknown","reason":"<one sentence>"}}
 
 Original grading request:

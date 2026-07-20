@@ -272,7 +272,32 @@ class TestGrading(unittest.TestCase):
         self.assertEqual(verdict, "pass")
         self.assertIn("concluded pass", reason)
         self.assertEqual(len(prompts), 2)
-        self.assertIn("Normalize a prior evaluator reply", prompts[1])
+        self.assertIn("Complete a malformed evaluator turn", prompts[1])
+
+    def test_unfinished_tool_preamble_is_regraded_without_tools(self):
+        prompts = []
+        replies = iter([
+            "I'll verify the cited file before grading.\n<invoke name=\"Bash\">...</invoke>",
+            '{"verdict":"pass","reason":"The supplied output contains line-specific evidence."}',
+        ])
+
+        def caller(prompt, _model, telemetry_context=None):
+            prompts.append(prompt)
+            return next(replies)
+
+        verdict, reason = grading.run_judge_check(
+            {"failure_mode": "grounding", "rubric": "PASS when grounded."},
+            {"task": "review"},
+            "file.ts:42 shows the guarded call",
+            "opus",
+            caller=caller,
+        )
+        self.assertEqual(verdict, "pass")
+        self.assertIn("line-specific", reason)
+        self.assertEqual(len(prompts), 2)
+        self.assertIn("do not independently verify", prompts[0].lower())
+        self.assertIn("discard that preamble", prompts[1])
+        self.assertIn("Do not call, invoke, simulate, or request tools", prompts[1])
 
     def test_llm_transcript_is_private_and_run_scoped(self):
         runtime = Path(tempfile.mkdtemp())
