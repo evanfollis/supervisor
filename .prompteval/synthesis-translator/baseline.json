@@ -1,16 +1,26 @@
 {
   "prompt_version": "pv-342b3a96a37368c5",
-  "spec_hash": "sh-d3972bc5d2f35ed0",
+  "spec_hash": "sh-32b633ed23c7a542",
   "golden_hash": "gh-62d9fbacff9022b2",
   "model": "claude-haiku-4-5-20251001",
   "params": {},
   "judge_model": "opus",
-  "run_id": "run-20260712T134059Z-141028",
-  "ts": "2026-07-12T13:40:59Z",
+  "run_id": "run-20260720T104442Z-657310",
+  "ts": "2026-07-20T10:58:33Z",
   "release": true,
   "passed": true,
   "accepted_from_cache": false,
+  "gate_policy": {
+    "basis": "must_pass_cases",
+    "advisory_cases_gate": false
+  },
   "aggregate": 1.0,
+  "required_aggregate": 1.0,
+  "judge_unknown_ratio": 0.0,
+  "gate": {
+    "passed": true,
+    "reasons": []
+  },
   "cases": {
     "gc-0ce8a8a2b12ce926": {
       "pass": true,
@@ -69,5 +79,39 @@
       "must_pass": true
     }
   },
-  "all_pass_streak": 1
+  "all_pass_streak": 2,
+  "all_cases_passed": true,
+  "required_cases": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "advisory_cases": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0
+  },
+  "provider_provenance": {
+    "schema_version": "prompteval.provider-provenance.v1",
+    "run_id": "run-20260720T104442Z-657310",
+    "requested_executor_model": "claude-haiku-4-5-20251001",
+    "requested_judge_model": "opus",
+    "providers": [
+      "claude"
+    ],
+    "successful_calls": 7,
+    "fallback_successes": 0,
+    "routes": [
+      {
+        "role": "judge",
+        "provider": "claude",
+        "model": "opus",
+        "status": "success",
+        "fallback_from": "",
+        "calls": 7
+      }
+    ],
+    "telemetry_ref": "/opt/workspace/runtime/.telemetry/events.jsonl#runId=run-20260720T104442Z-657310",
+    "attempt_log": "/opt/workspace/runtime/prompteval/.provenance/run-20260720T104442Z-657310.jsonl"
+  }
 }
