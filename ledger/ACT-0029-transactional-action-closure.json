@@ -1,20 +1,62 @@
 {
-  "acceptance_evidence": [],
-  "attempt_count": 0,
+  "acceptance_evidence": [
+    "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0029.json"
+  ],
+  "attempt_count": 1,
   "blocker_class": null,
-  "completion_receipt": "",
+  "closure": {
+    "action_id": "ACT-0029",
+    "code_landed": {
+      "commit": "5cbe49d37192a1e876bc1f2121dc4012740b074f",
+      "remote_ref": "origin/main",
+      "repository": "/opt/workspace/supervisor",
+      "status": "complete"
+    },
+    "completed_at": "2026-07-20T10:30:05Z",
+    "deployed": {
+      "reason": "The ledger is a local control-plane CLI and has no independently deployed service.",
+      "status": "not_applicable"
+    },
+    "schema_version": 1,
+    "source_artifact_dispositioned": {
+      "archive_path": "/opt/workspace/runtime/.meta/handoff-archive/2026-07-20/proposal-transactional-action-closure-2026-07-20T09-38-15Z.md",
+      "sha256": "623f2b13d41a8c45ca8c158ddd54dd5a34fc761d753fac5d58d2e5263757ec0b",
+      "source_path": "/opt/workspace/supervisor/handoffs/INBOX/proposal-transactional-action-closure-2026-07-20T09-38-15Z.md",
+      "status": "complete"
+    },
+    "state_projection_refreshed": {
+      "path": "/opt/workspace/supervisor/docs/action-closure-receipts.md",
+      "sha256": "2428bab61acb3687a583813c2cf1b2072d4df0e2abfc3fbcda37c56bd76b572a",
+      "status": "complete"
+    },
+    "verification_passed": {
+      "evidence": [
+        {
+          "command": "python3 scripts/lib/tests/test_action_ledger.py && python3 scripts/lib/action-ledger.py check && git merge-base --is-ancestor 5cbe49d37192a1e876bc1f2121dc4012740b074f origin/main",
+          "exit_code": 0,
+          "kind": "command",
+          "observed_at": "2026-07-20T10:29:58Z",
+          "transcript_path": "/opt/workspace/runtime/.meta/action-closure-verification-2026-07-20T10-30-00Z.txt",
+          "transcript_sha256": "c956e11b69765d0670cec0ad21809e097283546145f375f4238d8345d2cf88ad"
+        }
+      ],
+      "status": "complete"
+    }
+  },
+  "closure_schema_version": 1,
+  "completion_receipt": "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0029.json",
   "created_at": "2026-07-20T09:44:16Z",
   "dedup_key": "transactional-action-closure-v1",
   "exec_class": "review",
   "id": "ACT-0029",
-  "last_transition_at": "2026-07-20T09:44:16Z",
+  "last_transition_at": "2026-07-20T10:30:33Z",
   "owner": "general",
   "reopened_count": 0,
   "reversible": true,
   "risk": "high",
   "slug": "transactional-action-closure",
   "source": "handoffs/INBOX/proposal-transactional-action-closure-2026-07-20T09-38-15Z.md",
-  "state": "open",
+  "state": "done",
   "summary": "Require typed closure receipts for code, verification, deployment, projection, and source disposition; validate files and SHAs; archive linked handoffs only after a successful transition.",
   "title": "Transactional action closure",
   "transitions": [
@@ -24,7 +66,21 @@
       "note": "Promoted from fresh cross-project synthesis 2026-07-20T09:33:26Z",
       "to": "open",
       "ts": "2026-07-20T09:44:16Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "Implementing typed receipts, remote durability proof, and crash-recoverable source disposition",
+      "to": "in_progress",
+      "ts": "2026-07-20T10:29:57Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "in_progress",
+      "note": "Typed closure receipt validated; code durable; tests pass; source archived transactionally",
+      "to": "done",
+      "ts": "2026-07-20T10:30:33Z"
     }
   ],
-  "updated_at": "2026-07-20T09:44:16Z"
+  "updated_at": "2026-07-20T10:30:33Z"
 }
