@@ -52,11 +52,16 @@ class ReflectionProvenanceTest(unittest.TestCase):
                 "anthropic",
                 "claude-sonnet-4-6",
                 "medium",
+                "/runtime/reflection-invocations/demo/manifest.json",
                 now=now,
             )
 
         self.assertEqual(manifest["source_assistant_message_count"], 2)
         self.assertEqual(manifest["reflector"]["model"], "claude-sonnet-4-6")
+        self.assertEqual(
+            manifest["reflector"]["invocation_manifest"],
+            "/runtime/reflection-invocations/demo/manifest.json",
+        )
         self.assertEqual({item["model"] for item in manifest["source_models"]}, {"claude-opus-4-8", "gpt-5.6-sol"})
 
 

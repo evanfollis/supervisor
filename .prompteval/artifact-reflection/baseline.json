@@ -1,0 +1,125 @@
+{
+  "prompt_version": "pv-8ed213d29a6b722c",
+  "spec_hash": "sh-f96f5b96a36c8739",
+  "golden_hash": "gh-d204970e6d827776",
+  "model": "claude-sonnet-4-6",
+  "params": {},
+  "judge_model": "opus",
+  "run_id": "run-20260720T135646Z-257bca",
+  "ts": "2026-07-20T14:11:32Z",
+  "release": true,
+  "passed": true,
+  "accepted_from_cache": false,
+  "gate_policy": {
+    "basis": "must_pass_cases",
+    "advisory_cases_gate": false
+  },
+  "aggregate": 1.0,
+  "required_aggregate": 1.0,
+  "judge_unknown_ratio": 0.0,
+  "gate": {
+    "passed": true,
+    "reasons": []
+  },
+  "cases": {
+    "gc-acb28d05e144f6cd": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-6c846779707ab3f1": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-999279d72e7ec4ac": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-b6018f909fdffa88": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-6d1bb6f4e104c775": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-9e73d78afa890a63": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-ad721670b7888fd9": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-609d62b7e5d2d96a": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-ad829d747f59a957": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-3e6a4a91d50b9850": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-19c2618358acf0e6": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-9563c50276cae20c": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-ca9e666b4873eb32": {
+      "pass": true,
+      "must_pass": true
+    },
+    "gc-6efcd8c2056b6b50": {
+      "pass": true,
+      "must_pass": true
+    }
+  },
+  "all_pass_streak": 5,
+  "all_cases_passed": true,
+  "required_cases": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "advisory_cases": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0
+  },
+  "provider_provenance": {
+    "schema_version": "prompteval.provider-provenance.v1",
+    "run_id": "run-20260720T135646Z-257bca",
+    "requested_executor_model": "claude-sonnet-4-6",
+    "requested_judge_model": "opus",
+    "providers": [
+      "claude"
+    ],
+    "successful_calls": 18,
+    "fallback_successes": 0,
+    "routes": [
+      {
+        "role": "executor-adapter",
+        "provider": "claude",
+        "model": "claude-sonnet-4-6",
+        "status": "success",
+        "fallback_from": "",
+        "calls": 14
+      },
+      {
+        "role": "judge",
+        "provider": "claude",
+        "model": "opus",
+        "status": "success",
+        "fallback_from": "",
+        "calls": 4
+      }
+    ],
+    "telemetry_ref": "/opt/workspace/runtime/.telemetry/events.jsonl#runId=run-20260720T135646Z-257bca",
+    "attempt_log": "/opt/workspace/runtime/prompteval/.provenance/run-20260720T135646Z-257bca.jsonl"
+  }
+}

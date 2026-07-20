@@ -3,7 +3,7 @@
   "note": "Coverage ratchet (ADR-0039 §4). Flip enforce:true when every entry is governed; from then on the deploy gate fails on ungoverned prompts. Governed = has a .prompteval/<id>/ registry entry with passing baseline.",
   "prompts": [
     {"file": "scripts/lib/synthesis-translator-prompt.md", "id": "synthesis-translator", "status": "governed"},
-    {"file": "scripts/lib/reflect-prompt.md", "id": null, "status": "ungoverned"},
+    {"file": "scripts/lib/reflect-prompt.md", "id": "artifact-reflection", "status": "governed"},
     {"file": "scripts/lib/reflect-supervisor-prompt.md", "id": null, "status": "ungoverned"},
     {"file": "scripts/lib/synthesize-prompt.md", "id": null, "status": "ungoverned"},
     {"file": "scripts/lib/supervisor-tick-prompt.md", "id": null, "status": "ungoverned"},

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Per-project 12h reflection driver.
-# Spawns claude -p in the project directory with a scoped toolset and the
-# artifact-driven prompt template. Reflection is read-only and propose-only:
-# it writes exactly one file to <project>/.meta/<project>-reflection-<iso>.md
-# and never commits or pushes.
+# Builds a deterministic primary-object snapshot, invokes a subscription model
+# with read-only tools, and captures the returned advisory reflection. Full
+# invocation transcripts are retained privately off the hot path. The model
+# cannot write project state; synthesis owns any later promotion.
 #
 # Usage: reflect.sh <project-name> <project-dir>
 #   reflect.sh command /opt/workspace/projects/command
@@ -11,6 +11,7 @@
 # Short-circuits if there's been no activity in the last 12h.
 
 set -euo pipefail
+umask 077
 
 PROJECT="${1:?project name required}"
 PROJECT_DIR="${2:?project dir required}"
@@ -19,7 +20,26 @@ LIB_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$LIB_DIR/workspace-paths.sh"
 META_DIR="$WORKSPACE_META_DIR"
 ISO_NOW="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
-OUTPUT_FILE="$META_DIR/${PROJECT}-reflection-${ISO_NOW}.md"
+INVOCATION_ID="$(python3 -c 'import uuid; print(uuid.uuid4())')"
+INVOCATION_SHORT="${INVOCATION_ID%%-*}"
+OUTPUT_FILE="$META_DIR/${PROJECT}-reflection-${ISO_NOW}-${INVOCATION_SHORT}.md"
+RAW_REFLECTION_DIR="$META_DIR/reflections/raw"
+RAW_REFLECTION_FILE="$RAW_REFLECTION_DIR/${PROJECT}-reflection-${ISO_NOW}-${INVOCATION_SHORT}.md"
+EVIDENCE_FILE="${RAW_REFLECTION_FILE%.md}.evidence.json"
+INVOCATION_DIR="$META_DIR/reflection-invocations/$PROJECT/${ISO_NOW}-${INVOCATION_ID}"
+PROMPT_FILE="$INVOCATION_DIR/prompt.md"
+RESULT_JSON="$INVOCATION_DIR/result.json"
+STDERR_LOG="$INVOCATION_DIR/stderr.log"
+SNAPSHOT_FILE="$INVOCATION_DIR/primary-object-snapshot.json"
+INVOCATION_MANIFEST="$INVOCATION_DIR/manifest.json"
+TRANSCRIPT_ARCHIVE="$INVOCATION_DIR/transcript.jsonl.gz"
+CANDIDATE_FILE="$INVOCATION_DIR/reflection.candidate.md"
+CANDIDATE_EVIDENCE_FILE="$INVOCATION_DIR/reflection.candidate.evidence.json"
+SYNTHESIS_PROJECTION_CANDIDATE="$INVOCATION_DIR/synthesis-projection.candidate.md"
+STABILITY_REPORT="$INVOCATION_DIR/project-stability.json"
+PROMPTEVAL_RUNTIME="${PROMPTEVAL_RUNTIME:-$WORKSPACE_ROOT/runtime/prompteval}"
+TRANSCRIPT_SOURCE="$PROMPTEVAL_RUNTIME/.transcripts/$INVOCATION_ID.jsonl"
+export PROMPTEVAL_RUNTIME
 
 emit_reflection_failure_telemetry() {
   local reason="$1"
@@ -54,6 +74,10 @@ if [[ ! -d "$PROJECT_DIR" ]]; then
 fi
 
 mkdir -p "$META_DIR"
+mkdir -p "$INVOCATION_DIR"
+chmod 700 "$INVOCATION_DIR"
+mkdir -p "$RAW_REFLECTION_DIR"
+chmod 700 "$RAW_REFLECTION_DIR"
 WORKSPACE_SESSION_MEMORY_DIR="/root/.claude/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
 
 # Claude Code's per-cwd JSONL directory. Encoding: slashes → hyphens, prefix "-".
@@ -85,6 +109,23 @@ if [[ "$COMMIT_COUNT" -eq 0 && "$TELEMETRY_COUNT" -eq 0 && "$JSONL_RECENT" -eq 0
   exit 0
 fi
 
+# Freeze the model's observable git state and exact primary-object identities
+# before interpretation. The model receives Read/Glob/Grep only; it does not
+# need a shell to inspect history or calculate witness hashes.
+python3 "$LIB_DIR/reflection-snapshot.py" \
+  --project "$PROJECT" \
+  --project-dir "$PROJECT_DIR" \
+  --output "$SNAPSHOT_FILE" \
+  --explicit-file "$WORKSPACE_TELEMETRY_DIR/events.jsonl" \
+  --explicit-file "$PROJECT_DIR/CONTEXT.md" \
+  --explicit-file "$PROJECT_DIR/CURRENT_STATE.md" \
+  --explicit-file "$PROJECT_DIR/CLAUDE.md" \
+  --explicit-file "$WORKSPACE_ROOT_CLAUDE_MD" \
+  --explicit-file "$WORKSPACE_SESSION_MEMORY_DIR/MEMORY.md" \
+  --session-dir "$SESSION_DIR" \
+  --prior-reflection-dir "$WORKSPACE_META_DIR" \
+  --hours 12
+
 # Render the prompt with substitutions.
 PROMPT="$(sed \
   -e "s|{{PROJECT}}|$PROJECT|g" \
@@ -97,16 +138,9 @@ PROMPT="$(sed \
   -e "s|{{WORKSPACE_ROOT_CLAUDE_MD}}|$WORKSPACE_ROOT_CLAUDE_MD|g" \
   -e "s|{{WORKSPACE_HANDOFF_DIR}}|$WORKSPACE_HANDOFF_DIR|g" \
   -e "s|{{WORKSPACE_SESSION_MEMORY_DIR}}|$WORKSPACE_SESSION_MEMORY_DIR|g" \
+  -e "s|{{REFLECTION_SNAPSHOT}}|$SNAPSHOT_FILE|g" \
   "$PROMPT_TEMPLATE")"
-
-# Safety net — capture HEAD and working tree state. If the reflection session
-# mutates the repo despite --disallowedTools, we abort loudly.
-BEFORE_HEAD="none"
-BEFORE_DIRTY=""
-if [[ -d "$PROJECT_DIR/.git" ]]; then
-  BEFORE_HEAD=$(git -C "$PROJECT_DIR" rev-parse HEAD 2>/dev/null || echo none)
-  BEFORE_DIRTY=$(git -C "$PROJECT_DIR" status --porcelain 2>/dev/null || true)
-fi
+printf '%s\n' "$PROMPT" > "$PROMPT_FILE"
 
 cd "$PROJECT_DIR"
 
@@ -117,49 +151,185 @@ export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-/opt/workspace/runtime/.npm-cache}"
 export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/opt/workspace/runtime/.pip-cache}"
 mkdir -p "$NPM_CONFIG_CACHE" "$PIP_CACHE_DIR"
 
-# --dangerously-skip-permissions is required for non-interactive runs; it
-# bypasses the allowlist, so the safety net is --disallowedTools blocking
-# anything that could mutate the repo, plus the prompt's propose-only contract.
+# The invocation helper uses subscription CLIs only. Capacity failures fall
+# through from Claude to Codex; semantic failures remain fail-closed. Its full
+# raw input/output/stderr transcript is written by the shared telemetry path.
 set +e
-claude -p "$PROMPT" \
+python3 "$LIB_DIR/reflection-invoke.py" \
+  --prompt-file "$PROMPT_FILE" \
+  --project "$PROJECT" \
+  --project-dir "$PROJECT_DIR" \
   --model claude-sonnet-4-6 \
   --effort medium \
-  --disallowedTools \
-    "Bash(git commit:*)" "Bash(git push:*)" "Bash(git reset:*)" \
-    "Bash(git rebase:*)" "Bash(git checkout:*)" "Bash(git merge:*)" \
-    "Bash(git add:*)" "Bash(git restore:*)" "Bash(git clean:*)" \
-    "Bash(rm:*)" "Bash(mv:*)" "Bash(npm publish:*)" "Bash(gh pr:*)" \
-    "Bash(gh release:*)" "Bash(docker:*)" "Bash(systemctl:*)" \
-    "Edit" "MultiEdit" "Write" "NotebookEdit" \
-  2>&1 | tail -n 80
-CLAUDE_STATUS=${PIPESTATUS[0]}
+  --invocation-id "$INVOCATION_ID" \
+  > "$RESULT_JSON" 2> "$STDERR_LOG"
+MODEL_STATUS=$?
 set -e
 
-if [[ "$CLAUDE_STATUS" -ne 0 ]]; then
-  echo "reflect[$PROJECT]: ERROR — claude invocation failed with exit code $CLAUDE_STATUS" >&2
-  emit_reflection_failure_telemetry "claude_invocation_failed" "$CLAUDE_STATUS"
-  exit "$CLAUDE_STATUS"
+if [[ "$MODEL_STATUS" -ne 0 ]]; then
+  echo "reflect[$PROJECT]: ERROR — subscription model invocation failed with exit code $MODEL_STATUS" >&2
+  emit_reflection_failure_telemetry "model_invocation_failed" "$MODEL_STATUS"
+  exit "$MODEL_STATUS"
 fi
 
-if [[ -f "$OUTPUT_FILE" ]]; then
-  echo "reflect[$PROJECT]: wrote $OUTPUT_FILE"
-else
-  echo "reflect[$PROJECT]: WARNING — no output file produced" >&2
-  emit_reflection_failure_telemetry "no_output_file" 2
+if ! python3 "$LIB_DIR/reflection-capture.py" \
+    --result "$RESULT_JSON" \
+    --reflection "$CANDIDATE_FILE" \
+    --transcript-source "$TRANSCRIPT_SOURCE" \
+    --transcript-archive "$TRANSCRIPT_ARCHIVE" \
+    --manifest "$INVOCATION_MANIFEST" \
+    --stderr "$STDERR_LOG" \
+    --session-id "$INVOCATION_ID" \
+    --provider unknown \
+    --model unknown \
+    --effort medium; then
+  echo "reflect[$PROJECT]: ERROR — model result could not be finalized" >&2
+  emit_reflection_failure_telemetry "result_capture_failed" 2
   exit 2
 fi
+
+# A reflection is a snapshot interpretation. If the project moved while the
+# model was reading, preserve the raw invocation but withhold publication; the
+# result no longer describes one coherent primary-object state.
+if ! python3 "$LIB_DIR/reflection-stability.py" \
+    --snapshot "$SNAPSHOT_FILE" \
+    --project-dir "$PROJECT_DIR" \
+    --output "$STABILITY_REPORT"; then
+  echo "reflect[$PROJECT]: project changed during reflection; publication withheld" >&2
+  emit_reflection_failure_telemetry "project_changed_during_reflection" 6
+  exit 6
+fi
+
+# Attest exact object identity before publication. An unsupported proposal
+# remains a valid reflection result, but it is labeled UNVERIFIED and therefore
+# cannot silently masquerade as evidence-bearing downstream input. Failed
+# attestation leaves only a private candidate under the invocation directory;
+# it never enters the reflection glob consumed by synthesis.
+if ! python3 "$LIB_DIR/reflection-evidence.py" \
+    "$CANDIDATE_FILE" \
+    --sidecar "$CANDIDATE_EVIDENCE_FILE"; then
+  echo "reflect[$PROJECT]: ERROR — primary-object attestation failed" >&2
+  emit_reflection_failure_telemetry "evidence_attestation_failed" 4
+  exit 4
+fi
+
+# Publish the sidecar first and the reflection last. Therefore any interrupted
+# publication leaves at worst an orphan sidecar, never an unattested official
+# reflection. Both source files are on the same runtime filesystem, so each
+# rename is atomic.
+if ! mv -- "$CANDIDATE_EVIDENCE_FILE" "$EVIDENCE_FILE"; then
+  emit_reflection_failure_telemetry "evidence_publication_failed" 5
+  exit 5
+fi
+if ! mv -- "$CANDIDATE_FILE" "$RAW_REFLECTION_FILE"; then
+  emit_reflection_failure_telemetry "raw_reflection_publication_failed" 5
+  exit 5
+fi
+
+# Only now may the invocation manifest claim final artifact paths. A failed
+# rename therefore cannot leave a false publication record.
+if ! python3 "$LIB_DIR/reflection-evidence.py" \
+    "$RAW_REFLECTION_FILE" \
+    --sidecar "$EVIDENCE_FILE" \
+    --artifact-path "$RAW_REFLECTION_FILE" \
+    --artifact-sidecar-path "$EVIDENCE_FILE" \
+    --finalize-manifest "$INVOCATION_MANIFEST"; then
+  emit_reflection_failure_telemetry "evidence_manifest_finalization_failed" 5
+  exit 5
+fi
+
+# Every typed security claim enters a quarantined review signal. Exact object
+# matching affects the evidence label, not the unvalidated severity or event
+# level. This preserves potentially genuine unmatched findings without letting
+# model self-labeling create an operational error state.
+mapfile -t SECURITY_REVIEW_COUNTS < <(python3 - "$EVIDENCE_FILE" <<'PY'
+import json, sys
+value = json.load(open(sys.argv[1], encoding="utf-8"))
+print(int(value.get("critical_security_count") or 0))
+print(int(value.get("critical_security_object_matched_count") or 0))
+print(int(value.get("unverified_security_count") or 0))
+PY
+)
+SECURITY_REVIEW_COUNT="${SECURITY_REVIEW_COUNTS[0]:-0}"
+MATCHED_CRITICAL_SECURITY="${SECURITY_REVIEW_COUNTS[1]:-0}"
+UNVERIFIED_CRITICAL_SECURITY="${SECURITY_REVIEW_COUNTS[2]:-0}"
+if [[ "$SECURITY_REVIEW_COUNT" -gt 0 ]]; then
+  printf '{"project":"%s","source":"%s.reflect","eventType":"reflection.security_review_requested","level":"warn","sourceType":"system","timestamp":%s,"note":"typed reflection security claim requires independent review","ref":"%s","details":{"count":%d,"objectMatchedCount":%d,"unverifiedCount":%d,"evidenceFile":"%s","invocationManifest":"%s","severityJudgmentValidated":false,"executable":false}}\n' \
+    "$PROJECT" "$PROJECT" "$(date -u +%s%3N)" "$RAW_REFLECTION_FILE" \
+    "$SECURITY_REVIEW_COUNT" "$MATCHED_CRITICAL_SECURITY" \
+    "$UNVERIFIED_CRITICAL_SECURITY" "$EVIDENCE_FILE" "$INVOCATION_MANIFEST" \
+    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
+fi
+
+# Synthesis consumes a separate projection with proposal content removed.
+# Full proposals remain in the raw reflection and private transcript for
+# empirical study, but cannot flow into the executable handoff loop by glob.
+if ! python3 "$LIB_DIR/reflection_synthesis_view.py" \
+    --reflection "$RAW_REFLECTION_FILE" \
+    --evidence "$EVIDENCE_FILE" \
+    --manifest "$INVOCATION_MANIFEST" \
+    --output "$SYNTHESIS_PROJECTION_CANDIDATE" \
+    --artifact-path "$OUTPUT_FILE"; then
+  echo "reflect[$PROJECT]: synthesis projection failed; raw reflection retained" >&2
+  emit_reflection_failure_telemetry "synthesis_projection_failed" 7
+  exit 7
+fi
+if ! mv -- "$SYNTHESIS_PROJECTION_CANDIDATE" "$OUTPUT_FILE"; then
+  emit_reflection_failure_telemetry "synthesis_projection_publication_failed" 7
+  exit 7
+fi
+if ! python3 "$LIB_DIR/reflection_synthesis_view.py" \
+    --reflection "$RAW_REFLECTION_FILE" \
+    --evidence "$EVIDENCE_FILE" \
+    --manifest "$INVOCATION_MANIFEST" \
+    --output "$OUTPUT_FILE" \
+    --finalize-manifest; then
+  rm -f -- "$OUTPUT_FILE"
+  emit_reflection_failure_telemetry "synthesis_manifest_finalization_failed" 7
+  exit 7
+fi
+echo "reflect[$PROJECT]: raw reflection -> $RAW_REFLECTION_FILE"
+echo "reflect[$PROJECT]: synthesis projection -> $OUTPUT_FILE"
+echo "reflect[$PROJECT]: evidence attestation -> $EVIDENCE_FILE"
+
+SUPPRESSED_QUESTION_LINES="$(python3 - "$INVOCATION_MANIFEST" <<'PY'
+import json, sys
+value = json.load(open(sys.argv[1], encoding="utf-8"))
+print(int((value.get("normalization") or {}).get("question_lines_suppressed") or 0))
+PY
+)"
+if [[ "$SUPPRESSED_QUESTION_LINES" -gt 0 ]]; then
+  echo "reflect[$PROJECT]: normalized $SUPPRESSED_QUESTION_LINES model-routed question line(s) out of the advisory projection" >&2
+  printf '{"project":"%s","source":"%s.reflect","eventType":"info","level":"warn","sourceType":"system","timestamp":%s,"note":"reflection normalization suppressed model-routed question lines","ref":"%s","details":{"questionLinesSuppressed":%d,"invocationManifest":"%s"}}\n' \
+    "$PROJECT" "$PROJECT" "$(date -u +%s%3N)" "$OUTPUT_FILE" \
+    "$SUPPRESSED_QUESTION_LINES" "$INVOCATION_MANIFEST" \
+    >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
+fi
+
+mapfile -t REFLECTOR_STATE < <(python3 - "$INVOCATION_MANIFEST" <<'PY'
+import json, sys
+value = json.load(open(sys.argv[1], encoding="utf-8"))
+print(value.get("provider") or "unknown")
+print(value.get("model") or "unknown")
+print(value.get("effort") or "unknown")
+PY
+)
+REFLECTOR_PROVIDER="${REFLECTOR_STATE[0]:-unknown}"
+REFLECTOR_MODEL="${REFLECTOR_STATE[1]:-unknown}"
+REFLECTOR_EFFORT="${REFLECTOR_STATE[2]:-unknown}"
 
 # Record the model state of the reflector and the model mix of source
 # assistant messages in the same 12h window. This is a derivative sidecar;
 # capture failure is visible but deliberately non-blocking.
-PROVENANCE_FILE="${OUTPUT_FILE%.md}.provenance.json"
+PROVENANCE_FILE="${RAW_REFLECTION_FILE%.md}.provenance.json"
 if ! python3 "$LIB_DIR/reflection-provenance.py" \
     --trace-file "$WORKSPACE_TELEMETRY_DIR/session-trace.jsonl" \
     --project-dir "$PROJECT_DIR" \
     --hours 12 \
-    --reflector-provider anthropic \
-    --reflector-model claude-sonnet-4-6 \
-    --reflector-effort medium \
+    --reflector-provider "$REFLECTOR_PROVIDER" \
+    --reflector-model "$REFLECTOR_MODEL" \
+    --reflector-effort "$REFLECTOR_EFFORT" \
+    --reflector-invocation-manifest "$INVOCATION_MANIFEST" \
     --output "$PROVENANCE_FILE"; then
   echo "reflect[$PROJECT]: WARNING — model provenance sidecar failed" >&2
   mkdir -p "$WORKSPACE_TELEMETRY_DIR" 2>/dev/null || true
@@ -168,89 +338,4 @@ if ! python3 "$LIB_DIR/reflection-provenance.py" \
     >> "$WORKSPACE_TELEMETRY_DIR/events.jsonl" 2>/dev/null || true
 else
   echo "reflect[$PROJECT]: model provenance -> $PROVENANCE_FILE"
-fi
-
-resolve_claim_path() {
-  local raw="$1"
-  if [[ "$raw" == /* ]]; then
-    printf '%s\n' "$raw"
-  elif [[ "$raw" == runtime/* || "$raw" == supervisor/* || "$raw" == projects/* ]]; then
-    printf '%s\n' "$WORKSPACE_ROOT/$raw"
-  else
-    printf '%s\n' "$PROJECT_DIR/$raw"
-  fi
-}
-
-# Reflection output feeds synthesis and executive reentry. Claims about
-# written handoffs/files must be real or they create false confidence.
-mapfile -t CLAIMED_FILES < <(grep -oP '(?:Writing|Filed handoff) `\K[^`]+' "$OUTPUT_FILE" 2>/dev/null | sort -u || true)
-MISSING_CLAIMS=()
-for raw_path in "${CLAIMED_FILES[@]}"; do
-  resolved_path="$(resolve_claim_path "$raw_path")"
-  if [[ ! -e "$resolved_path" ]]; then
-    MISSING_CLAIMS+=("$raw_path")
-  fi
-done
-
-if [[ "${#MISSING_CLAIMS[@]}" -gt 0 ]]; then
-  {
-    printf '\n## Verification warnings\n'
-    printf '\nThe reflection text claims actions that did not land on disk:\n'
-    for missing in "${MISSING_CLAIMS[@]}"; do
-      printf -- '- WARNING: claimed file `%s` does not exist.\n' "$missing"
-    done
-  } >> "$OUTPUT_FILE"
-fi
-
-# Safety net — verify the reflection session did not mutate the repo.
-if [[ -d "$PROJECT_DIR/.git" ]]; then
-  AFTER_HEAD=$(git -C "$PROJECT_DIR" rev-parse HEAD 2>/dev/null || echo none)
-  AFTER_DIRTY=$(git -C "$PROJECT_DIR" status --porcelain 2>/dev/null || true)
-  mkdir -p "$WORKSPACE_HANDOFF_DIR"
-  if [[ "$BEFORE_HEAD" != "$AFTER_HEAD" ]]; then
-    echo "reflect[$PROJECT]: CRITICAL — HEAD changed ($BEFORE_HEAD → $AFTER_HEAD). Reflection is supposed to be read-only." >&2
-    emit_reflection_failure_telemetry "head_changed" 3
-    cat > "$WORKSPACE_HANDOFF_DIR/URGENT-${PROJECT}-reflection-mutated-head.md" <<EOF
-Reflection session for ${PROJECT} at ${ISO_NOW} advanced HEAD from
-${BEFORE_HEAD} to ${AFTER_HEAD}. --disallowedTools did not catch it.
-Investigate immediately — the blocklist pattern for git writes may be
-incorrect, or the model found an unblocked path (gh, curl, direct fs).
-EOF
-    exit 3
-  fi
-  # Filter out context front-door files (CONTEXT.md, CURRENT_STATE.md) —
-  # reflections are permitted (and expected) to maintain them.
-  # Any other working-tree mutation is unexpected.
-  BEFORE_DIRTY_FILTERED=$(echo "$BEFORE_DIRTY" | grep -vE '(CONTEXT|CURRENT_STATE)\.md' || true)
-  AFTER_DIRTY_FILTERED=$(echo "$AFTER_DIRTY" | grep -vE '(CONTEXT|CURRENT_STATE)\.md' || true)
-  if [[ "$BEFORE_DIRTY_FILTERED" != "$AFTER_DIRTY_FILTERED" ]]; then
-    echo "reflect[$PROJECT]: WARNING — working tree changed during reflection (excluding CURRENT_STATE.md)." >&2
-    cat > "$WORKSPACE_HANDOFF_DIR/URGENT-${PROJECT}-reflection-dirty-tree.md" <<EOF
-Reflection session for ${PROJECT} at ${ISO_NOW} modified the working tree
-(excluding expected CURRENT_STATE.md writes).
-Before:
-${BEFORE_DIRTY}
-After:
-${AFTER_DIRTY}
-EOF
-  fi
-
-  # Post-reflection CURRENT_STATE.md auto-commit (cross-cutting 2026-04-20T03:25Z
-  # Proposal 2 Option A). Reflections Write CURRENT_STATE.md, but --disallowedTools
-  # blocks the in-session commit, leaving updates uncommitted for 24–48h and
-  # silently dropped on next merge. Commit exactly that path here; all other
-  # working-tree changes already triggered the warning above and are left as-is.
-  if [[ -f "$PROJECT_DIR/CURRENT_STATE.md" ]] \
-     && ! git -C "$PROJECT_DIR" diff --quiet -- CURRENT_STATE.md 2>/dev/null; then
-    if git -C "$PROJECT_DIR" commit --only \
-         -m "reflect: auto-update CURRENT_STATE.md ${ISO_NOW}" \
-         -m "Generated by scripts/lib/reflect.sh after the ${PROJECT} reflection session." \
-         -m "session_id=reflect-${PROJECT}-${ISO_NOW}" \
-         -- CURRENT_STATE.md \
-         >/dev/null 2>&1; then
-      echo "reflect[$PROJECT]: committed CURRENT_STATE.md update"
-    else
-      echo "reflect[$PROJECT]: WARNING — CURRENT_STATE.md commit failed (pre-commit hook? staged conflict?)" >&2
-    fi
-  fi
 fi

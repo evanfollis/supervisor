@@ -39,6 +39,7 @@ def build_manifest(
     reflector_provider: str,
     reflector_model: str,
     reflector_effort: str,
+    reflector_invocation_manifest: str = "",
     now: datetime | None = None,
 ) -> dict:
     now = now or datetime.now(timezone.utc)
@@ -107,6 +108,7 @@ def build_manifest(
             "provider": reflector_provider,
             "model": reflector_model,
             "reasoning_effort": reflector_effort,
+            "invocation_manifest": reflector_invocation_manifest,
         },
         "source_assistant_message_count": source_messages,
         "unknown_model_message_count": unknown_model_messages,
@@ -123,6 +125,7 @@ def main() -> int:
     parser.add_argument("--reflector-provider", required=True)
     parser.add_argument("--reflector-model", required=True)
     parser.add_argument("--reflector-effort", required=True)
+    parser.add_argument("--reflector-invocation-manifest", default="")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -133,6 +136,7 @@ def main() -> int:
         args.reflector_provider,
         args.reflector_model,
         args.reflector_effort,
+        args.reflector_invocation_manifest,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     tmp = args.output.with_suffix(args.output.suffix + ".tmp")

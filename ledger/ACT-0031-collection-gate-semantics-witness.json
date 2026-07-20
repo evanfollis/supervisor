@@ -42,16 +42,6 @@
       "evidence": [
         {
           "kind": "path",
-          "sha256": "54beaec28c7e0c24ee218e35ace40e5394447604e9d55a527e08f6e5b7333ce2",
-          "value": "/opt/workspace/supervisor/.verification/test-collection.json"
-        },
-        {
-          "kind": "path",
-          "sha256": "c94a46eeac1e86bc75739589949e6ea0494072c29264c4921f3e36aa1f2ccf93",
-          "value": "/opt/workspace/supervisor/.prompteval/synthesis-translator/baseline.json"
-        },
-        {
-          "kind": "path",
           "sha256": "5f9b5ad63202f9b231cf88eb602434e839bd2abdf90e023e00d849393d55ac71",
           "value": "/opt/workspace/runtime/prompteval/.transcripts/run-20260720T104442Z-657310.jsonl"
         }
@@ -65,9 +55,9 @@
   "dedup_key": "collection-gate-semantics-witness-v1",
   "exec_class": "review",
   "id": "ACT-0031",
-  "last_transition_at": "2026-07-20T11:29:47Z",
+  "last_transition_at": "2026-07-20T14:13:11Z",
   "owner": "general",
-  "reopened_count": 0,
+  "reopened_count": 1,
   "reversible": true,
   "risk": "high",
   "slug": "collection-gate-semantics-witness",
@@ -96,7 +86,21 @@
       "note": "",
       "to": "done",
       "ts": "2026-07-20T11:29:47Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "done",
+      "note": "Repair historical receipt: replace mutable verification paths with immutable transcript evidence",
+      "to": "open",
+      "ts": "2026-07-20T14:12:42Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "Reclosed with immutable verification evidence",
+      "to": "done",
+      "ts": "2026-07-20T14:13:11Z"
     }
   ],
-  "updated_at": "2026-07-20T11:29:47Z"
+  "updated_at": "2026-07-20T14:13:11Z"
 }

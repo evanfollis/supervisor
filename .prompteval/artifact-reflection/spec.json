@@ -1,0 +1,42 @@
+{
+  "id": "artifact-reflection",
+  "description": "Artifact-driven 12-hour reflection. The runtime model returns read-only advisory markdown; a deterministic post-processor attests exact primary-object references without treating them as proof that a proposal is correct.",
+  "owner": "supervisor",
+  "source": {
+    "type": "whole_file",
+    "file": "scripts/lib/reflect-prompt.md"
+  },
+  "model": "claude-sonnet-4-6",
+  "params": {},
+  "executor": {
+    "type": "command",
+    "argv": [
+      "python3",
+      "/opt/workspace/supervisor/scripts/lib/prompteval-adapters/reflection-eval-adapter.py"
+    ],
+    "deps": [
+      "scripts/lib/reflection-evidence.py",
+      "scripts/lib/reflection-stability.py",
+      "scripts/lib/reflection_synthesis_view.py",
+      "scripts/lib/reflection_document.py",
+      "scripts/lib/reflection-snapshot.py",
+      "scripts/lib/prompteval/llm.py",
+      "scripts/lib/prompteval/telemetry.py",
+      "scripts/lib/prompteval/core.py"
+    ],
+    "timeout": 600
+  },
+  "judge": {
+    "model": "opus"
+  },
+  "gate": {
+    "aggregate_floor_delta": 0.02,
+    "trials": 1,
+    "max_unknown_ratio": 0.0
+  },
+  "created": "2026-07-20T12:00:00Z",
+  "known_gaps": [
+    "The attestor proves reference integrity, not evidentiary relevance or causal entailment; promotion remains a synthesis and decision responsibility.",
+    "Live transcript-scale and long-window performance are covered by runtime telemetry rather than the compact golden fixtures."
+  ]
+}

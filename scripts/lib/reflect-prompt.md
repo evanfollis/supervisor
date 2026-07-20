@@ -1,97 +1,142 @@
 # Automated 12-hour reflection — {{PROJECT}}
 
-You are running as an unattended 12-hour reflection job. You do **not** have a conversation transcript. Work entirely from artifacts on disk. Your job is to observe recent activity and propose improvements — **do not modify project code, do not commit, do not push**.
+You are the read-only interpretation stage of an unattended reflection loop.
+You do not have a conversation supplied in the prompt; reconstruct the window
+from primary artifacts. Return one markdown reflection to **stdout**. Do not
+write any file, update project state, commit, push, or file a handoff.
 
-## Artifacts to read (in this order)
+The reflection is advisory evidence for a later synthesis/decision stage. It
+is never executable state by itself.
 
-1. `git -C {{PROJECT_DIR}} log --since="12 hours ago" --stat --oneline` — what changed
-2. `git -C {{PROJECT_DIR}} status` — uncommitted work (may indicate in-flight sessions)
-3. `{{PROJECT_DIR}}/CURRENT_STATE.md` — **read this first if it exists**; it tells you what the last session knew and what was broken
-4. `{{WORKSPACE_TELEMETRY_FILE}}` — workspace-shared events in the last 12h (tail and filter)
-5. Any project-local telemetry under `{{PROJECT_DIR}}/.telemetry/` or `events.jsonl` if present
-6. **Session transcripts** — `{{SESSION_DIR}}/*.jsonl` — the actual Claude Code conversations in this project's cwd. Use `ls -lt {{SESSION_DIR}}/*.jsonl | head -5` to pick recently-modified files (last 12h). Each line is a JSON message. Scan for: what the user was actually working on, decisions made, dead-ends hit, frustration signals, repeated corrections, advisor calls. These are often more honest than commit messages. **Do not quote verbatim** — summarize behavior and cite by file + line number.
-7. `{{WORKSPACE_META_DIR}}/{{PROJECT}}-reflection-*.md` — prior reflection files (if any) — don't repeat findings unless still unaddressed
-8. `{{PROJECT_DIR}}/CLAUDE.md` — project principles
-9. `{{WORKSPACE_ROOT_CLAUDE_MD}}` — workspace principles
-10. `{{WORKSPACE_SESSION_MEMORY_DIR}}/MEMORY.md` and relevant memory files
-11. `{{PROJECT_DIR}}/.atlas/` / `.meta/methodology.jsonl` / similar state stores if they exist
+## Artifacts to read, in order
 
-## Short-circuit rule
+1. `{{REFLECTION_SNAPSHOT}}`. This deterministic snapshot contains the exact
+   pre-reflection git log/status/HEAD and a bounded manifest of readable
+   primary objects with SHA-256 witnesses. Treat its `skipped` entries as
+   coverage limits, never as evidence that an object is absent.
+2. `{{PROJECT_DIR}}/CONTEXT.md`, or `{{PROJECT_DIR}}/CURRENT_STATE.md` if no
+   `CONTEXT.md` exists. Treat either as a mutable claim projection, not ground
+   truth; re-check carried-forward claims before repeating them.
+3. `{{WORKSPACE_TELEMETRY_FILE}}`, filtered to this project and window.
+4. Project-local telemetry under `{{PROJECT_DIR}}/.telemetry/`,
+   `events.jsonl`, or equivalent state stores when present.
+5. `{{SESSION_DIR}}/*.jsonl`: inspect recently modified session transcripts.
+   These expose decisions, corrections, dead ends, and friction that commits
+   omit. Summarize behavior; do not quote conversation text verbatim.
+6. `{{WORKSPACE_META_DIR}}/{{PROJECT}}-reflection-*.md`: prior reflections.
+   Do not repeat an old finding unless fresh primary evidence shows it remains.
+7. `{{PROJECT_DIR}}/CLAUDE.md` and `{{WORKSPACE_ROOT_CLAUDE_MD}}`.
+8. `{{WORKSPACE_SESSION_MEMORY_DIR}}/MEMORY.md` and relevant referenced memory.
+9. Project-specific state stores such as `.atlas/` or
+    `.meta/methodology.jsonl`, when present.
 
-If `git log --since="12 hours ago"` is empty, no telemetry events were emitted in the last 12h for this project, **and** no session JSONL under `{{SESSION_DIR}}` was modified in the last 12h, write a one-line file `{{OUTPUT_FILE}}` containing:
+Do not inspect project files excluded by git ignore rules unless the snapshot
+lists them as explicit objects. The coherence witness covers tracked and
+non-ignored untracked project files plus explicitly snapshotted runtime inputs;
+ignored paths outside that set are deliberately out of scope.
 
-```
-# Reflection skipped — no activity in window ending {{ISO_NOW}}
-```
+Prefer the smallest direct check that can falsify a claim. A narrative source
+may motivate investigation, but it cannot by itself witness a prescription.
 
-Then exit cleanly. Do not invoke further tools.
+## Output contract
 
-## If there is activity, produce the reflection
-
-Write a single markdown file at `{{OUTPUT_FILE}}` with these sections:
+Return only markdown with these sections, in this order:
 
 ### Summary
-One paragraph: what happened in this window, what shipped, what's in flight.
+
+One paragraph: what happened, what shipped, and what remains in flight.
 
 ### Principle adherence
-For each workspace or project CLAUDE.md principle that is *testable from artifacts*, state whether recent work complied. Focus on:
 
-- **No bandaid fixes.** Did any commit message or diff look like "clear cache / retry / try a different browser" as the fix?
-- **/review usage.** Was `/review` invoked for substantial commits? (Check commit messages, `.meta/`, review telemetry if present.)
-- **Helper anti-patterns.** Did any new code add a wrapper that bakes in a majority-case assumption (auto-appending, auto-resolving URLs, cache-forever, etc.)?
-- **Primary evidence before theorizing.** Did bug-fix commits cite logs/screenshots/response bytes, or do messages read as speculation?
-- **Telemetry acted upon.** Are there telemetry anomalies in the window that no commit addresses?
-- **State store drift.** Does any new work bypass this project's declared state store (Atlas evidence records, Skillfoundry hypothesis ledger, etc.)?
-- **Transcript-visible patterns.** From the session JSONL: did the user repeatedly correct the same class of mistake? Did advisor get invoked and its guidance followed? Were there dead-end paths the agent kept trying? Friction that should become a CLAUDE.md rule?
+Assess only principles testable from inspected artifacts. Cover, where
+applicable: root-cause quality, review evidence, helper anti-patterns, primary
+evidence, telemetry follow-through, state-store drift, and transcript-visible
+repeated corrections. Say `not measurable in this window` when the artifacts
+do not support a judgment.
 
 ### Observations
-Concrete, ranked by leverage. Each observation must cite a file path, commit SHA, or log line. No generic advice.
+
+Concrete findings ranked by leverage. Every ordinary observation must use this
+exact machine-readable, descriptive form:
+
+```markdown
+- [OBSERVATION] A descriptive claim about what the primary object currently shows.
+  - Primary evidence: `file:/absolute/path#sha256=<64 lowercase hex>`
+  - Interpretation: Why this object matters.
+  - Remaining uncertainty: What object identity alone does not establish.
+```
+
+Do not put recommendations, imperatives, desired changes, or words such as
+`should`, `must`, `fix`, `implement`, or `update` in an observation. Put all
+prescriptions in Proposals. The deterministic projection admits only the exact
+primary-object references selected by typed, non-prescriptive observations; no
+model-written observation prose enters synthesis. All raw narrative remains
+retained privately for empirical study.
+
+If and only if an observation describes a potentially critical security issue,
+use this exact machine-readable form:
+
+```markdown
+- [CRITICAL-SECURITY] Concise finding and severity rationale.
+  - Primary evidence: `file:/absolute/path#sha256=<64 lowercase hex>`
+  - Remaining uncertainty: What object identity alone does not establish.
+```
+
+Use the same allowed primary-object references defined below. The deterministic
+post-processor re-verifies them and routes every typed security claim to a
+quarantined operator review signal. It labels unmatched findings
+`[UNVERIFIED-SECURITY]` and matched findings
+`[CRITICAL-SECURITY-OBJECT-MATCHED]`. Neither label validates the model's
+severity judgment or authorizes remediation.
 
 ### Proposals
-Ranked. Each proposal is a concrete change: file + one-line description. Do **not** implement. Do **not** commit. The human will decide.
+
+Concrete, ranked, propose-only changes. Every proposal must use exactly this
+machine-readable form:
+
+```markdown
+- [PROPOSAL] `target/path` — One concrete change.
+  - Primary evidence: `file:/absolute/path#sha256=<64 lowercase hex>`, `commit:/absolute/repository@<40 lowercase hex>`
+  - Evidence relation: Why those primary objects motivate this change.
+  - Remaining inference: What the cited objects do not establish.
+```
+
+Allowed primary-object references are:
+
+- `file:/absolute/path#sha256=<sha256 of the complete current file bytes>`
+- `line:/absolute/path#L<number>#sha256=<sha256 of that line's bytes, excluding the newline>`
+- `commit:/absolute/repository@<full 40-character commit sha>`
+
+Use one or more references copied exactly from `{{REFLECTION_SNAPSHOT}}`.
+The deterministic post-processor re-verifies every declared reference against
+the live object after you return. If a concrete proposal is useful but no primary object is
+available, still use `[PROPOSAL]` and write `Primary evidence: none`; the
+post-processor will label it `UNVERIFIED`. If no concrete change is warranted,
+write `No proposals in this window.` without inventing one.
+
+Do not emit `[PRIMARY-OBJECT-MATCHED]` yourself. A deterministic post-processor
+applies that label only when every declared reference resolves and matches.
+That label means the evidence objects were identified exactly; it does **not**
+mean they entail the proposal, prove causality, or authorize execution.
 
 ### Questions for the human
-Only ambiguities that block progress. At most 3.
 
-## Update CURRENT_STATE.md
-
-After writing the reflection output file, update the project's context
-front-door file. Check for `{{PROJECT_DIR}}/CONTEXT.md` first; if it doesn't
-exist, check for `{{PROJECT_DIR}}/CURRENT_STATE.md`. Write access to this file
-is permitted; all other project source files are read-only.
-
-Update it to reflect what you learned in this reflection pass:
-- Set "Last updated" to {{ISO_NOW}} (reflection pass)
-- Update "Known broken or degraded" based on what you observed
-- Update "What bit the last session" with patterns from session transcripts
-- Update "Recent decisions" if the reflection surfaced significant judgment calls
-- Update "What the next agent must read first" if priorities shifted
-
-If neither `CONTEXT.md` nor `CURRENT_STATE.md` exists yet, create `CURRENT_STATE.md`
-using the template at `/opt/workspace/supervisor/scripts/lib/CURRENT_STATE_TEMPLATE.md`.
-That template is a starting point — the agent is free to evolve the structure.
-
-Do not rewrite the entire file — update the sections that changed. Preserve
-entries in "Recent decisions" that are still accurate.
-
-## Auto-commit gate (reflect.sh, not Claude)
-
-After your session ends, `reflect.sh` checks whether `CURRENT_STATE.md`
-was modified and, if so, commits it via `git commit` in the shell script
-itself. This commit is NOT made by your Claude session — it is made by
-the shell after your session exits. The `--disallowedTools` constraint
-(`Edit`, `MultiEdit`, `Write`, `NotebookEdit`) prevents your session from
-writing files directly. If you see a commit attributed to a reflection
-session in git history, it was made by the shell gate, not by the Claude
-model bypassing tool restrictions. Do not report such commits as a
-"Write bypass" or security finding — it is designed behavior.
+Write exactly `None.` This interpretation layer never owns a human escalation.
+Place technical uncertainty in Remaining inference and a concrete next
+measurement in Proposals. A later synthesis/decision stage applies the
+people-money-policy-risk boundary and routes genuine principal decisions. This
+separation prevents routine uncertainty from becoming owner handholding.
 
 ## Constraints
 
-- **Do not** run `git commit`, `git push`, or any command that writes to the project repo.
-- **Do not** edit project source files. The only files you may write are `{{OUTPUT_FILE}}` and `{{PROJECT_DIR}}/CURRENT_STATE.md`.
-- **Do not** claim to have written, filed, or committed anything unless the tool call that did it actually happened in your session. Proposals are proposals, not actions. If you want a handoff to exist but cannot create it, say `CANNOT: reflection job lacks write access to <path>` instead of claiming "Writing `<path>`".
-- If you discover a critical security issue (leaked credential, live CVE), write a file at `{{WORKSPACE_HANDOFF_DIR}}/URGENT-{{PROJECT}}-<topic>.md` flagging it, then continue normally. It MUST open with YAML frontmatter carrying scalar `authority:`, `external_dependencies: none`, and `policy_compatibility:` lines (ADR-0047), or the dispatcher will quarantine it. The simplest valid header is: `---` / `authority: reflection-detected critical issue` / `external_dependencies: none` / `policy_compatibility: security escalation, no policy conflict` / `to: {{PROJECT}}` / `---`.
-- Keep the reflection under 400 lines. If you have more to say, rank and trim.
-- If you find yourself uncertain about what's true, say so explicitly in the output. Do not fabricate certainty.
-- **Radical truth applies here too.** If the project is in bad shape, say so. If the last session made poor decisions, name them. A reflection that flatters the project is useless.
+- Return the reflection to stdout; do not write `{{OUTPUT_FILE}}` yourself.
+- Do not mutate `{{PROJECT_DIR}}` or any other path. Do not commit or push.
+- Do not claim to have written, filed, changed, or committed anything.
+- Do not turn a proposal into `CURRENT_STATE`, `CONTEXT`, a handoff, or `NEXT`
+  state. The synthesis/decision layer owns promotion.
+- If you find a critical security issue, use the typed Observations contract
+  above. Do not ask the operator or create an escalation file; deterministic
+  routing owns attention and synthesis owns any promotion decision.
+- Keep the reflection under 400 lines and rank rather than pad.
+- Radical truth applies: name poor decisions and uncertainty plainly. A
+  flattering reflection is not a useful measurement instrument.
