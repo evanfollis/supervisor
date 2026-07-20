@@ -1,20 +1,78 @@
 {
-  "acceptance_evidence": [],
-  "attempt_count": 0,
+  "acceptance_evidence": [
+    "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0031.json"
+  ],
+  "attempt_count": 1,
   "blocker_class": null,
-  "completion_receipt": "",
+  "closure": {
+    "action_id": "ACT-0031",
+    "code_landed": {
+      "landings": [
+        {
+          "commit": "c10de4671e1cfa37ec24cf3b9f046bfb08948f50",
+          "remote_ref": "origin/main",
+          "repository": "/opt/workspace/supervisor"
+        },
+        {
+          "commit": "67b38b5930df9df016aaa50ef77203bd4facdbc0",
+          "remote_ref": "origin/main",
+          "repository": "/opt/workspace/supervisor"
+        }
+      ],
+      "status": "complete"
+    },
+    "completed_at": "2026-07-20T11:30:00Z",
+    "deployed": {
+      "reason": "The passive collection witness and prompt gate semantics are local control-plane verification, not a separately deployed runtime.",
+      "status": "not_applicable"
+    },
+    "schema_version": 1,
+    "source_artifact_dispositioned": {
+      "archive_path": "/opt/workspace/runtime/.meta/handoff-archive/2026-07-20/proposal-collection-and-gate-semantics-witness-2026-07-20T09-38-15Z.md",
+      "sha256": "60c1f753c59ebb59ab542d16d8cc7eb5fe53ee43e4ddc9bec6ab552266fff266",
+      "source_path": "/opt/workspace/supervisor/handoffs/INBOX/proposal-collection-and-gate-semantics-witness-2026-07-20T09-38-15Z.md",
+      "status": "complete"
+    },
+    "state_projection_refreshed": {
+      "path": "/opt/workspace/supervisor/.prompteval/synthesis-translator/baseline.json",
+      "sha256": "c94a46eeac1e86bc75739589949e6ea0494072c29264c4921f3e36aa1f2ccf93",
+      "status": "complete"
+    },
+    "verification_passed": {
+      "evidence": [
+        {
+          "kind": "path",
+          "sha256": "54beaec28c7e0c24ee218e35ace40e5394447604e9d55a527e08f6e5b7333ce2",
+          "value": "/opt/workspace/supervisor/.verification/test-collection.json"
+        },
+        {
+          "kind": "path",
+          "sha256": "c94a46eeac1e86bc75739589949e6ea0494072c29264c4921f3e36aa1f2ccf93",
+          "value": "/opt/workspace/supervisor/.prompteval/synthesis-translator/baseline.json"
+        },
+        {
+          "kind": "path",
+          "sha256": "5f9b5ad63202f9b231cf88eb602434e839bd2abdf90e023e00d849393d55ac71",
+          "value": "/opt/workspace/runtime/prompteval/.transcripts/run-20260720T104442Z-657310.jsonl"
+        }
+      ],
+      "status": "complete"
+    }
+  },
+  "closure_schema_version": 1,
+  "completion_receipt": "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0031.json",
   "created_at": "2026-07-20T09:44:16Z",
   "dedup_key": "collection-gate-semantics-witness-v1",
   "exec_class": "review",
   "id": "ACT-0031",
-  "last_transition_at": "2026-07-20T09:44:16Z",
+  "last_transition_at": "2026-07-20T11:29:47Z",
   "owner": "general",
   "reopened_count": 0,
   "reversible": true,
   "risk": "high",
   "slug": "collection-gate-semantics-witness",
   "source": "handoffs/INBOX/proposal-collection-and-gate-semantics-witness-2026-07-20T09-38-15Z.md",
-  "state": "open",
+  "state": "done",
   "summary": "Add repository-declared test collection witnesses and enforce explicit required/advisory prompt semantics plus provider provenance.",
   "title": "Collection and gate-semantics witness",
   "transitions": [
@@ -24,7 +82,21 @@
       "note": "Promoted from fresh cross-project synthesis 2026-07-20T09:33:26Z",
       "to": "open",
       "ts": "2026-07-20T09:44:16Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "Passive test-surface witness landed and reviewed; migrating required/advisory prompt baseline next",
+      "to": "in_progress",
+      "ts": "2026-07-20T10:44:30Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-20T11:29:47Z"
     }
   ],
-  "updated_at": "2026-07-20T09:44:16Z"
+  "updated_at": "2026-07-20T11:29:47Z"
 }
