@@ -52,9 +52,33 @@
         "scripts/lib/tests/test_action_ledger.py::test_done_requires_complete_typed_receipt",
         "scripts/lib/tests/test_action_ledger.py::test_reopen_increments_and_latency_is_after_dispatch",
         "scripts/lib/tests/test_verification_witness.py::test_added_test_fails_until_manifest_is_reviewed",
+        "scripts/lib/tests/test_verification_witness.py::test_generated_cache_files_are_outside_the_declared_surface",
         "scripts/lib/tests/test_verification_witness.py::test_matching_inventory_passes",
         "scripts/lib/tests/test_verification_witness.py::test_orphan_test_function_is_rejected_before_manifest_comparison",
         "scripts/lib/tests/test_verification_witness.py::test_wrong_discovery_root_cannot_validate_as_empty_green"
+      ]
+    },
+    {
+      "id": "supervisor-contract-test-files",
+      "mode": "files",
+      "roots": [
+        "tests"
+      ],
+      "include": [
+        "test-*"
+      ],
+      "files": [
+        "tests/test-401-escalation.sh",
+        "tests/test-handoff-dispatch-target.sh",
+        "tests/test-handoff-requirement-provenance.sh",
+        "tests/test-prompteval.py",
+        "tests/test-reconcile-tick-branches.sh",
+        "tests/test-reflect-failure-telemetry.sh",
+        "tests/test-reflection-provenance.py",
+        "tests/test-remote-durability.sh",
+        "tests/test-run-synthesis-model.py",
+        "tests/test-session-trace-model-provenance.py",
+        "tests/test-supervisor-tick-branch-lifecycle.sh"
       ]
     }
   ]

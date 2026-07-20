@@ -103,8 +103,35 @@ def test_orphan_test_function_is_rejected_before_manifest_comparison():
         print("ok: orphan test function cannot disappear outside the runner list")
 
 
+def test_generated_cache_files_are_outside_the_declared_surface():
+    with tempfile.TemporaryDirectory() as root:
+        repo = Path(root)
+        (repo / ".verification").mkdir()
+        (repo / "tests" / "__pycache__").mkdir(parents=True)
+        (repo / "tests" / "test-live.sh").write_text("#!/bin/sh\nexit 0\n")
+        (repo / "tests" / "__pycache__" / "test-noise.pyc").write_bytes(b"noise")
+        (repo / ".verification" / "test-collection.json").write_text(json.dumps({
+            "schema_version": 1,
+            "collectors": [{
+                "id": "files",
+                "mode": "files",
+                "roots": ["tests"],
+                "include": ["test-*"],
+                "files": ["tests/test-live.sh"],
+            }],
+        }))
+        subprocess.run(
+            ["git", "init", "-b", "main", str(repo)], check=True, capture_output=True
+        )
+        subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+        result = _run(repo)
+        assert result.returncode == 0, result.stderr
+        print("ok: generated cache files cannot contaminate the declared surface")
+
+
 TESTS = [
     test_added_test_fails_until_manifest_is_reviewed,
+    test_generated_cache_files_are_outside_the_declared_surface,
     test_matching_inventory_passes,
     test_orphan_test_function_is_rejected_before_manifest_comparison,
     test_wrong_discovery_root_cannot_validate_as_empty_green,

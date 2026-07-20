@@ -20,7 +20,9 @@ from typing import Any
 
 SCHEMA_VERSION = 1
 DEFAULT_MANIFEST = ".verification/test-collection.json"
-DEFAULT_EXCLUDES = {".git", ".venv", "node_modules", ".next", "dist", "build"}
+DEFAULT_EXCLUDES = {
+    ".git", ".venv", "__pycache__", "node_modules", ".next", "dist", "build",
+}
 
 
 class WitnessError(ValueError):
