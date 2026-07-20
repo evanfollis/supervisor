@@ -39,6 +39,13 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from action_closure import (
+    DEFAULT_ARCHIVE_ROOT,
+    SCHEMA_VERSION as CLOSURE_SCHEMA_VERSION,
+    ClosureReceiptError,
+    validate_receipt,
+)
+
 LEDGER_DIR_DEFAULT = "/opt/workspace/supervisor/ledger"
 EVENTS_FILE_DEFAULT = "/opt/workspace/runtime/.telemetry/supervisor-events.jsonl"
 
@@ -128,7 +135,14 @@ def save_json(path, payload):
     with tmp.open("w") as fh:
         json.dump(payload, fh, indent=2, sort_keys=True)
         fh.write("\n")
+        fh.flush()
+        os.fsync(fh.fileno())
     tmp.replace(path)
+    fd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
 
 
 def append_event(events_file, event_type, ref, note):
@@ -214,13 +228,16 @@ def cmd_new(args):
     # Validate arguments before taking the lock (cheap, no shared state).
     if args.state == "blocked" and not args.blocker_class:
         raise SystemExit("refuse: state=blocked requires --blocker-class")
-    if args.state == "done" and (not (args.completion_receipt or "")
-                                 or not (args.evidence or [])):
-        raise SystemExit("refuse: state=done requires --completion-receipt and ≥1 --evidence")
+    if args.state == "done":
+        raise SystemExit(
+            "refuse: create the action non-terminal, then transition to done "
+            "with a typed completion receipt"
+        )
 
     # Serialize dedup-check + id-mint + save so concurrent ticks cannot mint the
     # same ACT id or race on the same dedup_key.
     with ledger_lock(ledger_dir):
+        _recover_pending_transactions_locked(ledger_dir)
         if args.dedup_key:
             existing_path, existing = find_by_dedup(ledger_dir, args.dedup_key)
             if existing_path is not None:
@@ -264,6 +281,96 @@ def cmd_new(args):
     print(str(path))
 
 
+def _fsync_directory(path):
+    fd = os.open(path, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _finish_source_move(source, archive):
+    """Finish a durable, no-clobber source disposition.
+
+    A hard link makes the archive durable before the inbox name is removed. If
+    the process dies between those operations, recovery sees both names, proves
+    they identify the same inode, and removes the source name. Requiring one
+    filesystem is deliberate: cross-filesystem copy/delete cannot provide this
+    crash invariant without a more complex content-addressed transaction.
+    """
+    archive.parent.mkdir(parents=True, exist_ok=True)
+    if source.exists() and not archive.exists():
+        try:
+            os.link(source, archive, follow_symlinks=False)
+        except FileExistsError as exc:
+            raise RuntimeError(f"refuse: source archive collision: {archive}") from exc
+        except OSError as exc:
+            raise RuntimeError(
+                "refuse: source and archive must share a filesystem for "
+                f"transactional disposition: {source} -> {archive}: {exc}"
+            ) from exc
+        with archive.open("rb") as handle:
+            os.fsync(handle.fileno())
+        _fsync_directory(archive.parent)
+    if source.exists() and archive.exists():
+        try:
+            same = os.path.samefile(source, archive)
+        except OSError as exc:
+            raise RuntimeError(f"refuse: cannot compare source and archive: {exc}") from exc
+        if not same:
+            raise RuntimeError(
+                f"refuse: source/archive collision contains different files: {archive}"
+            )
+        source.unlink()
+        _fsync_directory(source.parent)
+    if source.exists() or not archive.exists():
+        raise RuntimeError(
+            f"refuse: incomplete source disposition: {source} -> {archive}"
+        )
+
+
+def _transaction_dir(ledger_dir):
+    return ledger_dir / ".transactions"
+
+
+def _recover_transaction_locked(journal_path, ledger_dir):
+    """Roll one prepared closure transaction forward to its only valid end."""
+    journal = load_json(journal_path)
+    if journal.get("schema_version") != 1 or journal.get("operation") != "close":
+        raise RuntimeError(f"refuse: invalid closure transaction journal: {journal_path}")
+    ledger_path = Path(journal.get("ledger_path", ""))
+    try:
+        ledger_path.resolve(strict=False).relative_to(ledger_dir.resolve(strict=False))
+    except ValueError as exc:
+        raise RuntimeError(
+            f"refuse: transaction ledger path escapes ledger root: {ledger_path}"
+        ) from exc
+    after_record = journal.get("after_record")
+    if not isinstance(after_record, dict) or after_record.get("state") != "done":
+        raise RuntimeError(f"refuse: invalid transaction terminal record: {journal_path}")
+    source = Path(journal["source"])
+    archive = Path(journal["archive"])
+    _finish_source_move(source, archive)
+    save_json(ledger_path, after_record)
+    journal_path.unlink()
+    _fsync_directory(journal_path.parent)
+
+
+def _recover_pending_transactions_locked(ledger_dir):
+    transaction_dir = _transaction_dir(ledger_dir)
+    if not transaction_dir.exists():
+        return
+    for journal_path in sorted(transaction_dir.glob("*.json")):
+        _recover_transaction_locked(journal_path, ledger_dir)
+
+
+def _consistent_records(ledger_dir):
+    """Return a snapshot after rolling prepared closure transactions forward."""
+    with ledger_lock(ledger_dir):
+        _recover_pending_transactions_locked(ledger_dir)
+        return all_records(ledger_dir)
+
+
 def cmd_transition(args):
     ledger_dir = Path(args.ledger_dir)
     to = args.to
@@ -273,9 +380,12 @@ def cmd_transition(args):
     # Serialize the whole read-modify-write so a concurrent transition on the
     # same record cannot be lost (last-writer-wins clobber).
     with ledger_lock(ledger_dir):
+        _recover_pending_transactions_locked(ledger_dir)
         path = find_path(ledger_dir, args.act_id)
         rec = load_json(path)
+        original_rec = json.loads(json.dumps(rec))
         frm = rec["state"]
+        source_move = None
 
         if to not in TRANSITIONS.get(frm, set()):
             raise SystemExit(
@@ -296,19 +406,42 @@ def cmd_transition(args):
             for e in args.evidence:
                 if e not in rec["acceptance_evidence"]:
                     rec["acceptance_evidence"].append(e)
-        if args.completion_receipt:
-            rec["completion_receipt"] = args.completion_receipt
-
         if to == "done":
-            if not rec.get("completion_receipt") or not rec.get("acceptance_evidence"):
+            if not args.completion_receipt:
                 raise SystemExit(
-                    "refuse: -> done requires a completion_receipt and ≥1 acceptance_evidence "
-                    "(pass --completion-receipt and --evidence)")
+                    "refuse: -> done requires --completion-receipt pointing to "
+                    "a typed JSON receipt"
+                )
+            receipt_path = Path(args.completion_receipt)
+            archive_root = Path(
+                os.environ.get("ACTION_ARCHIVE_ROOT", str(DEFAULT_ARCHIVE_ROOT))
+            )
+            try:
+                closure, source_move = validate_receipt(
+                    receipt_path,
+                    action_id=rec["id"],
+                    record_source=rec.get("source", ""),
+                    source_root=ledger_dir.parent,
+                    archive_root=archive_root,
+                )
+            except ClosureReceiptError as exc:
+                raise SystemExit(f"refuse: invalid completion receipt: {exc}") from exc
+            rec["completion_receipt"] = str(receipt_path)
+            rec["closure_schema_version"] = CLOSURE_SCHEMA_VERSION
+            rec["closure"] = closure
+            if str(receipt_path) not in rec["acceptance_evidence"]:
+                rec["acceptance_evidence"].append(str(receipt_path))
 
         if to == "in_progress":
             rec["attempt_count"] = int(rec.get("attempt_count", 0)) + 1
         if frm in TERMINAL and to == "open":
             rec["reopened_count"] = int(rec.get("reopened_count", 0)) + 1
+            stale_receipt = rec.get("completion_receipt")
+            rec["completion_receipt"] = ""
+            rec.pop("closure", None)
+            rec.pop("closure_schema_version", None)
+            if stale_receipt in rec.get("acceptance_evidence", []):
+                rec["acceptance_evidence"].remove(stale_receipt)
 
         if args.owner:
             rec["owner"] = args.owner
@@ -322,7 +455,33 @@ def cmd_transition(args):
         rec.setdefault("transitions", []).append(
             {"ts": ts, "actor": args.actor, "from": frm, "to": to,
              "note": (args.note or "")[:200]})
-        save_json(path, rec)
+        if source_move is not None:
+            source, archive = source_move
+            transaction_dir = _transaction_dir(ledger_dir)
+            transaction_dir.mkdir(parents=True, exist_ok=True)
+            journal_path = transaction_dir / f"{rec['id']}-close.json"
+            if journal_path.exists():
+                raise SystemExit(
+                    f"refuse: closure transaction already exists: {journal_path}"
+                )
+            save_json(journal_path, {
+                "schema_version": 1,
+                "operation": "close",
+                "prepared_at": now_iso(),
+                "ledger_path": str(path),
+                "source": str(source),
+                "archive": str(archive),
+                "before_record": original_rec,
+                "after_record": rec,
+            })
+            _finish_source_move(source, archive)
+            if os.environ.get("ACTION_LEDGER_TEST_CRASH_AFTER_ARCHIVE") == "1":
+                os._exit(97)
+            save_json(path, rec)
+            journal_path.unlink()
+            _fsync_directory(journal_path.parent)
+        else:
+            save_json(path, rec)
 
     append_event(args.events_file, "action_transition", str(path),
                  f"{rec['id']} {frm}->{to} {args.note or ''}")
@@ -331,7 +490,7 @@ def cmd_transition(args):
 
 def cmd_list(args):
     ledger_dir = Path(args.ledger_dir)
-    for path, rec in all_records(ledger_dir):
+    for path, rec in _consistent_records(ledger_dir):
         if args.state and rec.get("state") != args.state:
             continue
         if args.owner and rec.get("owner") != args.owner:
@@ -345,16 +504,20 @@ def cmd_list(args):
 
 
 def cmd_show(args):
-    print(json.dumps(load_json(find_path(Path(args.ledger_dir), args.act_id)),
-                     indent=2, sort_keys=True))
+    ledger_dir = Path(args.ledger_dir)
+    with ledger_lock(ledger_dir):
+        _recover_pending_transactions_locked(ledger_dir)
+        record = load_json(find_path(ledger_dir, args.act_id))
+    print(json.dumps(record, indent=2, sort_keys=True))
 
 
 def cmd_check(args):
     """Machine-checkable invariants. Exit 1 on any violation."""
     ledger_dir = Path(args.ledger_dir)
+    records = _consistent_records(ledger_dir)
     problems = []
     seen_dedup = {}
-    for path, rec in all_records(ledger_dir):
+    for path, rec in records:
         rid = rec.get("id", path.name)
         st = rec.get("state")
         # identity: id well-formed and filename agrees
@@ -366,6 +529,29 @@ def cmd_check(args):
             problems.append(f"{rid}: invalid state {st!r}")
         if st == "done" and (not rec.get("completion_receipt") or not rec.get("acceptance_evidence")):
             problems.append(f"{rid}: done without completion_receipt+acceptance_evidence")
+        if st == "done" and rec.get("closure_schema_version") is not None:
+            if rec.get("closure_schema_version") != CLOSURE_SCHEMA_VERSION:
+                problems.append(
+                    f"{rid}: unsupported closure_schema_version "
+                    f"{rec.get('closure_schema_version')!r}"
+                )
+            else:
+                try:
+                    closure, _ = validate_receipt(
+                        Path(rec.get("completion_receipt", "")),
+                        action_id=rid,
+                        record_source=rec.get("source", ""),
+                        source_root=ledger_dir.parent,
+                        archive_root=Path(
+                            os.environ.get(
+                                "ACTION_ARCHIVE_ROOT", str(DEFAULT_ARCHIVE_ROOT)
+                            )
+                        ),
+                    )
+                    if rec.get("closure") != closure:
+                        problems.append(f"{rid}: embedded closure differs from receipt")
+                except ClosureReceiptError as exc:
+                    problems.append(f"{rid}: invalid typed closure receipt: {exc}")
         if st == "blocked" and not rec.get("blocker_class"):
             problems.append(f"{rid}: blocked without blocker_class")
         if rec.get("exec_class") not in EXEC_CLASSES:
@@ -410,7 +596,7 @@ def cmd_check(args):
         for p in problems:
             print(f"  ✗ {p}", file=sys.stderr)
         sys.exit(1)
-    n = len(all_records(ledger_dir))
+    n = len(records)
     print(f"action-ledger check OK — {n} record(s), all invariants hold")
 
 
@@ -474,7 +660,7 @@ def _count_suppression_events(events_file):
 def cmd_metrics(args):
     """Item-4 metrics computed from the ledger's own transition lineage."""
     ledger_dir = Path(args.ledger_dir)
-    recs = [r for _, r in all_records(ledger_dir)]
+    recs = [r for _, r in _consistent_records(ledger_dir)]
     now = datetime.now(timezone.utc)
     total = len(recs)
     by_state = {}
