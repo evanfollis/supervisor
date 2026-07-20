@@ -214,6 +214,26 @@ class TestGrading(unittest.TestCase):
         )
         self.assertEqual(v, "pass")
 
+    def test_verdict_parsing_accepts_nested_and_literal_braces(self):
+        reply = (
+            'analysis cites {project} and {"example": {"nested": true}}\n'
+            '```json\n'
+            '{"verdict": "pass", "reason": "the {project} wire key is present"}\n'
+            '```'
+        )
+        self.assertEqual(
+            grading.parse_verdict(reply),
+            ("pass", "the {project} wire key is present"),
+        )
+        nested_reason = (
+            'reasoning...\n'
+            '{"verdict": "fail", "reason": {"summary": "missing", '
+            '"evidence": {"key": "project"}}}'
+        )
+        verdict, reason = grading.parse_verdict(nested_reason)
+        self.assertEqual(verdict, "fail")
+        self.assertIn("missing", reason)
+
     def test_judge_majority_and_ties(self):
         replies = iter(
             ['{"verdict": "pass", "reason": "a"}', '{"verdict": "fail", "reason": "b"}',

@@ -196,9 +196,6 @@ def run_deterministic_check(check: dict, output: str) -> tuple[bool, str]:
 # LLM judge (subscription CLI per ADR-0036)
 # --------------------------------------------------------------------------
 
-_VERDICT_RE = re.compile(r'\{[^{}]*"verdict"[^{}]*\}')
-
-
 def build_judge_prompt(check: dict, case_input, output: str) -> str:
     return JUDGE_PROMPT_TEMPLATE.format(
         failure_mode=check.get("failure_mode", "unspecified"),
@@ -209,13 +206,28 @@ def build_judge_prompt(check: dict, case_input, output: str) -> str:
 
 
 def parse_verdict(reply: str) -> tuple[str, str]:
-    """Extract the last verdict JSON from a judge reply."""
-    matches = _VERDICT_RE.findall(reply or "")
-    for candidate in reversed(matches):
-        try:
-            obj = json.loads(candidate)
-        except json.JSONDecodeError:
+    """Extract the last complete verdict object from a judge reply.
+
+    Judges sometimes cite object-shaped source text or use braces inside the
+    reason. A regex cannot distinguish those from JSON structure and used to
+    turn otherwise valid verdicts into ``unknown``. Decode from every object
+    start and prefer the candidate ending latest in the reply; for equal ends,
+    prefer the outermost object.
+    """
+    text = reply or ""
+    decoder = json.JSONDecoder()
+    candidates: list[tuple[int, int, dict]] = []
+    for start, char in enumerate(text):
+        if char != "{":
             continue
+        try:
+            obj, consumed = decoder.raw_decode(text[start:])
+        except (json.JSONDecodeError, ValueError):
+            continue
+        if isinstance(obj, dict):
+            candidates.append((start + consumed, -start, obj))
+
+    for _, _, obj in sorted(candidates, reverse=True):
         verdict = str(obj.get("verdict", "")).lower()
         if verdict in ("pass", "fail", "unknown"):
             return verdict, str(obj.get("reason", ""))[:500]
