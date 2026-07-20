@@ -43,17 +43,20 @@ PROMPT="$(sed \
   -e "s|{{WORKSPACE_SCRIPTS_ROOT}}|$WORKSPACE_SCRIPTS_ROOT|g" \
   "$PROMPT_TEMPLATE")"
 
+PROMPT_FILE="$(mktemp /tmp/workspace-synthesis-prompt.XXXXXX)"
+cleanup_prompt() { rm -f "$PROMPT_FILE"; }
+trap cleanup_prompt EXIT
+printf '%s' "$PROMPT" > "$PROMPT_FILE"
+
 cd "$WORKSPACE_ROOT"
 
-claude -p "$PROMPT" \
-  --model claude-opus-4-6 \
-  --effort high \
-  --disallowedTools \
-    "Bash(git commit:*)" "Bash(git push:*)" "Bash(git reset:*)" \
-    "Bash(git rebase:*)" "Bash(git checkout:*)" "Bash(git merge:*)" \
-    "Bash(git add:*)" "Bash(git restore:*)" "Bash(git clean:*)" \
-    "Bash(rm:*)" "Bash(mv:*)" "Bash(systemctl:*)" "Bash(docker:*)" \
-    "Edit" "NotebookEdit" \
+# Route subscription capacity failures to the sibling CLI. The shared runner
+# retains full owner-only transcripts and emits compact non-blocking telemetry.
+"$LIB_DIR/run-synthesis-model.py" \
+  --prompt-file "$PROMPT_FILE" \
+  --cwd "$WORKSPACE_ROOT" \
+  --run-id "synthesis-$ISO_NOW" \
+  --timeout 1100 \
   2>&1 | tail -n 80
 
 if [[ -f "$OUTPUT_FILE" ]]; then
