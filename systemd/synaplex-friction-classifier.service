@@ -17,19 +17,31 @@ StandardError=journal
 # Deterministic and network-free. Code and source evidence are read-only;
 # writes are restricted to the runtime projection and formal friction records.
 NoNewPrivileges=true
+CapabilityBoundingSet=
+MemoryDenyWriteExecute=true
 PrivateDevices=true
 PrivateNetwork=true
 PrivateTmp=true
 ProtectControlGroups=true
-ProtectHome=read-only
+ProtectClock=true
+ProtectHome=true
+ProtectHostname=true
+ProtectKernelLogs=true
 ProtectKernelModules=true
 ProtectKernelTunables=true
+ProtectProc=invisible
 ProtectSystem=strict
+ProcSubset=pid
 ReadWritePaths=/opt/workspace/runtime/friction
 ReadWritePaths=/opt/workspace/supervisor/friction
+RemoveIPC=true
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=true
 RestrictRealtime=true
 RestrictSUIDSGID=true
 LockPersonality=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
 SystemCallArchitectures=native
 
 [Install]
