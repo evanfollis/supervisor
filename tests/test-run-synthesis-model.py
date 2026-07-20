@@ -18,6 +18,7 @@ assert "Bash(git commit:*)" in calls[0].cmd
 assert calls[1].fallback_from == "claude"
 assert calls[1].stdin_text and "same synthesis contract" in calls[1].stdin_text
 assert calls[1].stdin_text and "Do not change git history" in calls[1].stdin_text
+assert Path(calls[1].cmd[0]).name == "codex"
 assert calls[1].cmd[-1] == "-"
 
 captured = {}
@@ -39,4 +40,3 @@ assert captured["prompt_id"] == "workspace-synthesis"
 assert captured["retries"] == 0
 assert captured["timeout"] == 42
 print("workspace synthesis subscription fallback contract passed")
-

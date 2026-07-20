@@ -9,6 +9,8 @@ owner-only run transcript; aggregate telemetry remains compact.
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -42,6 +44,22 @@ CLAUDE_DENY = [
 ]
 
 
+def resolve_codex_binary() -> str:
+    explicit = os.environ.get("CODEX_BIN")
+    if explicit:
+        return explicit
+    on_path = shutil.which("codex")
+    if on_path:
+        return on_path
+    candidates = sorted(
+        (Path.home() / ".nvm" / "versions" / "node").glob("*/bin/codex"),
+        reverse=True,
+    )
+    if candidates:
+        return str(candidates[0])
+    return "codex"
+
+
 def build_calls(prompt: str, cwd: str, claude_model: str) -> list[CliCall]:
     claude_cmd = [
         "claude",
@@ -63,7 +81,7 @@ def build_calls(prompt: str, cwd: str, claude_model: str) -> list[CliCall]:
         + "history, commit, push, deploy, or alter project source.\n"
     )
     codex_cmd = [
-        "codex",
+        resolve_codex_binary(),
         "exec",
         "--skip-git-repo-check",
         "-c",
@@ -136,4 +154,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
