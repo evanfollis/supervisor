@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "collectors": [
+    {
+      "id": "supervisor-python-regressions",
+      "mode": "python-explicit-tests",
+      "roots": [
+        "scripts/lib"
+      ],
+      "include": [
+        "test_*.py"
+      ],
+      "exclude_dirs": [
+        "golden",
+        "holdout"
+      ],
+      "files": [
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py",
+        "scripts/lib/tests/test_action_ledger.py",
+        "scripts/lib/tests/test_verification_witness.py"
+      ],
+      "cases": [
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_concurrent_failures_are_not_lost",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_concurrent_probe_admits_exactly_one",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_empty_output_opens_immediately",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_per_spec_config_override",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_probe_after_cooldown_then_close_on_success",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_probe_failure_reopens",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_restart_persistence",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_semantic_error_does_not_open_the_circuit",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_state_error_degrades_to_attempt",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_success_resets_failure_count",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_throttle_opens_only_after_threshold",
+        "scripts/lib/prompteval/tests/test_circuit_breaker.py::test_timeout_opens_immediately",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_all_providers_unavailable_hard_stops",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_empty_output_falls_back_and_is_not_success",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_executor_empty_output_is_truthful_error",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_executor_nonempty_output_returns",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_semantic_error_is_fail_closed",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_throttle_still_falls_back",
+        "scripts/lib/prompteval/tests/test_harness_fallback.py::test_timeout_falls_back_to_sibling",
+        "scripts/lib/tests/test_action_ledger.py::test_archive_collision_fails_closed_without_clobbering_either_file",
+        "scripts/lib/tests/test_action_ledger.py::test_check_catches_state_mismatch",
+        "scripts/lib/tests/test_action_ledger.py::test_code_landed_requires_commit_reachable_from_remote_ref",
+        "scripts/lib/tests/test_action_ledger.py::test_concurrent_new_mints_unique_ids",
+        "scripts/lib/tests/test_action_ledger.py::test_concurrent_transitions_do_not_corrupt",
+        "scripts/lib/tests/test_action_ledger.py::test_crash_after_archive_is_recovered_before_next_observation",
+        "scripts/lib/tests/test_action_ledger.py::test_dedup_allows_new_generation_after_terminal",
+        "scripts/lib/tests/test_action_ledger.py::test_dedup_suppresses_while_non_terminal",
+        "scripts/lib/tests/test_action_ledger.py::test_done_archives_matching_source_and_check_revalidates_receipt",
+        "scripts/lib/tests/test_action_ledger.py::test_done_requires_complete_typed_receipt",
+        "scripts/lib/tests/test_action_ledger.py::test_reopen_increments_and_latency_is_after_dispatch",
+        "scripts/lib/tests/test_verification_witness.py::test_added_test_fails_until_manifest_is_reviewed",
+        "scripts/lib/tests/test_verification_witness.py::test_matching_inventory_passes",
+        "scripts/lib/tests/test_verification_witness.py::test_orphan_test_function_is_rejected_before_manifest_comparison",
+        "scripts/lib/tests/test_verification_witness.py::test_wrong_discovery_root_cannot_validate_as_empty_green"
+      ]
+    }
+  ]
+}

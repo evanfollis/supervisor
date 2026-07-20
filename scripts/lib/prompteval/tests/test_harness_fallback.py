@@ -137,7 +137,15 @@ def test_executor_nonempty_output_returns():
     print("ok: executor exit-0 non-empty -> returns output (regression guard)")
 
 
-TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+TESTS = [
+    test_all_providers_unavailable_hard_stops,
+    test_empty_output_falls_back_and_is_not_success,
+    test_executor_empty_output_is_truthful_error,
+    test_executor_nonempty_output_returns,
+    test_semantic_error_is_fail_closed,
+    test_throttle_still_falls_back,
+    test_timeout_falls_back_to_sibling,
+]
 
 
 def main():

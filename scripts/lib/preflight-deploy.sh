@@ -26,6 +26,26 @@ check ".gitignore excludes node_modules"  "! test -d node_modules || grep -q '^n
 check "No node_modules tracked"           "! git ls-files 2>/dev/null | grep -q '^node_modules/'"
 check ".gitignore excludes __pycache__"   "! find . -name __pycache__ -not -path './.git/*' -print -quit 2>/dev/null | grep -q . || grep -q '__pycache__' .gitignore"
 
+# --- Test collection witness (repository-declared, fail-closed when present) ---
+# A runner exiting zero is not evidence if it searched the wrong directory or
+# collected an accidentally reduced suite. Repositories opt in by committing a
+# versioned inventory at .verification/test-collection.json. The gate is passive:
+# it parses explicit runner lists but never imports or executes repository code.
+# Once declared, file/case additions and removals block deployment and are shown
+# by identity until the manifest diff is explicitly reviewed.
+if [[ -f .verification/test-collection.json ]]; then
+  if WITNESS_OUT=$(/opt/workspace/supervisor/scripts/lib/verification-witness.py . 2>&1); then
+    say "Declared runnable test-surface witness" "✓"
+    echo "$WITNESS_OUT" | sed 's/^/    /'
+  else
+    say "Declared runnable test-surface witness" "✗"
+    echo "$WITNESS_OUT" | sed 's/^/    /'
+    FAIL=1
+  fi
+else
+  say "Declared runnable test-surface witness" "— not adopted"
+fi
+
 # --- Anti-patterns caught by Command's check-patterns.ts (apply anywhere with req.url) ---
 # These scan tracked files only — skips node_modules, dist, etc.
 check "No NextResponse.redirect(new URL..req.url)" \

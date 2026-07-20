@@ -331,7 +331,19 @@ def test_check_catches_state_mismatch():
         print("ok: check catches state/transition mismatch")
 
 
-TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+TESTS = [
+    test_archive_collision_fails_closed_without_clobbering_either_file,
+    test_check_catches_state_mismatch,
+    test_code_landed_requires_commit_reachable_from_remote_ref,
+    test_concurrent_new_mints_unique_ids,
+    test_concurrent_transitions_do_not_corrupt,
+    test_crash_after_archive_is_recovered_before_next_observation,
+    test_dedup_allows_new_generation_after_terminal,
+    test_dedup_suppresses_while_non_terminal,
+    test_done_archives_matching_source_and_check_revalidates_receipt,
+    test_done_requires_complete_typed_receipt,
+    test_reopen_increments_and_latency_is_after_dispatch,
+]
 
 
 def main():

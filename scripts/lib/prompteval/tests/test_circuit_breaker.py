@@ -218,7 +218,20 @@ def test_concurrent_probe_admits_exactly_one():
         print("ok: concurrent half-open admits exactly one probe")
 
 
-TESTS = [v for k, v in sorted(globals().items()) if k.startswith("test_")]
+TESTS = [
+    test_concurrent_failures_are_not_lost,
+    test_concurrent_probe_admits_exactly_one,
+    test_empty_output_opens_immediately,
+    test_per_spec_config_override,
+    test_probe_after_cooldown_then_close_on_success,
+    test_probe_failure_reopens,
+    test_restart_persistence,
+    test_semantic_error_does_not_open_the_circuit,
+    test_state_error_degrades_to_attempt,
+    test_success_resets_failure_count,
+    test_throttle_opens_only_after_threshold,
+    test_timeout_opens_immediately,
+]
 
 
 def main():
