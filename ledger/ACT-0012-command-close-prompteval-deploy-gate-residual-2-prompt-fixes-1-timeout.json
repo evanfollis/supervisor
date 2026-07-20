@@ -1,22 +1,23 @@
 {
   "acceptance_evidence": [
-    "Command eb9f908 removed legacy operations; fresh release run run-20260719T195258Z-eec522 failed closed and is under evidence-driven correction"
+    "Command eb9f908 removed legacy operations; fresh release run run-20260719T195258Z-eec522 failed closed and is under evidence-driven correction",
+    "Command run run-20260720T083722Z-cbdf26 passed 16/16 required cases with aggregate 1.0 and unknown ratio 0.0; all four provenance-bound baselines accepted; prompteval check and deploy preflight pass."
   ],
   "attempt_count": 1,
   "blocker_class": null,
-  "completion_receipt": "",
+  "completion_receipt": "Command immutable release 20260720T092611Z-fde91be is live; HTTP and Chromium desktop/mobile smoke passed; origin/main=fde91bef34827c18572465b37557201fe7535eb1; GitHub profile deployment claim updated at commit 3c6ef8e6606caef9a6286a6cf1e35e879d5105a9.",
   "created_at": "2026-07-19T16:18:33Z",
   "dedup_key": "qrec:command-prompteval",
   "exec_class": "review",
   "id": "ACT-0012",
-  "last_transition_at": "2026-07-19T19:55:32Z",
+  "last_transition_at": "2026-07-20T09:28:07Z",
   "owner": "command",
   "reopened_count": 0,
   "reversible": false,
   "risk": "medium",
   "slug": "command-close-prompteval-deploy-gate-residual-2-prompt-fixes-1-timeout",
   "source": "quarantine-recovery:command-prompteval",
-  "state": "in_progress",
+  "state": "done",
   "summary": "",
   "title": "command: close prompteval deploy-gate residual (2 prompt fixes + 1 timeout)",
   "transitions": [
@@ -33,7 +34,14 @@
       "note": "Two active contract failures are being corrected; sealed holdout remains untouched and no baseline was accepted.",
       "to": "in_progress",
       "ts": "2026-07-19T19:55:32Z"
+    },
+    {
+      "actor": "codex",
+      "from": "in_progress",
+      "note": "Closed prompt-eval gate, evaluator reliability defect, contaminated holdout lineage, independent deployment review, and production deployment.",
+      "to": "done",
+      "ts": "2026-07-20T09:28:07Z"
     }
   ],
-  "updated_at": "2026-07-19T19:55:32Z"
+  "updated_at": "2026-07-20T09:28:07Z"
 }
