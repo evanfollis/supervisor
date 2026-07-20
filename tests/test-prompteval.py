@@ -25,7 +25,7 @@ os.environ["PROMPTEVAL_RUNTIME"] = str(TMP / "runtime")
 os.environ["PROMPTEVAL_TELEMETRY"] = str(TMP / "events.jsonl")
 
 from prompteval import check as pe_check  # noqa: E402
-from prompteval import core, goldens, grading, llm, registry, runner  # noqa: E402
+from prompteval import core, goldens, grading, llm, registry, runner, telemetry  # noqa: E402
 
 
 def make_repo() -> Path:
@@ -250,6 +250,63 @@ class TestGrading(unittest.TestCase):
             caller=lambda p, m: next(replies),
         )
         self.assertEqual(v, "unknown")
+
+    def test_unparseable_judge_reply_gets_one_bounded_normalization_call(self):
+        prompts = []
+        replies = iter([
+            "The response is grounded in the named files, so this passes.",
+            '{"verdict":"pass","reason":"The prior evaluator concluded pass."}',
+        ])
+
+        def caller(prompt, _model, telemetry_context=None):
+            prompts.append(prompt)
+            return next(replies)
+
+        verdict, reason = grading.run_judge_check(
+            {"failure_mode": "grounding", "rubric": "PASS when grounded."},
+            {"task": "review"},
+            "file-backed review",
+            "opus",
+            caller=caller,
+        )
+        self.assertEqual(verdict, "pass")
+        self.assertIn("concluded pass", reason)
+        self.assertEqual(len(prompts), 2)
+        self.assertIn("Normalize a prior evaluator reply", prompts[1])
+
+    def test_llm_transcript_is_private_and_run_scoped(self):
+        runtime = Path(tempfile.mkdtemp())
+        old_runtime = os.environ.get("PROMPTEVAL_RUNTIME")
+        os.environ["PROMPTEVAL_RUNTIME"] = str(runtime)
+        try:
+            telemetry.emit_llm_transcript(
+                run_id="run-test-transcript",
+                project="p",
+                prompt_id="prompt",
+                case_id="case",
+                trial=0,
+                role="judge",
+                provider="claude",
+                model="opus",
+                status="success",
+                attempt=1,
+                fallback_from="",
+                input_text="full input",
+                output_text="full output",
+                stderr_text="",
+                detail="",
+            )
+            path = runtime / ".transcripts" / "run-test-transcript.jsonl"
+            row = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(row["input"], "full input")
+            self.assertEqual(row["output"], "full output")
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(path.parent.stat().st_mode & 0o777, 0o700)
+        finally:
+            if old_runtime is None:
+                os.environ.pop("PROMPTEVAL_RUNTIME", None)
+            else:
+                os.environ["PROMPTEVAL_RUNTIME"] = old_runtime
 
     def test_judge_trials_wired_from_spec(self):
         repo = make_repo()

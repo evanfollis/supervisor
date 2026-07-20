@@ -234,6 +234,20 @@ def parse_verdict(reply: str) -> tuple[str, str]:
     return "unknown", "judge reply had no parseable verdict"
 
 
+def build_verdict_repair_prompt(original_prompt: str, reply: str) -> str:
+    return f"""Normalize a prior evaluator reply into the required verdict object.
+Do not re-grade the underlying output and do not add new reasoning. Infer the verdict only
+from the evaluator's stated conclusion. If its conclusion is genuinely absent or ambiguous,
+use unknown. Return exactly one JSON object and nothing else:
+{{"verdict":"pass"|"fail"|"unknown","reason":"<one sentence>"}}
+
+Original grading request:
+{original_prompt[:12000]}
+
+Prior evaluator reply:
+{reply[:12000]}"""
+
+
 def _codex_cmd(model: str) -> list[str]:
     cmd = [
         "codex",
@@ -361,6 +375,17 @@ def run_judge_check(
         except TypeError:
             reply = caller(prompt, model)
         verdict, reason = parse_verdict(reply)
+        if verdict == "unknown" and reason == "judge reply had no parseable verdict":
+            repair_prompt = build_verdict_repair_prompt(prompt, reply)
+            try:
+                repaired = caller(
+                    repair_prompt,
+                    model,
+                    telemetry_context=telemetry_context,
+                )
+            except TypeError:
+                repaired = caller(repair_prompt, model)
+            verdict, reason = parse_verdict(repaired)
         votes.append(verdict)
         reasons.append(reason)
     tally = {v: votes.count(v) for v in set(votes)}

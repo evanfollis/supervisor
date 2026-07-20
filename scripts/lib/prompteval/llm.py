@@ -10,7 +10,7 @@ from contextvars import ContextVar, Token
 from dataclasses import dataclass
 
 from . import circuit
-from .telemetry import emit_llm_call
+from .telemetry import emit_llm_call, emit_llm_transcript
 
 THROTTLE_RE = re.compile(
     r"rate.?limit|overloaded|429|usage limit|session limit|hit your .*limit",
@@ -154,6 +154,7 @@ def run_cli_call(
             raise ProviderUnavailable(call.provider, detail, kind="timeout") from exc
         finally:
             latency_ms = int((time.monotonic() - started) * 1000)
+            resolved_run_id = run_id or current_run_id()
             if exit_code == 0:
                 # Exit 0 with empty/whitespace output is NOT success — the
                 # provider ran but produced nothing (the "Claude returned empty"
@@ -182,7 +183,24 @@ def run_cli_call(
                 fallback_from=call.fallback_from,
                 exit_code=exit_code,
                 detail=detail,
-                run_id=run_id or current_run_id(),
+                run_id=resolved_run_id,
+            )
+            emit_llm_transcript(
+                run_id=resolved_run_id,
+                project=project,
+                prompt_id=prompt_id,
+                case_id=case_id,
+                trial=trial,
+                role=role,
+                provider=call.provider,
+                model=call.model or "default",
+                status=status,
+                attempt=attempt + 1,
+                fallback_from=call.fallback_from,
+                input_text=call.input_text or call.stdin_text or "",
+                output_text=stdout,
+                stderr_text=stderr,
+                detail=detail,
             )
         if exit_code == 0:
             if (stdout or "").strip():
