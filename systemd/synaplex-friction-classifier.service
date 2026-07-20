@@ -1,0 +1,36 @@
+[Unit]
+Description=synaplex Layer 5 friction classifier and FR promotion
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/workspace/projects/synaplex
+Environment=PATH=/opt/workspace/projects/synaplex/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=SYNAPLEX_SOURCE_TYPE=cron
+ExecStart=/opt/workspace/projects/synaplex/.venv/bin/python -m intake.friction_classifier
+Nice=10
+UMask=0077
+TimeoutStartSec=5min
+StandardOutput=journal
+StandardError=journal
+
+# Deterministic and network-free. Code and source evidence are read-only;
+# writes are restricted to the runtime projection and formal friction records.
+NoNewPrivileges=true
+PrivateDevices=true
+PrivateNetwork=true
+PrivateTmp=true
+ProtectControlGroups=true
+ProtectHome=read-only
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectSystem=strict
+ReadWritePaths=/opt/workspace/runtime/friction
+ReadWritePaths=/opt/workspace/supervisor/friction
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

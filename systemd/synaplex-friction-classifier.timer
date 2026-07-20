@@ -1,0 +1,12 @@
+[Unit]
+Description=Classify synaplex friction hourly
+Requires=synaplex-friction-classifier.service
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=180
+Persistent=true
+Unit=synaplex-friction-classifier.service
+
+[Install]
+WantedBy=timers.target
