@@ -50,7 +50,18 @@ iso="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
 mkdir -p "$HANDOFF_DIR"
 target="$HANDOFF_DIR/${to}-${slug}-${iso}.md"
 tmp="$(mktemp "${HANDOFF_DIR}/.write-handoff.XXXXXX")"
-trap 'rm -f "$tmp"' EXIT
+body_tmp="$(mktemp "${HANDOFF_DIR}/.write-handoff-body.XXXXXX")"
+trap 'rm -f "$tmp" "$body_tmp"' EXIT
+
+# A provenance-only file is syntactically valid but operationally empty. Read
+# stdin before publication and fail closed when the caller forgot to pipe the
+# actual task body. This keeps the dispatcher from delivering a title-shaped
+# artifact that forces the receiving agent to reverse-engineer intent.
+cat > "$body_tmp"
+if ! grep -q '[^[:space:]]' "$body_tmp"; then
+  echo "write-handoff: REFUSED to publish empty handoff body" >&2
+  exit 2
+fi
 
 {
   echo "---"
@@ -66,7 +77,7 @@ trap 'rm -f "$tmp"' EXIT
   done
   echo "---"
   echo
-  cat
+  cat "$body_tmp"
 } > "$tmp"
 
 # Validate BEFORE publication. Force validation regardless of ctime cutoff by
@@ -77,5 +88,6 @@ if ! err="$(python3 "$CHECK" "$tmp" "2000-01-01T00:00:00Z" 2>&1)"; then
 fi
 
 mv -- "$tmp" "$target"
+rm -f "$body_tmp"
 trap - EXIT
 echo "$target"

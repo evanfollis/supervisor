@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DISPATCHER="$ROOT/scripts/lib/dispatch-handoffs.sh"
 CHECKER="$ROOT/scripts/lib/check-handoff-provenance.py"
+WRITER="$ROOT/scripts/lib/write-handoff.sh"
 
 # Keep the test coupled to the actual dispatcher contract without invoking its
 # fixed runtime paths or tmux side effects.
@@ -63,6 +64,28 @@ error=$("$CHECKER" "$tmp/authorized-incomplete.md" '1970-01-01T00:00:00Z' 2>&1) 
 
 # Pre-cutover handoffs are historical and remain dispatchable without mutation.
 "$CHECKER" "$tmp/invalid.md" '2999-01-01T00:00:00Z'
+
+# The canonical writer must reject a provenance-only handoff. Missing stdin was
+# previously publishable and left project agents with a valid header but no
+# task or acceptance criteria.
+writer_handoffs="$tmp/writer-handoffs"
+mkdir -p "$writer_handoffs"
+error=$(HANDOFF_DIR="$writer_handoffs" "$WRITER" \
+  --to command --slug empty-body \
+  --authority "ADR-0047 test" \
+  --external-dependencies none \
+  --policy-compatibility "test fixture" </dev/null 2>&1) && exit 1
+[[ "$error" == 'write-handoff: REFUSED to publish empty handoff body' ]]
+[[ $(find "$writer_handoffs" -maxdepth 1 -type f | wc -l) -eq 0 ]]
+
+published=$(printf '%s\n' '# Concrete task' 'Ship and verify it.' | \
+  HANDOFF_DIR="$writer_handoffs" "$WRITER" \
+    --to command --slug nonempty-body \
+    --authority "ADR-0047 test" \
+    --external-dependencies none \
+    --policy-compatibility "test fixture")
+[[ -f "$published" ]]
+grep -Fq '# Concrete task' "$published"
 
 # End-to-end: the dispatcher moves a malformed new project handoff out of the
 # PM's direct-scan path, preserves it, emits telemetry, and escalates once.
