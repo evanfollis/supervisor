@@ -1,6 +1,5 @@
 [Unit]
 Description=Classify synaplex friction hourly
-Requires=synaplex-friction-classifier.service
 
 [Timer]
 OnCalendar=hourly
