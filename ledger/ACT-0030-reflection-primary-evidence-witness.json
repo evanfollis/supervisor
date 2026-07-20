@@ -1,20 +1,64 @@
 {
-  "acceptance_evidence": [],
-  "attempt_count": 0,
+  "acceptance_evidence": [
+    "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0030.json"
+  ],
+  "attempt_count": 1,
   "blocker_class": null,
-  "completion_receipt": "",
+  "closure": {
+    "action_id": "ACT-0030",
+    "code_landed": {
+      "commit": "9d9160c0504633a9cad22c5cdce31060a7cc2fd9",
+      "remote_ref": "origin/main",
+      "repository": "/opt/workspace/supervisor",
+      "status": "complete"
+    },
+    "completed_at": "2026-07-20T14:14:32Z",
+    "deployed": {
+      "reason": "The reflection witness is a local workspace control-plane pipeline and has no separately deployed runtime.",
+      "status": "not_applicable"
+    },
+    "schema_version": 1,
+    "source_artifact_dispositioned": {
+      "archive_path": "/opt/workspace/runtime/.meta/handoff-archive/2026-07-20/proposal-reflection-evidence-check-2026-07-20T09-38-15Z.md",
+      "sha256": "b5e1774a673b1c8134bd1a09afdf97cc7c03fabad7ef0e297f03267a8c3ca872",
+      "source_path": "/opt/workspace/supervisor/handoffs/INBOX/proposal-reflection-evidence-check-2026-07-20T09-38-15Z.md",
+      "status": "complete"
+    },
+    "state_projection_refreshed": {
+      "path": "/opt/workspace/supervisor/.prompteval/artifact-reflection/baseline.json",
+      "sha256": "f17ac74aefff446deea838c94a7a866592eb2cb710aec0ab3a9a20d6dd2306c2",
+      "status": "complete"
+    },
+    "verification_passed": {
+      "evidence": [
+        {
+          "kind": "path",
+          "sha256": "c2d1f0fd187dd14ed3e33cf1e3a00b340b31139484027c0b4809cd43325c4fa4",
+          "value": "/opt/workspace/runtime/.meta/supervisor-reflection-frontier-tests-definitive-2026-07-20.txt"
+        },
+        {
+          "kind": "path",
+          "sha256": "ea190e7644f1e972c9a602cb8b155788581210f0e197a3b56dd5cfb7233b19b7",
+          "value": "/opt/workspace/runtime/.meta/reflection-frontier-adversarial-review-definitive-2026-07-20.jsonl"
+        }
+      ],
+      "status": "complete"
+    }
+  },
+  "closure_schema_version": 1,
+  "completion_receipt": "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0030.json",
   "created_at": "2026-07-20T09:44:16Z",
   "dedup_key": "reflection-primary-evidence-witness-v1",
   "exec_class": "review",
   "id": "ACT-0030",
-  "last_transition_at": "2026-07-20T09:44:16Z",
+  "last_transition_at": "2026-07-20T14:15:04Z",
   "owner": "general",
   "reopened_count": 0,
   "reversible": true,
   "risk": "high",
   "slug": "reflection-primary-evidence-witness",
   "source": "handoffs/INBOX/proposal-reflection-evidence-check-2026-07-20T09-38-15Z.md",
-  "state": "open",
+  "state": "done",
   "summary": "Add a deterministic reflection evidence checker that labels unsupported prescriptions UNVERIFIED and prevents them becoming executable NEXT state.",
   "title": "Reflection primary-evidence witness",
   "transitions": [
@@ -24,7 +68,21 @@
       "note": "Promoted from fresh cross-project synthesis 2026-07-20T09:33:26Z",
       "to": "open",
       "ts": "2026-07-20T09:44:16Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "open",
+      "note": "Evidence-bearing reflection frontier landed and verified; recording terminal receipt",
+      "to": "in_progress",
+      "ts": "2026-07-20T14:14:39Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "in_progress",
+      "note": "Primary-object witness and non-promotional synthesis boundary complete",
+      "to": "done",
+      "ts": "2026-07-20T14:15:04Z"
     }
   ],
-  "updated_at": "2026-07-20T09:44:16Z"
+  "updated_at": "2026-07-20T14:15:04Z"
 }
