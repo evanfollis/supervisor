@@ -320,6 +320,46 @@ def test_code_landed_requires_commit_reachable_from_remote_ref():
         print("ok: code_landed refuses local-only SHA and accepts remote-reachable commit")
 
 
+def test_code_landed_accepts_multiple_remote_reachable_landings():
+    with tempfile.TemporaryDirectory() as root:
+        L = Ledger(root)
+        landings = []
+        for name in ("one", "two"):
+            repository = Path(root) / name
+            remote = Path(root) / f"{name}.git"
+            subprocess.run(["git", "init", "--bare", str(remote)], check=True, capture_output=True)
+            subprocess.run(["git", "init", "-b", "main", str(repository)], check=True, capture_output=True)
+            subprocess.run(["git", "-C", str(repository), "config", "user.email", "test@example.com"], check=True)
+            subprocess.run(["git", "-C", str(repository), "config", "user.name", "Test"], check=True)
+            (repository / "proof.txt").write_text(name)
+            subprocess.run(["git", "-C", str(repository), "add", "proof.txt"], check=True)
+            subprocess.run(["git", "-C", str(repository), "commit", "-m", name], check=True, capture_output=True)
+            commit = subprocess.run(
+                ["git", "-C", str(repository), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True,
+            ).stdout.strip()
+            subprocess.run(["git", "-C", str(repository), "remote", "add", "origin", str(remote)], check=True)
+            subprocess.run(["git", "-C", str(repository), "push", "-u", "origin", "main"], check=True, capture_output=True)
+            landings.append({
+                "repository": str(repository),
+                "commit": commit,
+                "remote_ref": "origin/main",
+            })
+
+        action = L.run("new", "--title", "multi-repository", check=True).stdout.strip()
+        rid = json.loads(Path(action).read_text())["id"]
+        receipt = L.receipt(rid)
+        payload = json.loads(receipt.read_text())
+        payload["code_landed"] = {"status": "complete", "landings": landings}
+        receipt.write_text(json.dumps(payload))
+        L.run(
+            "transition", rid, "--to", "done", "--completion-receipt", str(receipt),
+            check=True,
+        )
+        assert json.loads(Path(action).read_text())["state"] == "done"
+        print("ok: code_landed proves every repository in a multi-landing receipt")
+
+
 def test_check_catches_state_mismatch():
     with tempfile.TemporaryDirectory() as root:
         L = Ledger(root)
@@ -335,6 +375,7 @@ TESTS = [
     test_archive_collision_fails_closed_without_clobbering_either_file,
     test_check_catches_state_mismatch,
     test_code_landed_requires_commit_reachable_from_remote_ref,
+    test_code_landed_accepts_multiple_remote_reachable_landings,
     test_concurrent_new_mints_unique_ids,
     test_concurrent_transitions_do_not_corrupt,
     test_crash_after_archive_is_recovered_before_next_observation,

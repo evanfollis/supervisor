@@ -99,24 +99,42 @@ def _git(repository: Path, *args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def _validate_git_commit(section: dict[str, Any]) -> None:
-    repository = _absolute_path(section.get("repository"), "code_landed.repository")
+def _validate_git_commit(section: dict[str, Any], label: str = "code_landed") -> None:
+    repository = _absolute_path(section.get("repository"), f"{label}.repository")
     if not repository.is_dir():
-        raise ClosureReceiptError(f"code_landed.repository is not a directory: {repository}")
+        raise ClosureReceiptError(f"{label}.repository is not a directory: {repository}")
     commit = section.get("commit")
     if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
-        raise ClosureReceiptError("code_landed.commit must be a full 40-character lowercase SHA")
+        raise ClosureReceiptError(f"{label}.commit must be a full 40-character lowercase SHA")
     remote_ref = section.get("remote_ref", "origin/main")
     if not isinstance(remote_ref, str) or not remote_ref.strip():
-        raise ClosureReceiptError("code_landed.remote_ref must be non-empty")
+        raise ClosureReceiptError(f"{label}.remote_ref must be non-empty")
     if _git(repository, "cat-file", "-e", f"{commit}^{{commit}}").returncode != 0:
-        raise ClosureReceiptError(f"code_landed.commit is not present in {repository}: {commit}")
+        raise ClosureReceiptError(f"{label}.commit is not present in {repository}: {commit}")
     if _git(repository, "rev-parse", "--verify", remote_ref).returncode != 0:
-        raise ClosureReceiptError(f"code_landed.remote_ref is not present: {remote_ref}")
+        raise ClosureReceiptError(f"{label}.remote_ref is not present: {remote_ref}")
     if _git(repository, "merge-base", "--is-ancestor", commit, remote_ref).returncode != 0:
         raise ClosureReceiptError(
-            f"code_landed.commit is not durable on {remote_ref}: {commit}"
+            f"{label}.commit is not durable on {remote_ref}: {commit}"
         )
+
+
+def _validate_code_landed(section: dict[str, Any]) -> None:
+    landings = section.get("landings")
+    has_singular = any(key in section for key in ("repository", "commit", "remote_ref"))
+    if landings is None:
+        _validate_git_commit(section)
+        return
+    if has_singular:
+        raise ClosureReceiptError(
+            "code_landed must use either singular fields or landings, not both"
+        )
+    if not isinstance(landings, list) or not landings:
+        raise ClosureReceiptError("code_landed.landings must be a non-empty list")
+    for index, landing in enumerate(landings):
+        if not isinstance(landing, dict):
+            raise ClosureReceiptError(f"code_landed.landings[{index}] must be an object")
+        _validate_git_commit(landing, f"code_landed.landings[{index}]")
 
 
 def _validate_evidence(items: object, label: str) -> None:
@@ -216,7 +234,7 @@ def validate_receipt(
             "completion cannot contain deferred dimensions: " + ", ".join(deferred)
         )
     if sections["code_landed"]["status"] == "complete":
-        _validate_git_commit(sections["code_landed"])
+        _validate_code_landed(sections["code_landed"])
     if sections["verification_passed"]["status"] == "complete":
         _validate_evidence(sections["verification_passed"].get("evidence"), "verification_passed")
     if sections["deployed"]["status"] == "complete":

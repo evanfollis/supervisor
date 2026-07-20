@@ -42,6 +42,7 @@
         "scripts/lib/prompteval/tests/test_harness_fallback.py::test_timeout_falls_back_to_sibling",
         "scripts/lib/tests/test_action_ledger.py::test_archive_collision_fails_closed_without_clobbering_either_file",
         "scripts/lib/tests/test_action_ledger.py::test_check_catches_state_mismatch",
+        "scripts/lib/tests/test_action_ledger.py::test_code_landed_accepts_multiple_remote_reachable_landings",
         "scripts/lib/tests/test_action_ledger.py::test_code_landed_requires_commit_reachable_from_remote_ref",
         "scripts/lib/tests/test_action_ledger.py::test_concurrent_new_mints_unique_ids",
         "scripts/lib/tests/test_action_ledger.py::test_concurrent_transitions_do_not_corrupt",

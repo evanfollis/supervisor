@@ -30,9 +30,18 @@ cannot close an action.
   "completed_at": "2026-07-20T12:00:00Z",
   "code_landed": {
     "status": "complete",
-    "repository": "/opt/workspace/supervisor",
-    "commit": "FULL_40_CHARACTER_LOWERCASE_GIT_SHA",
-    "remote_ref": "origin/main"
+    "landings": [
+      {
+        "repository": "/opt/workspace/supervisor",
+        "commit": "FULL_40_CHARACTER_LOWERCASE_GIT_SHA",
+        "remote_ref": "origin/main"
+      },
+      {
+        "repository": "/opt/workspace/projects/example",
+        "commit": "FULL_40_CHARACTER_LOWERCASE_GIT_SHA",
+        "remote_ref": "origin/main"
+      }
+    ]
   },
   "verification_passed": {
     "status": "complete",
@@ -64,6 +73,11 @@ cannot close an action.
   }
 }
 ```
+
+For a one-repository action, `code_landed` may retain the backward-compatible
+singular `repository`, `commit`, and `remote_ref` fields. A multi-repository
+action must use the non-empty `landings` list; mixing the two forms is rejected.
+Every listed commit is independently proven reachable from its declared remote.
 
 ### Evidence kinds
 
