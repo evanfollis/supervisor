@@ -95,6 +95,12 @@ must match the action's declared source. Archives must remain under
 `/opt/workspace/runtime/.meta/handoff-archive/` and share a filesystem with the
 source so the no-clobber disposition remains crash-safe.
 
+The state-projection hash is verified when the action closes and embedded in the
+terminal ledger record. Later `check` runs require the receipt to remain byte-for-
+byte equivalent to that embedded closure, but do not require the living projection
+file to retain its old hash. A subsequent truthful refresh must not invalidate
+historical completion evidence.
+
 ## Honest use
 
 - Preserve full command, service, or URL output; do not summarize it into the

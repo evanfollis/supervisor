@@ -1,20 +1,85 @@
 {
-  "acceptance_evidence": [],
+  "acceptance_evidence": [
+    "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0033.json"
+  ],
   "attempt_count": 0,
   "blocker_class": null,
-  "completion_receipt": "",
+  "closure": {
+    "action_id": "ACT-0033",
+    "code_landed": {
+      "landings": [
+        {
+          "commit": "cdaca6a02b7e9dc2ffd197ee8b4b3fe259e9f5ff",
+          "remote_ref": "origin/main",
+          "repository": "/opt/workspace/projects/synaplex"
+        },
+        {
+          "commit": "7bbddeaf571628f288efec72462cf6f25ff1d458",
+          "remote_ref": "origin/main",
+          "repository": "/opt/workspace/supervisor"
+        },
+        {
+          "commit": "203c859e2eec47c4dd9f2c89f338abc5544034df",
+          "remote_ref": "origin/main",
+          "repository": "/opt/workspace/supervisor"
+        }
+      ],
+      "status": "complete"
+    },
+    "completed_at": "2026-07-20T11:25:00Z",
+    "deployed": {
+      "evidence": [
+        {
+          "kind": "service",
+          "observed_at": "2026-07-20T11:22:43Z",
+          "result": "success",
+          "transcript_path": "/opt/workspace/runtime/.meta/synaplex-friction-classifier-live-2026-07-20.txt",
+          "transcript_sha256": "779a91eb6ee95645ec4f55711f11f632da75aba25844c748ba49bc1fc328f15d",
+          "unit": "synaplex-friction-classifier.service"
+        }
+      ],
+      "status": "complete"
+    },
+    "schema_version": 1,
+    "source_artifact_dispositioned": {
+      "archive_path": "/opt/workspace/runtime/.meta/handoff-archive/2026-07-20/synaplex-close-friction-promotion-loop-2026-07-20T09-46-37Z.md",
+      "sha256": "97a3d9f3bd7591c7fdce97efe8d37dfc73268c24fa475bc41d33f941d67324d3",
+      "source_path": "/opt/workspace/runtime/.handoff/synaplex-close-friction-promotion-loop-2026-07-20T09-46-37Z.md",
+      "status": "complete"
+    },
+    "state_projection_refreshed": {
+      "path": "/opt/workspace/projects/synaplex/CURRENT_STATE.md",
+      "sha256": "4c1cb16d3118bda9195bdb4a13463f3a3d9f6952f3bc6b1f54cd76cdaef6a4e6",
+      "status": "complete"
+    },
+    "verification_passed": {
+      "evidence": [
+        {
+          "command": "python3 -m unittest discover -v",
+          "exit_code": 0,
+          "kind": "command",
+          "observed_at": "2026-07-20T11:24:00Z",
+          "transcript_path": "/opt/workspace/runtime/.meta/synaplex-friction-classifier-tests-2026-07-20.txt",
+          "transcript_sha256": "ae6dfce57571435875760f767b649f2dd19885464beeb4bb5048445683000254"
+        }
+      ],
+      "status": "complete"
+    }
+  },
+  "closure_schema_version": 1,
+  "completion_receipt": "/opt/workspace/runtime/.meta/action-closure-receipts/ACT-0033.json",
   "created_at": "2026-07-20T10:12:31Z",
   "dedup_key": "independent-friction-classifier-review-20260720",
   "exec_class": "review",
   "id": "ACT-0033",
-  "last_transition_at": "2026-07-20T10:12:31Z",
+  "last_transition_at": "2026-07-20T11:27:06Z",
   "owner": "general",
   "reopened_count": 0,
   "reversible": true,
   "risk": "medium",
   "slug": "independent-friction-classifier-review",
   "source": "/opt/workspace/runtime/.handoff/synaplex-close-friction-promotion-loop-2026-07-20T09-46-37Z.md",
-  "state": "in_progress",
+  "state": "done",
   "summary": "Run the read-only Claude review after the 10:40 UTC subscription reset, fix valid findings, and finalize the completion receipt.",
   "title": "Independent review of deployed Layer-5 friction classifier",
   "transitions": [
@@ -24,7 +89,14 @@
       "note": "Implementation and deployment complete; opposing subscription review availability-gated until 10:40 UTC",
       "to": "in_progress",
       "ts": "2026-07-20T10:12:31Z"
+    },
+    {
+      "actor": "unknown",
+      "from": "in_progress",
+      "note": "",
+      "to": "done",
+      "ts": "2026-07-20T11:27:06Z"
     }
   ],
-  "updated_at": "2026-07-20T10:12:31Z"
+  "updated_at": "2026-07-20T11:27:06Z"
 }

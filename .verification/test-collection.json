@@ -51,6 +51,7 @@
         "scripts/lib/tests/test_action_ledger.py::test_dedup_suppresses_while_non_terminal",
         "scripts/lib/tests/test_action_ledger.py::test_done_archives_matching_source_and_check_revalidates_receipt",
         "scripts/lib/tests/test_action_ledger.py::test_done_requires_complete_typed_receipt",
+        "scripts/lib/tests/test_action_ledger.py::test_later_projection_refresh_does_not_invalidate_historical_closure",
         "scripts/lib/tests/test_action_ledger.py::test_reopen_increments_and_latency_is_after_dispatch",
         "scripts/lib/tests/test_verification_witness.py::test_added_test_fails_until_manifest_is_reviewed",
         "scripts/lib/tests/test_verification_witness.py::test_generated_cache_files_are_outside_the_declared_surface",

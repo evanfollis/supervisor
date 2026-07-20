@@ -547,6 +547,7 @@ def cmd_check(args):
                                 "ACTION_ARCHIVE_ROOT", str(DEFAULT_ARCHIVE_ROOT)
                             )
                         ),
+                        revalidate_mutable_projection=False,
                     )
                     if rec.get("closure") != closure:
                         problems.append(f"{rid}: embedded closure differs from receipt")

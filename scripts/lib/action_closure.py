@@ -207,6 +207,7 @@ def validate_receipt(
     record_source: str,
     source_root: Path,
     archive_root: Path = DEFAULT_ARCHIVE_ROOT,
+    revalidate_mutable_projection: bool = True,
 ) -> tuple[dict[str, Any], tuple[Path, Path] | None]:
     """Validate a receipt and return its payload plus an optional source move."""
     if not receipt_path.is_absolute():
@@ -239,7 +240,8 @@ def validate_receipt(
         _validate_evidence(sections["verification_passed"].get("evidence"), "verification_passed")
     if sections["deployed"]["status"] == "complete":
         _validate_evidence(sections["deployed"].get("evidence"), "deployed")
-    if sections["state_projection_refreshed"]["status"] == "complete":
+    if (revalidate_mutable_projection
+            and sections["state_projection_refreshed"]["status"] == "complete"):
         _validate_hashed_file(
             sections["state_projection_refreshed"].get("path"),
             sections["state_projection_refreshed"].get("sha256"),

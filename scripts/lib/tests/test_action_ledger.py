@@ -216,6 +216,39 @@ def test_done_archives_matching_source_and_check_revalidates_receipt():
         print("ok: done atomically archives source and typed receipt revalidates")
 
 
+def test_later_projection_refresh_does_not_invalidate_historical_closure():
+    with tempfile.TemporaryDirectory() as root:
+        L = Ledger(root)
+        action = L.run("new", "--title", "living projection", check=True).stdout.strip()
+        rid = json.loads(Path(action).read_text())["id"]
+        projection = Path(root) / "CURRENT_STATE.md"
+        projection.write_text("state at closure\n")
+        receipt = L.receipt(rid)
+        payload = json.loads(receipt.read_text())
+        payload["state_projection_refreshed"] = {
+            "status": "complete",
+            "path": str(projection),
+            "sha256": hashlib.sha256(projection.read_bytes()).hexdigest(),
+        }
+        receipt.write_text(json.dumps(payload))
+        L.run(
+            "transition", rid, "--to", "done", "--completion-receipt", str(receipt),
+            check=True,
+        )
+
+        projection.write_text("later truthful state\n")
+        assert L.run("check").returncode == 0
+
+        payload["state_projection_refreshed"]["sha256"] = hashlib.sha256(
+            projection.read_bytes()
+        ).hexdigest()
+        receipt.write_text(json.dumps(payload))
+        result = L.run("check")
+        assert result.returncode == 1
+        assert "embedded closure differs from receipt" in (result.stdout + result.stderr)
+        print("ok: living projection may advance while embedded closure stays immutable")
+
+
 def test_crash_after_archive_is_recovered_before_next_observation():
     with tempfile.TemporaryDirectory() as root:
         L = Ledger(root)
@@ -383,6 +416,7 @@ TESTS = [
     test_dedup_suppresses_while_non_terminal,
     test_done_archives_matching_source_and_check_revalidates_receipt,
     test_done_requires_complete_typed_receipt,
+    test_later_projection_refresh_does_not_invalidate_historical_closure,
     test_reopen_increments_and_latency_is_after_dispatch,
 ]
 
