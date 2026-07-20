@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run workspace synthesis through subscription CLIs with bounded failover.
+"""Run workspace synthesis tasks through subscription CLIs with bounded failover.
 
 The primary and fallback models receive the same synthesis contract. Full
 inputs, outputs, and diagnostics are retained by prompteval.llm in the
@@ -37,8 +37,10 @@ CLAUDE_DENY = [
     "Bash(git clean:*)",
     "Bash(rm:*)",
     "Bash(mv:*)",
+    "Bash(cp:*)",
     "Bash(systemctl:*)",
     "Bash(docker:*)",
+    "Bash(tmux send-keys:*)",
     "Edit",
     "NotebookEdit",
 ]
@@ -60,7 +62,12 @@ def resolve_codex_binary() -> str:
     return "codex"
 
 
-def build_calls(prompt: str, cwd: str, claude_model: str) -> list[CliCall]:
+def build_calls(
+    prompt: str,
+    cwd: str,
+    claude_model: str,
+    claude_permission_mode: str = "",
+) -> list[CliCall]:
     claude_cmd = [
         "claude",
         "-p",
@@ -72,6 +79,8 @@ def build_calls(prompt: str, cwd: str, claude_model: str) -> list[CliCall]:
         "--disallowedTools",
         *CLAUDE_DENY,
     ]
+    if claude_permission_mode:
+        claude_cmd[1:1] = ["--permission-mode", claude_permission_mode]
     fallback_prompt = (
         prompt
         + "\n\n## Provider fallback context\n"
@@ -112,14 +121,25 @@ def build_calls(prompt: str, cwd: str, claude_model: str) -> list[CliCall]:
     ]
 
 
-def execute(prompt: str, cwd: str, run_id: str, timeout: int, claude_model: str) -> str:
+def execute(
+    prompt: str,
+    cwd: str,
+    run_id: str,
+    timeout: int,
+    claude_model: str,
+    *,
+    role: str = "workspace-synthesis",
+    project: str = "supervisor",
+    prompt_id: str = "workspace-synthesis",
+    claude_permission_mode: str = "",
+) -> str:
     return run_with_fallback(
-        build_calls(prompt, cwd, claude_model),
+        build_calls(prompt, cwd, claude_model, claude_permission_mode),
         timeout=timeout,
         retries=0,
-        role="workspace-synthesis",
-        project="supervisor",
-        prompt_id="workspace-synthesis",
+        role=role,
+        project=project,
+        prompt_id=prompt_id,
         run_id=run_id,
     )
 
@@ -131,6 +151,10 @@ def main() -> int:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--timeout", type=int, default=1100)
     parser.add_argument("--claude-model", default="claude-opus-4-6")
+    parser.add_argument("--claude-permission-mode", default="")
+    parser.add_argument("--role", default="workspace-synthesis")
+    parser.add_argument("--project", default="supervisor")
+    parser.add_argument("--prompt-id", default="workspace-synthesis")
     args = parser.parse_args()
 
     prompt = Path(args.prompt_file).read_text(encoding="utf-8")
@@ -141,6 +165,10 @@ def main() -> int:
             run_id=args.run_id,
             timeout=args.timeout,
             claude_model=args.claude_model,
+            role=args.role,
+            project=args.project,
+            prompt_id=args.prompt_id,
+            claude_permission_mode=args.claude_permission_mode,
         )
     except AllProvidersThrottled as exc:
         print(f"synthesis providers unavailable: {exc}", file=sys.stderr)

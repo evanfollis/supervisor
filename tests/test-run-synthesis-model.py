@@ -21,6 +21,11 @@ assert calls[1].stdin_text and "Do not change git history" in calls[1].stdin_tex
 assert Path(calls[1].cmd[0]).name == "codex"
 assert calls[1].cmd[-1] == "-"
 
+translator_calls = module.build_calls(
+    "TRANSLATE", "/opt/workspace", "claude-haiku-4-5-20251001", "acceptEdits"
+)
+assert translator_calls[0].cmd[1:3] == ["--permission-mode", "acceptEdits"]
+
 captured = {}
 
 
@@ -39,4 +44,20 @@ assert captured["project"] == "supervisor"
 assert captured["prompt_id"] == "workspace-synthesis"
 assert captured["retries"] == 0
 assert captured["timeout"] == 42
+
+captured.clear()
+module.execute(
+    "TRANSLATE",
+    "/opt/workspace",
+    "translation-test",
+    21,
+    "claude-haiku-4-5-20251001",
+    role="synthesis-translation",
+    project="supervisor",
+    prompt_id="synthesis-translator",
+    claude_permission_mode="acceptEdits",
+)
+assert captured["role"] == "synthesis-translation"
+assert captured["prompt_id"] == "synthesis-translator"
+assert captured["calls"][0].cmd[1:3] == ["--permission-mode", "acceptEdits"]
 print("workspace synthesis subscription fallback contract passed")

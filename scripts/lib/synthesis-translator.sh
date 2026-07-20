@@ -58,32 +58,31 @@ PROMPT="$(sed \
   -e "s|{{INBOX_DIR}}|$INBOX_DIR|g" \
   "$PROMPT_TEMPLATE")"
 
+PROMPT_FILE="$(mktemp /tmp/workspace-synthesis-translator-prompt.XXXXXX)"
+cleanup_prompt() { rm -f "$PROMPT_FILE"; }
+trap cleanup_prompt EXIT
+printf '%s' "$PROMPT" > "$PROMPT_FILE"
+
 echo "synthesis-translator: translating $SYNTHESIS_FILE"
 
-# Haiku is fast + cheap + sufficient for the parse-and-emit shape.
-# --disallowedTools blocks anything that could write outside the two target
-#   dirs, run git, delete files, or shell out destructively. The translator
-#   only needs the Read tool (to read the synthesis + target repos for
-#   verification) and the Write tool (to emit handoffs).
-# Match the permission-mode pattern used by synthesize.sh (no
-# --dangerously-skip-permissions; that flag is rejected when running as
-# root). --permission-mode acceptEdits permits Write/Edit to proceed in a
-# non-interactive systemd service context without prompting.
-claude -p "$PROMPT" \
-  --model claude-haiku-4-5-20251001 \
-  --permission-mode acceptEdits \
-  --disallowedTools \
-    "Bash(git commit:*)" "Bash(git push:*)" "Bash(git reset:*)" \
-    "Bash(git rebase:*)" "Bash(git checkout:*)" "Bash(git merge:*)" \
-    "Bash(git add:*)" "Bash(git restore:*)" "Bash(git clean:*)" \
-    "Bash(rm:*)" "Bash(mv:*)" "Bash(cp:*)" "Bash(systemctl:*)" \
-    "Bash(docker:*)" "Bash(tmux send-keys:*)" \
-    "Edit" "NotebookEdit" \
+# Haiku remains primary; subscription capacity routes to Codex. The shared
+# runner preserves the write boundary, full private transcript, and compact
+# provider telemetry for the translation leg as well as synthesis itself.
+"$LIB_DIR/run-synthesis-model.py" \
+  --prompt-file "$PROMPT_FILE" \
+  --cwd /opt/workspace \
+  --run-id "synthesis-translation-$ISO_FILENAME" \
+  --timeout 600 \
+  --claude-model claude-haiku-4-5-20251001 \
+  --claude-permission-mode acceptEdits \
+  --role synthesis-translation \
+  --project supervisor \
+  --prompt-id synthesis-translator \
   2>&1 | tee "$LOG_FILE" | tail -n 40
 
 EXIT_CODE="${PIPESTATUS[0]}"
 if [[ "$EXIT_CODE" -ne 0 ]]; then
-  echo "synthesis-translator: claude returned non-zero ($EXIT_CODE); see $LOG_FILE" >&2
+  echo "synthesis-translator: all configured model routes failed ($EXIT_CODE); see $LOG_FILE" >&2
   exit "$EXIT_CODE"
 fi
 
