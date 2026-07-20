@@ -6,6 +6,7 @@ import math
 import re
 import subprocess
 import time
+from contextvars import ContextVar, Token
 from dataclasses import dataclass
 
 from . import circuit
@@ -41,6 +42,29 @@ class AllProvidersThrottled(Exception):
 
 class LLMCallError(Exception):
     pass
+
+
+# A run-scoped metadata channel keeps provider provenance coupled to the
+# evaluator that produced it without threading bookkeeping arguments through
+# every adapter and grader call. ContextVar keeps the mechanism safe if the
+# harness later gains concurrency; only non-content metadata is retained here.
+_RUN_PROVENANCE: ContextVar[dict | None] = ContextVar(
+    "prompteval_run_provenance", default=None
+)
+
+
+def begin_run_provenance(run_id: str) -> tuple[Token, dict]:
+    state = {"run_id": run_id}
+    return _RUN_PROVENANCE.set(state), state
+
+
+def end_run_provenance(token: Token) -> None:
+    _RUN_PROVENANCE.reset(token)
+
+
+def current_run_id() -> str:
+    state = _RUN_PROVENANCE.get()
+    return str((state or {}).get("run_id") or "")
 
 
 @dataclass
@@ -95,6 +119,7 @@ def run_cli_call(
     prompt_id: str = "",
     case_id: str = "",
     trial: int | None = None,
+    run_id: str = "",
 ) -> str:
     last_err = ""
     for attempt in range(retries + 1):
@@ -157,6 +182,7 @@ def run_cli_call(
                 fallback_from=call.fallback_from,
                 exit_code=exit_code,
                 detail=detail,
+                run_id=run_id or current_run_id(),
             )
         if exit_code == 0:
             if (stdout or "").strip():
@@ -184,6 +210,7 @@ def run_with_fallback(
     case_id: str = "",
     trial: int | None = None,
     circuit_config: dict | None = None,
+    run_id: str = "",
 ) -> str:
     unavailable: list[ProviderThrottled | ProviderUnavailable] = []
     for call in calls:
@@ -207,6 +234,7 @@ def run_with_fallback(
                 prompt_id=prompt_id,
                 case_id=case_id,
                 trial=trial,
+                run_id=run_id,
             )
         except (ProviderThrottled, ProviderUnavailable) as exc:
             # capacity/availability failure — counts toward opening the circuit.

@@ -50,7 +50,14 @@ from .grading import (
     run_deterministic_check,
     run_judge_check,
 )
-from .llm import AllProvidersThrottled, CliCall, LLMCallError, is_throttle, run_with_fallback
+from .llm import (
+    AllProvidersThrottled,
+    CliCall,
+    LLMCallError,
+    current_run_id,
+    is_throttle,
+    run_with_fallback,
+)
 from .registry import PromptSpec
 
 
@@ -209,6 +216,7 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
                     "prompt_id": spec.prompt_id,
                     "case_id": case_id,
                     "trial": trial,
+                    "run_id": current_run_id(),
                 },
             },
             ensure_ascii=False,
@@ -322,36 +330,43 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
     if not cases:
         raise RunError(f"{spec.prompt_id}: no runnable cases — golden set is empty")
 
+    from .llm import begin_run_provenance, end_run_provenance
+
+    run_id = make_run_id()
+    provenance_token, provenance_state = begin_run_provenance(run_id)
     case_results, judge_total, judge_unknown = {}, 0, 0
-    for i, case in enumerate(cases, 1):
-        log(f"  [{i}/{len(cases)}] {case['id']} ({case.get('provenance')},{case.get('status')})")
-        trial_passes, trial_details = [], []
-        for t in range(trials):
-            output = cached_execute(spec, storage_key, project, prompt_text, version,
-                                    case, t, no_cache=no_cache)
-            graded = grade_output(spec, case, output, judge_trials=judge_trials,
-                                  project=project, trial=t)
-            trial_passes.append(graded["pass"])
-            trial_details.append(graded["checks"])
-            for chk in graded["checks"]:
-                if chk["kind"] == "judge" and chk["verdict"] != "skipped":
-                    judge_total += 1
-                    if chk["verdict"] == "unknown":
-                        judge_unknown += 1
-        case_results[case["id"]] = {
-            "pass": all(trial_passes),            # pass^k
-            "pass_any": any(trial_passes),        # pass@k (reported, not gated)
-            "trials": trials,
-            "trial_results": [
-                {"trial": index, "pass": passed, "checks": checks}
-                for index, (passed, checks) in enumerate(zip(trial_passes, trial_details))
-            ],
-            "must_pass": case.get("must_pass", True),
-            "status": case.get("status"),
-            "provenance": case.get("provenance"),
-            # Retained for compatibility with existing report consumers.
-            "checks": trial_details[-1],
-        }
+    try:
+        for i, case in enumerate(cases, 1):
+            log(f"  [{i}/{len(cases)}] {case['id']} ({case.get('provenance')},{case.get('status')})")
+            trial_passes, trial_details = [], []
+            for t in range(trials):
+                output = cached_execute(spec, storage_key, project, prompt_text, version,
+                                        case, t, no_cache=no_cache)
+                graded = grade_output(spec, case, output, judge_trials=judge_trials,
+                                      project=project, trial=t)
+                trial_passes.append(graded["pass"])
+                trial_details.append(graded["checks"])
+                for chk in graded["checks"]:
+                    if chk["kind"] == "judge" and chk["verdict"] != "skipped":
+                        judge_total += 1
+                        if chk["verdict"] == "unknown":
+                            judge_unknown += 1
+            case_results[case["id"]] = {
+                "pass": all(trial_passes),            # pass^k
+                "pass_any": any(trial_passes),        # pass@k (reported, not gated)
+                "trials": trials,
+                "trial_results": [
+                    {"trial": index, "pass": passed, "checks": checks}
+                    for index, (passed, checks) in enumerate(zip(trial_passes, trial_details))
+                ],
+                "must_pass": case.get("must_pass", True),
+                "status": case.get("status"),
+                "provenance": case.get("provenance"),
+                # Retained for compatibility with existing report consumers.
+                "checks": trial_details[-1],
+            }
+    finally:
+        end_run_provenance(provenance_token)
 
     gated = [r for cid, r in case_results.items() if r["status"] in ("active", "holdout")]
     aggregate = round(sum(1 for r in gated if r["pass"]) / max(1, len(gated)), 4)
@@ -364,8 +379,62 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
 
     from .goldens import golden_hash
 
+    provenance_path = RUNTIME_ROOT / ".provenance" / f"{run_id}.jsonl"
+    attempts = []
+    if provenance_path.exists() and provenance_path.stat().st_size <= 2_000_000:
+        for line in provenance_path.read_text(encoding="utf-8").splitlines():
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if event.get("runId") == run_id and event.get("eventType") == "llm_call":
+                attempts.append(event)
+    route_counts = {}
+    for attempt in attempts:
+        key = (
+            attempt["role"], attempt["provider"], attempt["model"],
+            attempt["status"], attempt.get("fallbackFrom", ""),
+        )
+        route_counts[key] = route_counts.get(key, 0) + 1
+    routes = [
+        {
+            "role": role,
+            "provider": provider,
+            "model": model,
+            "status": status,
+            "fallback_from": fallback_from,
+            "calls": calls,
+        }
+        for (role, provider, model, status, fallback_from), calls
+        in sorted(route_counts.items())
+    ]
+    provider_provenance = {
+        "schema_version": "prompteval.provider-provenance.v1",
+        "run_id": run_id,
+        "requested_executor_model": spec.spec.get("model"),
+        "requested_judge_model": (spec.spec.get("judge") or {}).get("model"),
+        "providers": sorted({
+            attempt["provider"] for attempt in attempts
+            if attempt["status"] == "success"
+        }),
+        "successful_calls": sum(
+            1 for attempt in attempts
+            if attempt["status"] == "success"
+        ),
+        "fallback_successes": sum(
+            1 for attempt in attempts
+            if attempt["status"] == "success" and attempt.get("fallbackFrom")
+        ),
+        "routes": routes,
+        "telemetry_ref": (
+            "/opt/workspace/runtime/.telemetry/events.jsonl"
+            f"#runId={run_id}"
+        ),
+        "attempt_log": str(provenance_path),
+    }
+
     report = {
-        "run_id": make_run_id(),
+        "run_id": run_id,
         "ts": utcnow_iso(),
         "prompt_id": spec.prompt_id,
         "project": project,
@@ -378,10 +447,15 @@ def run_eval(spec: PromptSpec, project: str, release: bool = False,
         "release": release,
         "trials": trials,
         "cached_allowed": not no_cache,
+        "gate_policy": {
+            "basis": "must_pass_cases",
+            "advisory_cases_gate": False,
+        },
         "cases": case_results,
         "aggregate": aggregate,
         "required_aggregate": required_aggregate,
         "judge_unknown_ratio": unknown_ratio,
+        "provider_provenance": provider_provenance,
     }
     report["gate"] = evaluate_gate(report, read_json(spec.baseline_path), gate_cfg)
     out_path = RUNTIME_ROOT / storage_key / spec.prompt_id / "runs" / f"{report['run_id']}.json"
@@ -454,6 +528,22 @@ def update_baseline(spec: PromptSpec, report: dict, allow_cached: bool = False) 
             "refusing to accept a baseline from a cache-enabled run — "
             "re-run with --no-cache (or pass --allow-cached-baseline explicitly)"
         )
+    has_llm_judges = any(
+        check.get("kind") == "judge"
+        for result in report.get("cases", {}).values()
+        for check in result.get("checks", [])
+    )
+    provider_provenance = report.get("provider_provenance") or {}
+    if has_llm_judges and (
+        provider_provenance.get("schema_version")
+        != "prompteval.provider-provenance.v1"
+        or provider_provenance.get("run_id") != report.get("run_id")
+        or not provider_provenance.get("providers")
+        or not provider_provenance.get("successful_calls")
+    ):
+        raise RunError(
+            "refusing to accept a baseline without run-linked actual-provider provenance"
+        )
     prior = read_json(spec.baseline_path) or {}
     all_pass = all(r["pass"] for r in report["cases"].values())
     same_set = set(report["cases"]) == set((prior.get("cases") or {}))
@@ -470,11 +560,41 @@ def update_baseline(spec: PromptSpec, report: dict, allow_cached: bool = False) 
         "release": report["release"],
         "passed": True,
         "accepted_from_cache": bool(report.get("cached_allowed")),
+        "gate_policy": {
+            "basis": "must_pass_cases",
+            "advisory_cases_gate": False,
+        },
         "aggregate": report["aggregate"],
         "required_aggregate": report["required_aggregate"],
+        "judge_unknown_ratio": report["judge_unknown_ratio"],
+        "gate": report["gate"],
         "cases": {cid: {"pass": r["pass"], "must_pass": r["must_pass"]}
                   for cid, r in report["cases"].items()},
         "all_pass_streak": streak,
+        "all_cases_passed": all_pass,
+        "required_cases": {
+            "total": sum(1 for r in report["cases"].values() if r["must_pass"]),
+            "passed": sum(
+                1 for r in report["cases"].values()
+                if r["must_pass"] and r["pass"]
+            ),
+            "failed": sum(
+                1 for r in report["cases"].values()
+                if r["must_pass"] and not r["pass"]
+            ),
+        },
+        "advisory_cases": {
+            "total": sum(1 for r in report["cases"].values() if not r["must_pass"]),
+            "passed": sum(
+                1 for r in report["cases"].values()
+                if not r["must_pass"] and r["pass"]
+            ),
+            "failed": sum(
+                1 for r in report["cases"].values()
+                if not r["must_pass"] and not r["pass"]
+            ),
+        },
+        "provider_provenance": report.get("provider_provenance"),
     }
     write_json(spec.baseline_path, baseline)
     return baseline

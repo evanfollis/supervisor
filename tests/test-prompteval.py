@@ -349,6 +349,78 @@ class TestRunnerAndGate(unittest.TestCase):
         self.assertFalse(ok)
         self.assertTrue(any("accepted model" in f for f in failures))
 
+    def test_baseline_makes_required_and_advisory_semantics_explicit(self):
+        echo_adapter(self.repo, '{"score": 72}')
+        spec = write_spec(self.repo)
+        add_case(spec, {"title": "required"}, [
+            {"kind": "numeric_band", "path": "score", "min": 50},
+        ])
+        add_case(spec, {"title": "advisory"}, [
+            {"kind": "numeric_band", "path": "score", "min": 90},
+        ], must_pass=False)
+        baseline = runner.update_baseline(spec, run_fresh(spec))
+        self.assertTrue(baseline["passed"])
+        self.assertEqual(baseline["aggregate"], 0.5)
+        self.assertEqual(baseline["required_aggregate"], 1.0)
+        self.assertEqual(baseline["gate_policy"], {
+            "basis": "must_pass_cases",
+            "advisory_cases_gate": False,
+        })
+        self.assertEqual(baseline["required_cases"], {
+            "total": 1, "passed": 1, "failed": 0,
+        })
+        self.assertEqual(baseline["advisory_cases"], {
+            "total": 1, "passed": 0, "failed": 1,
+        })
+        self.assertFalse(baseline["all_cases_passed"])
+        ok, failures, _ = pe_check.check_repo(self.repo)
+        self.assertTrue(ok, failures)
+
+        baseline["required_cases"]["failed"] = 1
+        core.write_json(spec.baseline_path, baseline)
+        ok, failures, _ = pe_check.check_repo(self.repo)
+        self.assertFalse(ok)
+        self.assertTrue(any("required-case summary is inconsistent" in item
+                            for item in failures))
+
+    def test_run_links_cross_process_fallback_provenance(self):
+        spec = write_spec(self.repo)
+        library = Path(__file__).resolve().parents[1] / "scripts" / "lib"
+        (self.repo / "adapter.py").write_text(
+            "import json, sys\n"
+            f"sys.path.insert(0, {str(library)!r})\n"
+            "from prompteval.telemetry import emit_llm_call\n"
+            "payload = json.load(sys.stdin)\n"
+            "ctx = payload['telemetry']\n"
+            "base = dict(project=ctx['project'], prompt_id=ctx['prompt_id'], "
+            "role='executor-adapter', latency_ms=1, input_chars=1, "
+            "output_chars=1, input_tokens=1, output_tokens=1, "
+            "token_source='test', case_id=ctx['case_id'], trial=ctx['trial'], "
+            "attempt=1, exit_code=0, detail='', run_id=ctx['run_id'])\n"
+            "emit_llm_call(provider='claude', model='sonnet', status='throttled', "
+            "fallback_from='', **base)\n"
+            "emit_llm_call(provider='codex', model='default', status='success', "
+            "fallback_from='claude', **base)\n"
+            "print('{\\\"score\\\": 72}')\n",
+            encoding="utf-8",
+        )
+        add_case(spec, {"title": "provenance"}, [{"kind": "json_valid"}])
+        report = run_fresh(spec)
+        provenance = report["provider_provenance"]
+        self.assertEqual(provenance["run_id"], report["run_id"])
+        self.assertEqual(provenance["providers"], ["codex"])
+        self.assertEqual(provenance["fallback_successes"], 1)
+        self.assertTrue(any(
+            route["provider"] == "codex"
+            and route["fallback_from"] == "claude"
+            and route["status"] == "success"
+            for route in provenance["routes"]
+        ))
+        baseline = runner.update_baseline(spec, report)
+        self.assertEqual(baseline["provider_provenance"], provenance)
+        ok, failures, _ = pe_check.check_repo(self.repo)
+        self.assertTrue(ok, failures)
+
     def test_paired_regression_blocks_but_not_for_advisory(self):
         echo_adapter(self.repo, '{"score": 72, "rationale": "x"}')
         spec = write_spec(self.repo)

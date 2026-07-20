@@ -99,6 +99,78 @@ def check_repo(repo: Path) -> tuple[bool, list[str], list[str]]:
         elif not baseline.get("passed"):
             failures.append(f"{pid}: baseline is not a passing run")
         else:
+            baseline_cases = baseline.get("cases") or {}
+            required_cases = [
+                result for result in baseline_cases.values()
+                if result.get("must_pass", True)
+            ]
+            advisory_cases = [
+                result for result in baseline_cases.values()
+                if not result.get("must_pass", True)
+            ]
+            expected_required = {
+                "total": len(required_cases),
+                "passed": sum(1 for result in required_cases if result.get("pass")),
+                "failed": sum(1 for result in required_cases if not result.get("pass")),
+            }
+            expected_advisory = {
+                "total": len(advisory_cases),
+                "passed": sum(1 for result in advisory_cases if result.get("pass")),
+                "failed": sum(1 for result in advisory_cases if not result.get("pass")),
+            }
+            expected_required_aggregate = (
+                round(expected_required["passed"] / expected_required["total"], 4)
+                if expected_required["total"] else 1.0
+            )
+            expected_aggregate = (
+                round(
+                    sum(1 for result in baseline_cases.values() if result.get("pass"))
+                    / len(baseline_cases),
+                    4,
+                )
+                if baseline_cases else 1.0
+            )
+            if baseline.get("gate_policy") != {
+                "basis": "must_pass_cases",
+                "advisory_cases_gate": False,
+            }:
+                failures.append(f"{pid}: baseline lacks explicit required/advisory gate semantics {rerun}")
+            if baseline.get("required_cases") != expected_required:
+                failures.append(f"{pid}: baseline required-case summary is inconsistent {rerun}")
+            if baseline.get("advisory_cases") != expected_advisory:
+                failures.append(f"{pid}: baseline advisory-case summary is inconsistent {rerun}")
+            if baseline.get("required_aggregate") != expected_required_aggregate:
+                failures.append(f"{pid}: baseline required aggregate is inconsistent {rerun}")
+            if baseline.get("aggregate") != expected_aggregate:
+                failures.append(f"{pid}: baseline all-case aggregate is inconsistent {rerun}")
+            if expected_required["failed"] or baseline.get("gate", {}).get("passed") is not True:
+                failures.append(f"{pid}: baseline claims pass without a passing required-case gate {rerun}")
+            if baseline.get("all_cases_passed") is not (expected_advisory["failed"] == 0):
+                failures.append(f"{pid}: baseline all-cases status is inconsistent {rerun}")
+            if baseline.get("judge_unknown_ratio") is None:
+                failures.append(f"{pid}: baseline lacks judge unknown-ratio evidence {rerun}")
+
+            provider_provenance = baseline.get("provider_provenance") or {}
+            registered_cases = load_cases(spec.cases_path) + load_cases(spec.holdout_path)
+            has_llm_judges = any(
+                check.get("kind") == "judge"
+                for case in registered_cases
+                for check in case.get("checks", [])
+            )
+            if provider_provenance.get("schema_version") != "prompteval.provider-provenance.v1":
+                failures.append(f"{pid}: baseline lacks run-level provider provenance {rerun}")
+            elif provider_provenance.get("run_id") != baseline.get("run_id"):
+                failures.append(f"{pid}: provider provenance is linked to a different run {rerun}")
+            elif has_llm_judges and (
+                not provider_provenance.get("providers")
+                or not provider_provenance.get("successful_calls")
+                or not any(
+                    route.get("status") == "success"
+                    for route in provider_provenance.get("routes", [])
+                )
+            ):
+                failures.append(f"{pid}: provider provenance has no successful execution route {rerun}")
+
             # Keep the accepted execution identity human-readable as well as
             # folded into prompt_version/spec_hash.  A legacy baseline that
             # predates these fields must be regenerated; silently accepting
