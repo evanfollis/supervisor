@@ -24,6 +24,7 @@ SHAPES = {
 }
 LIFECYCLES = {"active", "maintained", "case-study", "archived"}
 RISKS = {"none", "model-assisted", "agentic"}
+RISK_RANK = {"none": 0, "model-assisted": 1, "agentic": 2}
 ARTIFACT_ROLES = {"authoritative", "runtime", "generated", "historical"}
 REQUIRED_ROOT = ("README.md", "repo.toml", "Makefile", "AGENTS.md", "CLAUDE.md")
 
@@ -177,6 +178,7 @@ def validate_repo(
                             )
                         )
 
+    root_risk = declaration.get("agentic_risk")
     workspaces = declaration.get("workspaces", {})
     if workspaces is not None and not isinstance(workspaces, dict):
         findings.append(Finding(label, "workspaces-invalid", "workspaces must be a table"))
@@ -191,8 +193,29 @@ def validate_repo(
                         f"workspaces.{workspace}.agentic_risk must be one of {sorted(RISKS)}",
                     )
                 )
+            elif root_risk in RISKS and RISK_RANK[risk] > RISK_RANK[root_risk]:
+                findings.append(
+                    Finding(
+                        label,
+                        "workspace-risk-exceeds-root",
+                        f"workspaces.{workspace}={risk!r} exceeds root={root_risk!r}",
+                    )
+                )
 
     return findings
+
+
+def load_session_inventory(path: Path) -> dict[str, Path]:
+    sessions: dict[str, Path] = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        parts = line.split("|")
+        if len(parts) < 2 or not parts[0] or not parts[1]:
+            raise ValueError(f"invalid session inventory line: {raw_line!r}")
+        sessions[parts[0]] = Path(parts[1]).resolve()
+    return sessions
 
 
 def validate_inventory(path: Path, allow_missing: bool) -> tuple[list[Finding], int]:
@@ -204,6 +227,26 @@ def validate_inventory(path: Path, allow_missing: bool) -> tuple[list[Finding], 
         return [Finding("inventory", "repositories-invalid", "repositories must be an array")], 0
 
     findings: list[Finding] = []
+    sessions: dict[str, Path] | None = None
+    session_inventory = inventory.get("session_inventory")
+    if session_inventory is not None:
+        if not isinstance(session_inventory, str) or not session_inventory:
+            findings.append(
+                Finding(
+                    "inventory",
+                    "session-inventory-invalid",
+                    "session_inventory must be a non-empty path",
+                )
+            )
+        else:
+            session_path = (path.parent / session_inventory).resolve()
+            try:
+                sessions = load_session_inventory(session_path)
+            except (OSError, ValueError) as error:
+                findings.append(
+                    Finding("inventory", "session-inventory-invalid", str(error))
+                )
+
     checked = 0
     for entry in repositories:
         if not isinstance(entry, dict):
@@ -220,6 +263,28 @@ def validate_inventory(path: Path, allow_missing: bool) -> tuple[list[Finding], 
             )
             continue
         root = Path(root_value)
+        session = entry.get("session")
+        if not isinstance(session, str) or not session:
+            findings.append(
+                Finding(name, "session-invalid", "session must be a non-empty string")
+            )
+        elif sessions is not None:
+            session_root = sessions.get(session)
+            if session_root is None:
+                findings.append(
+                    Finding(name, "session-unknown", f"session is not registered: {session}")
+                )
+            else:
+                try:
+                    root.resolve().relative_to(session_root)
+                except ValueError:
+                    findings.append(
+                        Finding(
+                            name,
+                            "session-path-divergence",
+                            f"repository path {root} is outside session root {session_root}",
+                        )
+                    )
         repo_findings = validate_repo(root, expected_name=name, expected_remote=remote)
         if allow_missing:
             repo_findings = [
