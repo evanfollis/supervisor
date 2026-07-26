@@ -19,6 +19,7 @@ git -C "$PROJECT_DIR" commit -m fixture >/dev/null
 printf '{"project":"demo","source":"test","eventType":"info","level":"info","sourceType":"system","timestamp":1}\n' \
   > "$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
 EVENT_FILE="$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
+export PROMPTEVAL_CIRCUIT_FILE="$WORKSPACE_ROOT/runtime/prompteval/circuit-breaker.json"
 
 set +e
 WORKSPACE_LAYOUT=split \
