@@ -86,6 +86,28 @@ explicit while migrations remain reversible.
 - Exit evidence: clean `make check`, prompt/agent eval gate where applicable,
   abort/resume test, and an externally verified outcome receipt
 
+### ASG-005 — EOL system Node.js runtime
+
+- Status: open
+- Applies to: host services whose installed units execute `/usr/bin/node`
+- Observed: `/usr/bin/node` is v20.20.2 while the interactive/build toolchain
+  resolves v22.22.0; `command.service` explicitly executes `/usr/bin/node`.
+  Node.js 20 reached EOL on 2026-03-24, while Node.js 24 is the current LTS
+  production line according to the official release schedule.
+- Exposure: production behavior and vulnerability support differ from CI/build
+  behavior, and an EOL runtime no longer receives normal upstream fixes
+- Existing controls: repository build/type/auth gates, immutable Command
+  releases, and rollback to the prior installed unit/release
+- Owner: workspace operator
+- Milestone: inventory every `/usr/bin/node` consumer, package Node.js 24 LTS
+  outside root-owned NVM state, then canary and roll back each service
+  independently before changing the host default
+- Target date: 2026-08-02
+- Exit evidence: per-service tests and outcome receipts run under the exact
+  installed Node.js 24 binary; rollback is exercised; no active workspace unit
+  remains on Node.js 20
+- Reference: https://nodejs.org/en/about/previous-releases
+
 ## Closed exceptions
 
 None.
