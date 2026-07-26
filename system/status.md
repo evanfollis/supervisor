@@ -89,6 +89,11 @@ consume workspace attention.
   not code to absorb; Preflight's monorepo product is canonical and the
   standalone public repo is an obsolete duplicate to archive with a pointer
   after MCP Registry binding semantics are verified.
+- ADR-0050 is accepted as the profiled repository contract and agentic safety
+  baseline. Repository standardization now proceeds by declared shape,
+  lifecycle, and agentic risk, with containment gaps tracked explicitly in
+  `system/agentic-safety-gap-register.md` rather than treated as immediate
+  compliance.
 
 ## Constraints
 
