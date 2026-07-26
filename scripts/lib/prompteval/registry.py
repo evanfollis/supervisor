@@ -95,6 +95,21 @@ class PromptSpec:
             path = Path(arg)
             if not path.is_absolute():
                 path = self.repo / arg
+            elif not path.exists():
+                # Specs may record the canonical deployed checkout path. A
+                # clean CI checkout must still hash that same repository file
+                # without requiring the host's directory topology.
+                matching_roots = [
+                    index
+                    for index, part in enumerate(path.parts)
+                    if part == self.repo.name
+                ]
+                if matching_roots:
+                    candidate = self.repo.joinpath(
+                        *path.parts[matching_roots[-1] + 1 :]
+                    )
+                    if candidate.exists():
+                        path = candidate
             if path.is_file():
                 try:
                     argv_files[arg] = _digest(path.read_text(encoding="utf-8"))

@@ -152,6 +152,17 @@ class TestExtraction(unittest.TestCase):
         echo_adapter(self.repo, "b")  # adapter edit must change the hash
         self.assertNotEqual(h1, spec.spec_hash())
 
+    def test_spec_hash_resolves_canonical_path_in_relocated_checkout(self):
+        echo_adapter(self.repo, "a")
+        canonical = f"/canonical/workspace/{self.repo.name}/adapter.py"
+        spec = write_spec(
+            self.repo,
+            executor={"type": "command", "argv": ["python3", canonical]},
+        )
+        h1 = spec.spec_hash()
+        echo_adapter(self.repo, "b")
+        self.assertNotEqual(h1, spec.spec_hash())
+
     def test_spec_hash_covers_declared_executor_deps(self):
         echo_adapter(self.repo, "a")
         dep = self.repo / "helper.py"
