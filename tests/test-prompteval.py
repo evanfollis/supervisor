@@ -870,7 +870,7 @@ class TestCLISmoke(unittest.TestCase):
         repo = make_repo()
         echo_adapter(repo, '{"score": 72}')
         env = {**os.environ}
-        cli = ["/opt/workspace/supervisor/scripts/prompteval"]
+        cli = [str(Path(__file__).resolve().parents[1] / "scripts" / "prompteval")]
 
         r = subprocess.run(cli + ["register", str(repo), "--id", "p1", "--file", "mod.py",
                                   "--type", "py_var", "--var", "SYSTEM_PROMPT",
