@@ -184,7 +184,9 @@ the simpler path.
 charter only after every coupled loader understands the new source. In
 particular, the ADR-0021 SessionStart hook must read `AGENTS.md` first with a
 `CLAUDE.md` fallback before any `context-always-load` block moves. Until then,
-the load block stays in `CLAUDE.md`.
+the load block stays in `CLAUDE.md`. ADR-0039 prompt inventories, goldens, and
+adapters that name `CLAUDE.md` must be repointed and freshly baselined in the
+same migration.
 Nested instruction files are allowed only where a subtree has genuinely
 different constraints.
 

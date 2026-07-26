@@ -206,6 +206,11 @@ Context repos are durable lineages, not applications. Role-specific memory and
 promotion rules remain local. Generated projections and raw runs must be
 distinguished from hand-authored memory and promoted bundles.
 
+Declarative lineages are exempt from code-only setup, build, lint, and
+typecheck targets. They still expose an honest discovery/check command for
+their contract. A non-Git federation directory is an orchestration surface,
+not a repository that needs a fictitious `repo.toml`.
+
 ### Control plane
 
 ```text
@@ -240,7 +245,10 @@ scientific/context records. If a process writes an authoritative tracked record:
 - schema and semantic guards run before acceptance;
 - provenance and identity are stable;
 - concurrent writers are prevented;
-- the resulting commit/review path is explicit.
+- the resulting commit/review path is explicit;
+- stable provenance URIs and public identifiers are preserved or migrated
+  through a tested compatibility contract; and
+- named canon, path-stability, and provenance guards execute in `make check`.
 
 ### Runtime
 
@@ -313,6 +321,10 @@ extracts `context-always-load` from `CLAUDE.md`. Before a repository moves that
 block, the hook must be changed and verified to read `AGENTS.md` first with a
 `CLAUDE.md` fallback. Until then, retaining the load block in `CLAUDE.md` is a
 required compatibility exception.
+
+ADR-0039 is coupled too: prompt inventories, golden cases, and adapters that
+name `CLAUDE.md` must be repointed and freshly baselined when instruction
+authority moves. A file rename without the eval migration is incomplete.
 
 Root instructions contain only:
 
@@ -483,7 +495,9 @@ For each repository:
 1. Attribute dirty files, identify live writers, and pause structural moves
    while another session is writing the repository.
 2. Declare shape, lifecycle, risk, artifact roles, and canonical repository.
-3. Upgrade the ADR-0021 context loader before changing instruction authority.
+3. Upgrade the ADR-0021 context loader before changing instruction authority;
+   repoint ADR-0039 prompt inventories/adapters and establish a fresh baseline
+   in the same change.
 4. Map each existing runtime path to the target convention, including
    compatibility readers/writers and rollback; do not create parallel live
    trees.
@@ -512,6 +526,9 @@ Atlas and Synaplex plus digest-pinned consumers in Synaplex and Skillfoundry.
 Before that bundle moves, add configuration overrides for non-overridable
 readers, keep `schemas/` and `conformance/` as compatible siblings, leave a
 compatibility path or symlink, and update downstream digests in lockstep.
+
+Command's immutable release/runtime separation is a useful observed reference
+for artifact-role implementation, not a golden repository tree.
 
 ## 13. Definition of done
 
