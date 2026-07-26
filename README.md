@@ -84,9 +84,12 @@ The intended model is:
 - logs and derived evidence in `runtime/`
 - git history as the state-transition log
 
-This repo is the gold-standard example for the wider context-repository design:
-small current-state files up front, durable reference material to the side, and
-raw evidence outside the working context.
+This repo is one control-plane implementation under ADR-0050, not a golden tree
+for application, service, contract, monorepo, or research repositories. Its
+useful invariants are small current-state front doors, durable reference
+material to the side, and raw evidence outside the working context; other
+profiles realize those invariants through their own domain and framework
+conventions.
 
 If you find yourself writing the same ad-hoc procedure into `.meta/` twice,
 promote it to `supervisor/playbooks/`. If you find yourself re-deriving the
