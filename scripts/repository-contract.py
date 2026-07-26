@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Validate ADR-0050 repository declarations and front doors."""
+"""Validate the thin ADR-0050 declaration and front-door contract.
+
+This checker validates metadata shape, required front-door presence, declared
+artifact hygiene, workspace-risk ceilings, and central-inventory divergence. A
+green result is not full ADR-0050 conformance: shape semantics, instruction
+quality/size, artifact-list completeness, containment, deployment, and real
+outcomes require their own profile-specific gates and receipts.
+"""
 
 from __future__ import annotations
 
@@ -68,7 +75,7 @@ def validate_repo(
         return [Finding(label, "declaration-invalid", str(error))]
 
     schema_version = declaration.get("schema_version")
-    if schema_version != 1:
+    if type(schema_version) is not int or schema_version != 1:
         findings.append(
             Finding(label, "schema-version", f"expected 1, found {schema_version!r}")
         )
@@ -161,7 +168,8 @@ def validate_repo(
                             )
                         )
                         continue
-                    if not (root / relative).exists():
+                    path_exists = (root / relative).exists()
+                    if role not in {"runtime", "generated"} and not path_exists:
                         findings.append(
                             Finding(
                                 label,
@@ -218,7 +226,10 @@ def load_session_inventory(path: Path) -> dict[str, Path]:
     return sessions
 
 
-def validate_inventory(path: Path, allow_missing: bool) -> tuple[list[Finding], int]:
+def validate_inventory(path: Path, allow_missing: bool = False) -> tuple[list[Finding], int]:
+    # `allow_missing` is retained as a CLI compatibility argument. Per-repo
+    # `conformance` is the only authority for migration allowances.
+    del allow_missing
     inventory = load_toml(path)
     if inventory.get("schema_version") != 1:
         return [Finding("inventory", "schema-version", "expected schema_version = 1")], 0
@@ -263,6 +274,19 @@ def validate_inventory(path: Path, allow_missing: bool) -> tuple[list[Finding], 
             )
             continue
         root = Path(root_value)
+        if not root.is_absolute():
+            findings.append(
+                Finding(name, "repository-path-invalid", "inventory path must be absolute")
+            )
+        conformance = entry.get("conformance")
+        if conformance not in {"migrating", "conforming"}:
+            findings.append(
+                Finding(
+                    name,
+                    "conformance-invalid",
+                    "conformance must be 'migrating' or 'conforming'",
+                )
+            )
         session = entry.get("session")
         if not isinstance(session, str) or not session:
             findings.append(
@@ -286,7 +310,7 @@ def validate_inventory(path: Path, allow_missing: bool) -> tuple[list[Finding], 
                         )
                     )
         repo_findings = validate_repo(root, expected_name=name, expected_remote=remote)
-        if allow_missing:
+        if conformance == "migrating":
             repo_findings = [
                 finding
                 for finding in repo_findings
@@ -301,7 +325,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("repositories", nargs="*", type=Path)
     parser.add_argument("--inventory", type=Path)
-    parser.add_argument("--allow-missing", action="store_true")
+    parser.add_argument(
+        "--allow-missing",
+        action="store_true",
+        help="deprecated compatibility flag; per-repository conformance controls allowances",
+    )
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
 

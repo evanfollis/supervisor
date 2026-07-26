@@ -1,4 +1,5 @@
 import importlib.util
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -68,7 +69,7 @@ canonical_repository = "https://github.com/evanfollis/other"
         self.assertIn("name-divergence", codes)
         self.assertIn("canonical-repository-divergence", codes)
 
-    def test_runtime_artifact_must_exist_and_be_ignored(self) -> None:
+    def test_absent_runtime_artifact_may_be_declared_when_ignored(self) -> None:
         root = self.make_repo(
             """
 schema_version = 1
@@ -82,9 +83,8 @@ canonical_repository = "https://github.com/evanfollis/example"
 runtime = ["var/"]
 """
         )
-        codes = {finding.code for finding in MODULE.validate_repo(root)}
-        self.assertIn("artifact-path-missing", codes)
-        self.assertIn("artifact-path-tracked-risk", codes)
+        (root / ".gitignore").write_text("var/\n", encoding="utf-8")
+        self.assertEqual([], MODULE.validate_repo(root))
 
     def test_mixed_risk_workspace_is_validated(self) -> None:
         root = self.make_repo(
@@ -152,12 +152,65 @@ name = "example"
 path = "{root}"
 session = "example"
 canonical_repository = "https://github.com/evanfollis/example"
+conformance = "conforming"
 """,
             encoding="utf-8",
         )
         findings, checked = MODULE.validate_inventory(inventory, allow_missing=False)
         self.assertEqual(1, checked)
         self.assertIn("session-path-divergence", {finding.code for finding in findings})
+
+    def test_conforming_repository_cannot_bypass_missing_declaration(self) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        config = root / "config"
+        repository = root / "repository"
+        config.mkdir()
+        repository.mkdir()
+        (config / "sessions.conf").write_text(
+            f"example|{repository}|claude|project\n", encoding="utf-8"
+        )
+        inventory = config / "repositories.toml"
+        inventory.write_text(
+            f"""
+schema_version = 1
+session_inventory = "sessions.conf"
+
+[[repositories]]
+name = "example"
+path = "{repository}"
+session = "example"
+canonical_repository = "https://github.com/evanfollis/example"
+conformance = "conforming"
+""",
+            encoding="utf-8",
+        )
+        findings, _ = MODULE.validate_inventory(inventory, allow_missing=True)
+        self.assertIn("declaration-missing", {finding.code for finding in findings})
+
+    def test_make_test_propagates_an_early_failure(self) -> None:
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        shutil.copy(Path(__file__).parents[1] / "Makefile", root / "Makefile")
+        tests = root / "tests"
+        tests.mkdir()
+        (tests / "test-aaa-fails.py").write_text(
+            "raise SystemExit(17)\n", encoding="utf-8"
+        )
+        (tests / "test-zzz-passes.py").write_text(
+            "raise SystemExit(0)\n", encoding="utf-8"
+        )
+        result = subprocess.run(
+            ["make", "test"],
+            cwd=root,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        self.assertNotEqual(0, result.returncode)
 
 
 if __name__ == "__main__":

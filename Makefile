@@ -11,8 +11,12 @@ contract:
 	python3 scripts/repository-contract.py .
 
 test:
-	@for test_file in tests/test-*.py; do python3 "$$test_file"; done
-	@for test_file in tests/test-*.sh; do bash "$$test_file"; done
+	@set -e; found=0; for test_file in tests/test-*.py; do \
+	  [ -e "$$test_file" ] || continue; found=1; python3 "$$test_file"; \
+	done; [ "$$found" -eq 1 ] || { echo 'no Python tests found' >&2; exit 1; }
+	@set -e; for test_file in tests/test-*.sh; do \
+	  [ -e "$$test_file" ] || continue; bash "$$test_file"; \
+	done
 
 eval:
 	scripts/prompteval check .

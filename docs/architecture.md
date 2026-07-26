@@ -41,8 +41,11 @@ inspect project state but is not a shared application framework.
 
 ## Verification and deployment
 
-`scripts/repository-contract.py` validates ADR-0050 declarations and front
-doors. Prompt and instruction changes follow ADR-0039. Host/service changes
-require capability attestation, canaries, outcome evidence, and rollback.
-Current containment exceptions and milestones live in
-`system/agentic-safety-gap-register.md`.
+`scripts/repository-contract.py` validates the thin ADR-0050 declaration and
+front-door presence contract: metadata, declared artifact hygiene, risk
+ceilings, and central-inventory divergence. It does not prove shape semantics,
+instruction quality/size, artifact-list completeness, containment, deployment,
+or real outcomes; profile checks and receipts own those claims. Prompt and
+instruction changes follow ADR-0039. Host/service changes require capability
+attestation, canaries, outcome evidence, and rollback. Current containment
+exceptions and milestones live in `system/agentic-safety-gap-register.md`.
