@@ -78,11 +78,12 @@ mkdir -p "$INVOCATION_DIR"
 chmod 700 "$INVOCATION_DIR"
 mkdir -p "$RAW_REFLECTION_DIR"
 chmod 700 "$RAW_REFLECTION_DIR"
-WORKSPACE_SESSION_MEMORY_DIR="/root/.claude/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
+CLAUDE_STATE_ROOT="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}"
+WORKSPACE_SESSION_MEMORY_DIR="$CLAUDE_STATE_ROOT/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
 
 # Claude Code's per-cwd JSONL directory. Encoding: slashes → hyphens, prefix "-".
 # e.g. /opt/workspace/projects/atlas → -opt-workspace-projects-atlas
-SESSION_DIR="/root/.claude/projects/-$(echo "$PROJECT_DIR" | sed 's|^/||; s|/|-|g')"
+SESSION_DIR="$CLAUDE_STATE_ROOT/projects/-$(echo "$PROJECT_DIR" | sed 's|^/||; s|/|-|g')"
 
 # Pre-flight activity check — avoid spawning Claude if nothing happened.
 COMMIT_COUNT=0

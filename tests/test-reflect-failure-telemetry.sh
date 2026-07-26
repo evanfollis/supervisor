@@ -2,7 +2,14 @@
 set -euo pipefail
 
 ROOT="$(mktemp -d)"
-trap 'rm -rf "$ROOT"' EXIT
+cleanup() {
+  if [[ "${KEEP_TEST_TMP:-0}" == "1" ]]; then
+    printf 'test workspace retained at %s\n' "$ROOT" >&2
+  else
+    rm -rf "$ROOT"
+  fi
+}
+trap cleanup EXIT
 TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REFLECT_SCRIPT="${TEST_DIR}/../scripts/lib/reflect.sh"
 
