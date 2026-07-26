@@ -550,3 +550,8 @@ A repository conforms incrementally when:
 
 Conformance is per repository, never a portfolio flag day. GitHub/security
 rollout begins only after that repository's clean-check gate is green.
+
+The supervisor's `make runtime-audit` is the portfolio observation surface for
+live systemd containment. A clean repository contract does not imply a clean
+runtime audit, and the audit does not mutate units or waive open entries in the
+agentic-safety gap register.

@@ -1,11 +1,12 @@
-.PHONY: help check test eval contract
+.PHONY: help check test eval contract runtime-audit
 
 help:
 	@printf '%s\n' \
 	  'make check     Run repository contract, deterministic tests, and prompt evals' \
 	  'make contract  Validate this repository against ADR-0050' \
 	  'make test      Run deterministic Python and shell tests' \
-	  'make eval      Run governed prompt/instruction checks'
+	  'make eval      Run governed prompt/instruction checks' \
+	  'make runtime-audit  Report live workspace-service containment gaps'
 
 contract:
 	python3 scripts/repository-contract.py .
@@ -20,5 +21,8 @@ test:
 
 eval:
 	scripts/prompteval check .
+
+runtime-audit:
+	python3 scripts/runtime-containment-audit.py
 
 check: contract test eval

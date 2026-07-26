@@ -39,7 +39,9 @@ explicit while migrations remain reversible.
 - Exposure: a long-running agent can search laterally for infrastructure or
   package/proxy weaknesses beyond its intended sandbox
 - Existing controls: only selected units use `ProtectSystem`, explicit write
-  paths, or related systemd restrictions
+  paths, or related systemd restrictions; `make runtime-audit` now inventories
+  the live workspace-related units and emits severity-ranked, machine-readable
+  findings without changing them
 - Owner: workspace operator
 - Milestone: inventory every active unit, assign a containment profile, and
   canary restrictions on one read-only and one stateful service
