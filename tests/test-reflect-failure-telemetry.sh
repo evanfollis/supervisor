@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT="$(mktemp -d)"
 trap 'rm -rf "$ROOT"' EXIT
+TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+REFLECT_SCRIPT="${TEST_DIR}/../scripts/lib/reflect.sh"
 
 WORKSPACE_ROOT="$ROOT/workspace"
 PROJECT_DIR="$WORKSPACE_ROOT/projects/demo"
@@ -29,7 +31,7 @@ WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
 PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
-  /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" missing-reflect-prompt.md \
+  "$REFLECT_SCRIPT" demo "$PROJECT_DIR" missing-reflect-prompt.md \
   > "$ROOT/stdout-missing-prompt" 2> "$ROOT/stderr-missing-prompt"
 status=$?
 set -e
@@ -52,7 +54,7 @@ WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
 PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
-  /opt/workspace/supervisor/scripts/lib/reflect.sh missing "$WORKSPACE_ROOT/projects/missing" \
+  "$REFLECT_SCRIPT" missing "$WORKSPACE_ROOT/projects/missing" \
   > "$ROOT/stdout-missing-project" 2> "$ROOT/stderr-missing-project"
 status=$?
 set -e
@@ -88,7 +90,7 @@ WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
 PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
-  /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" \
+  "$REFLECT_SCRIPT" demo "$PROJECT_DIR" \
   > "$ROOT/stdout-failed" 2> "$ROOT/stderr-failed"
 status=$?
 set -e
@@ -157,7 +159,7 @@ WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
 PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
-  /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" \
+  "$REFLECT_SCRIPT" demo "$PROJECT_DIR" \
   > "$ROOT/stdout-fallback" 2> "$ROOT/stderr-fallback"
 
 REFLECTION="$(find "$WORKSPACE_ROOT/runtime/.meta" -maxdepth 1 -name 'demo-reflection-*.md' | head -1)"
