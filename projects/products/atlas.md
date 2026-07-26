@@ -5,6 +5,11 @@
 - **Stopped, but strategically important.** The runner was stopped after 16+
   days of zero scientific output; that was correct operator hygiene, not a
   retirement decision.
+- **Public portfolio lineage reconciled 2026-07-26.** The
+  `crypto-agent-dp-lab` intake was classified as an archived predecessor /
+  lineage case study: real E2E-DP/phi-layer engineering, but no reproducible
+  experimental results, no active deploy, and epistemically incompatible with
+  Atlas's falsification-first method. Do not absorb its code into Atlas.
 - Under ADR-0033, atlas is the candidate **market-modeling sleeve** of the
   passive-income portfolio. It should not be evaluated as another tooling
   product or skill marketplace.
@@ -22,6 +27,9 @@
   signal feeds, research reports, or paper strategies.
 - Maintain correctness pressure on claim hashing and review gaps, but do not let
   those implementation issues obscure the higher-level income-sleeve decision.
+- If Atlas revisits differentiable trading later, extract concept notes only
+  from `crypto-agent-dp-lab`; keep the JAX/Poetry/GPU dependency stack out of
+  the active Atlas codebase unless a new ADR changes the pod method.
 
 ## Executive stance
 
@@ -37,3 +45,5 @@
   `/opt/workspace/supervisor/docs/passive-income-portfolio-strategy.md`
 - Principal-decision handoff:
   `/opt/workspace/runtime/.handoff/general-atlas-s3p2-principal-decision-2026-05-10T16-49Z.md`
+- Lineage inventory receipt:
+  `/opt/workspace/runtime/.handoff/general-atlas-public-portfolio-lineage-inventory-complete.md`

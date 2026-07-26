@@ -2,7 +2,7 @@
 name: System Status
 description: Current operating model and active focus for the supervisor control plane
 type: front-door
-updated: 2026-07-12
+updated: 2026-07-26
 ---
 
 # System Status
@@ -84,6 +84,11 @@ consume workspace attention.
   trading threshold. This is the primary commercial compounding path.
 - Support `skillfoundry` through Stage-1 external-evidence accumulation.
   Agentic inbound is the current primary channel.
+- Public portfolio lineage reconciliation landed 2026-07-26: Atlas's
+  `crypto-agent-dp-lab` intake is an archived predecessor / lineage case study,
+  not code to absorb; Preflight's monorepo product is canonical and the
+  standalone public repo is an obsolete duplicate to archive with a pointer
+  after MCP Registry binding semantics are verified.
 
 ## Constraints
 
