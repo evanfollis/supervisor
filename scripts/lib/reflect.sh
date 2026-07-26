@@ -147,8 +147,8 @@ cd "$PROJECT_DIR"
 # Package manager cache paths: headless sessions run under a systemd unit where
 # ~/.npm and ~/.cache may be on a read-only mount. Redirect to writable runtime
 # paths so npm/pip never fail with EROFS.
-export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-/opt/workspace/runtime/.npm-cache}"
-export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/opt/workspace/runtime/.pip-cache}"
+export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-$WORKSPACE_ROOT/runtime/.npm-cache}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR:-$WORKSPACE_ROOT/runtime/.pip-cache}"
 mkdir -p "$NPM_CONFIG_CACHE" "$PIP_CACHE_DIR"
 
 # The invocation helper uses subscription CLIs only. Capacity failures fall
