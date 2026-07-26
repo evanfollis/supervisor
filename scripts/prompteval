@@ -2,9 +2,11 @@
 # prompteval — workspace prompt-eval harness CLI (ADR-0039).
 # Thin wrapper so `prompteval` works from any repo without PYTHONPATH games.
 set -euo pipefail
-exec python3 -c "
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROMPTEVAL_LIB_DIR="${SCRIPT_DIR}/lib" exec python3 -c '
+import os
 import sys
-sys.path.insert(0, '/opt/workspace/supervisor/scripts/lib')
+sys.path.insert(0, os.environ["PROMPTEVAL_LIB_DIR"])
 from prompteval.cli import main
 sys.exit(main())
-" "$@"
+' "$@"

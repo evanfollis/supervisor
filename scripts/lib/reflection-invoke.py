@@ -9,7 +9,7 @@ import sys
 import uuid
 from pathlib import Path
 
-sys.path.insert(0, "/opt/workspace/supervisor/scripts/lib")
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from prompteval.llm import (  # noqa: E402
     AllProvidersThrottled,

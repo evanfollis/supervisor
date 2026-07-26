@@ -78,11 +78,12 @@ mkdir -p "$INVOCATION_DIR"
 chmod 700 "$INVOCATION_DIR"
 mkdir -p "$RAW_REFLECTION_DIR"
 chmod 700 "$RAW_REFLECTION_DIR"
-WORKSPACE_SESSION_MEMORY_DIR="/root/.claude/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
+CLAUDE_STATE_ROOT="${CLAUDE_CONFIG_DIR:-${HOME}/.claude}"
+WORKSPACE_SESSION_MEMORY_DIR="$CLAUDE_STATE_ROOT/projects/-$(echo "$WORKSPACE_ROOT" | sed 's|^/||; s|/|-|g')/memory"
 
 # Claude Code's per-cwd JSONL directory. Encoding: slashes → hyphens, prefix "-".
 # e.g. /opt/workspace/projects/atlas → -opt-workspace-projects-atlas
-SESSION_DIR="/root/.claude/projects/-$(echo "$PROJECT_DIR" | sed 's|^/||; s|/|-|g')"
+SESSION_DIR="$CLAUDE_STATE_ROOT/projects/-$(echo "$PROJECT_DIR" | sed 's|^/||; s|/|-|g')"
 
 # Pre-flight activity check — avoid spawning Claude if nothing happened.
 COMMIT_COUNT=0
@@ -147,8 +148,8 @@ cd "$PROJECT_DIR"
 # Package manager cache paths: headless sessions run under a systemd unit where
 # ~/.npm and ~/.cache may be on a read-only mount. Redirect to writable runtime
 # paths so npm/pip never fail with EROFS.
-export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-/opt/workspace/runtime/.npm-cache}"
-export PIP_CACHE_DIR="${PIP_CACHE_DIR:-/opt/workspace/runtime/.pip-cache}"
+export NPM_CONFIG_CACHE="${NPM_CONFIG_CACHE:-$WORKSPACE_ROOT/runtime/.npm-cache}"
+export PIP_CACHE_DIR="${PIP_CACHE_DIR:-$WORKSPACE_ROOT/runtime/.pip-cache}"
 mkdir -p "$NPM_CONFIG_CACHE" "$PIP_CACHE_DIR"
 
 # The invocation helper uses subscription CLIs only. Capacity failures fall
