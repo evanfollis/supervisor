@@ -7,6 +7,7 @@ trap 'rm -rf "$ROOT"' EXIT
 WORKSPACE_ROOT="$ROOT/workspace"
 PROJECT_DIR="$WORKSPACE_ROOT/projects/demo"
 BIN_DIR="$ROOT/bin"
+export PROMPTEVAL_CIRCUIT_FILE="$WORKSPACE_ROOT/runtime/prompteval/circuit-breaker.json"
 
 mkdir -p "$PROJECT_DIR" "$BIN_DIR" "$WORKSPACE_ROOT/runtime/.telemetry"
 git -C "$PROJECT_DIR" init -b main >/dev/null
@@ -18,6 +19,7 @@ git -C "$PROJECT_DIR" commit -m fixture >/dev/null
 printf '{"project":"demo","source":"test","eventType":"info","level":"info","sourceType":"system","timestamp":1}\n' \
   > "$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
 EVENT_FILE="$WORKSPACE_ROOT/runtime/.telemetry/events.jsonl"
+export PROMPTEVAL_CIRCUIT_FILE="$WORKSPACE_ROOT/runtime/prompteval/circuit-breaker.json"
 
 set +e
 WORKSPACE_LAYOUT=split \
@@ -25,6 +27,7 @@ WORKSPACE_ROOT="$WORKSPACE_ROOT" \
 WORKSPACE_META_DIR="$WORKSPACE_ROOT/runtime/.meta" \
 WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
+PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
   /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" missing-reflect-prompt.md \
   > "$ROOT/stdout-missing-prompt" 2> "$ROOT/stderr-missing-prompt"
@@ -47,6 +50,7 @@ WORKSPACE_ROOT="$WORKSPACE_ROOT" \
 WORKSPACE_META_DIR="$WORKSPACE_ROOT/runtime/.meta" \
 WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
+PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
   /opt/workspace/supervisor/scripts/lib/reflect.sh missing "$WORKSPACE_ROOT/projects/missing" \
   > "$ROOT/stdout-missing-project" 2> "$ROOT/stderr-missing-project"
@@ -82,6 +86,7 @@ WORKSPACE_ROOT="$WORKSPACE_ROOT" \
 WORKSPACE_META_DIR="$WORKSPACE_ROOT/runtime/.meta" \
 WORKSPACE_HANDOFF_DIR="$WORKSPACE_ROOT/runtime/.handoff" \
 WORKSPACE_TELEMETRY_DIR="$WORKSPACE_ROOT/runtime/.telemetry" \
+PROMPTEVAL_RUNTIME="$WORKSPACE_ROOT/runtime/prompteval" \
 PATH="$BIN_DIR:$PATH" \
   /opt/workspace/supervisor/scripts/lib/reflect.sh demo "$PROJECT_DIR" \
   > "$ROOT/stdout-failed" 2> "$ROOT/stderr-failed"
