@@ -15,20 +15,23 @@ say()   { printf "%-44s %s\n" "$1" "$2"; }
 check() { if eval "$2" >/dev/null 2>&1; then say "$1" "✓"; else say "$1" "✗"; FAIL=1; fi; }
 
 tracked_source_files() {
-  # Generic source scans must not traverse governed eval evidence. Ripgrep's
-  # file walker also honors repository .gitignore/.ignore rules, so explicitly
-  # excluded fixtures and private evaluation material do not become accidental
-  # source inputs. Intersect that view with Git's index to retain the original
-  # tracked-files-only contract.
-  local path
-  declare -A visible=()
+  # Generic source scans must not traverse governed eval evidence. Ask Git's
+  # NUL-safe ignore engine to apply both ordinary ignore rules and the
+  # repository's `.ignore` file to the tracked set. This remains portable to a
+  # clean CI runner without adding a ripgrep dependency.
+  local excludes_file=/dev/null path
+  [[ -f .ignore ]] && excludes_file="$PWD/.ignore"
+  declare -A ignored=()
+  while IFS= read -r -d '' path; do
+    ignored["$path"]=1
+  done < <(
+    git -c "core.excludesFile=$excludes_file" check-ignore \
+      --no-index --stdin -z < <(git ls-files -z 2>/dev/null) || true
+  )
   while IFS= read -r -d '' path; do
     [[ "$path" == .prompteval/* ]] && continue
-    visible["$path"]=1
-  done < <(rg --files --hidden --null 2>/dev/null)
-
-  while IFS= read -r -d '' path; do
-    [[ -n "${visible[$path]+present}" ]] && printf '%s\0' "$path"
+    [[ -n "${ignored[$path]+present}" ]] && continue
+    printf '%s\0' "$path"
   done < <(git ls-files -z 2>/dev/null)
 }
 
