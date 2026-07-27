@@ -13,7 +13,7 @@ name = "atlas"
 path = "/opt/workspace/projects/atlas"
 session = "atlas"
 canonical_repository = "https://github.com/evanfollis/atlas"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "command"
@@ -27,7 +27,7 @@ name = "context-repository"
 path = "/opt/workspace/projects/context-repository"
 session = "context-repo"
 canonical_repository = "https://github.com/evanfollis/context-repository"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "synaplex"
@@ -41,60 +41,60 @@ name = "skillfoundry-agents"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-agents"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-agents"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-builder-context"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-builder-context"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-builder-context"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-designer-context"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-designer-context"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-designer-context"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-growth-context"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-growth-context"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-growth-context"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-harness"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-harness"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-harness"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-pricing-context"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-pricing-context"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-pricing-context"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-products"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-products"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-products"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-researcher-context"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-researcher-context"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-researcher-context"
-conformance = "migrating"
+conformance = "conforming"
 
 [[repositories]]
 name = "skillfoundry-valuation-context"
 path = "/opt/workspace/projects/skillfoundry/skillfoundry-valuation-context"
 session = "skillfoundry"
 canonical_repository = "https://github.com/evanfollis/skillfoundry-valuation-context"
-conformance = "migrating"
+conformance = "conforming"

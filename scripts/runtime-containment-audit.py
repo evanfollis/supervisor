@@ -22,6 +22,7 @@ DEFAULT_PATTERNS = (
     "workspace-supervisor-*.service",
     "atlas-*.service",
     "command*.service",
+    "preflight*.service",
     "synaplex-*.service",
 )
 

@@ -14,6 +14,24 @@ FAIL=0
 say()   { printf "%-44s %s\n" "$1" "$2"; }
 check() { if eval "$2" >/dev/null 2>&1; then say "$1" "✓"; else say "$1" "✗"; FAIL=1; fi; }
 
+tracked_source_files() {
+  # Generic source scans must not traverse governed eval evidence. Ripgrep's
+  # file walker also honors repository .gitignore/.ignore rules, so explicitly
+  # excluded fixtures and private evaluation material do not become accidental
+  # source inputs. Intersect that view with Git's index to retain the original
+  # tracked-files-only contract.
+  local path
+  declare -A visible=()
+  while IFS= read -r -d '' path; do
+    [[ "$path" == .prompteval/* ]] && continue
+    visible["$path"]=1
+  done < <(rg --files --hidden --null 2>/dev/null)
+
+  while IFS= read -r -d '' path; do
+    [[ -n "${visible[$path]+present}" ]] && printf '%s\0' "$path"
+  done < <(git ls-files -z 2>/dev/null)
+}
+
 echo "=== Workspace preflight: $(pwd) ==="
 
 # --- Secrets hygiene (universal) ---
@@ -47,11 +65,13 @@ else
 fi
 
 # --- Anti-patterns caught by Command's check-patterns.ts (apply anywhere with req.url) ---
-# These scan tracked files only — skips node_modules, dist, etc.
+# These scan tracked source files only. Governed `.prompteval/**` evidence and
+# paths excluded by `.gitignore`/`.ignore` are deliberately outside this generic
+# grep; their own versioned contracts and the prompt-eval gate govern them.
 check "No NextResponse.redirect(new URL..req.url)" \
-  "! git ls-files 2>/dev/null | xargs -r grep -lE 'NextResponse\\.redirect\\(new URL\\(.+req\\.url' 2>/dev/null | grep -q ."
+  "! tracked_source_files | xargs -0 -r grep -lE 'NextResponse\\.redirect\\(new URL\\(.+req\\.url' 2>/dev/null | grep -q ."
 check "No new URL(path, req.url) in handlers"  \
-  "! git ls-files 2>/dev/null | xargs -r grep -lE 'new URL\\([^,]+,\\s*req\\.url' 2>/dev/null | grep -q ."
+  "! tracked_source_files | xargs -0 -r grep -lE 'new URL\\([^,]+,\\s*req\\.url' 2>/dev/null | grep -q ."
 
 # --- /review compliance (projects with git history) ---
 # Synthesis 2026-04-14 Proposal 1: fail if commits touching code since the last

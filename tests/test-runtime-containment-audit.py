@@ -39,6 +39,19 @@ def hardened_properties() -> dict[str, str]:
 
 
 class RuntimeContainmentAuditTests(unittest.TestCase):
+    def test_default_patterns_cover_every_hosted_service_family(self):
+        self.assertEqual(
+            MODULE.DEFAULT_PATTERNS,
+            (
+                "workspace-session@*.service",
+                "workspace-supervisor-*.service",
+                "atlas-*.service",
+                "command*.service",
+                "preflight*.service",
+                "synaplex-*.service",
+            ),
+        )
+
     def test_hardened_unit_has_no_findings(self):
         self.assertEqual(MODULE.assess("atlas-runner.service", hardened_properties()), [])
 
