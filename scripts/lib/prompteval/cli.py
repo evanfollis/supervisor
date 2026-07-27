@@ -294,15 +294,31 @@ def cmd_align(args) -> int:
               f"Add one each time a human disputes or confirms a judge verdict.",
               file=sys.stderr)
         return 1
-    model = (spec.spec.get("judge") or {}).get("model", "opus")
-    trials = max(1, int((spec.spec.get("judge") or {}).get("trials", 1)))
+    judge_config = spec.spec.get("judge") or {}
+    model = judge_config.get("model", "opus")
+    trials = max(1, int(judge_config.get("trials", 1)))
     tp = tn = fp = fn = unknown = 0
     for i, e in enumerate(entries, 1):
         check = {"kind": "judge", "failure_mode": e.get("failure_mode"),
                  "rubric": e.get("rubric", "")}
         try:
-            verdict, detail = run_judge_check(check, e.get("case_input"),
-                                              e.get("output", ""), model, trials)
+            verdict, detail = run_judge_check(
+                check,
+                e.get("case_input"),
+                e.get("output", ""),
+                model,
+                trials,
+                telemetry_context={
+                    "project": repo.name,
+                    "prompt_id": spec.prompt_id,
+                    "case_id": f"alignment-{i}",
+                    "same_provider_max_attempts": judge_config.get(
+                        "same_provider_max_attempts", 2
+                    ),
+                    "allow_fallback": judge_config.get("allow_fallback", True),
+                    "circuit": judge_config.get("circuit"),
+                },
+            )
         except GradingError as exc:
             print(f"  [{i}] judge error: {exc}", file=sys.stderr)
             unknown += 1

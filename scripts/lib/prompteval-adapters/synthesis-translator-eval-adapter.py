@@ -8,6 +8,8 @@ HANDOFF_DIR / INBOX_DIR / the synthesis file live in a throwaway sandbox,
 so eval runs can never write into the live queues.
 
 stdin:  {"prompt_text": <template>, "model": "...", "params": {...},
+         "transport_policy": {"same_provider_max_attempts": 1..3,
+                              "allow_fallback": true|false},
          "input": {"synthesis": "<file content>",
                    "iso_now": "...", "iso_filename": "..."}}
 stdout: the translator's report, then a machine-gradable footer:
@@ -25,7 +27,13 @@ from pathlib import Path
 
 sys.path.insert(0, "/opt/workspace/supervisor/scripts/lib")
 
-from prompteval.llm import AllProvidersThrottled, CliCall, LLMCallError, run_with_fallback  # noqa: E402
+from prompteval.llm import (  # noqa: E402
+    AllProvidersThrottled,
+    CliCall,
+    LLMCallError,
+    run_with_fallback,
+    transport_policy,
+)
 
 DISALLOWED = [
     "Bash(git commit:*)", "Bash(git push:*)", "Bash(git reset:*)",
@@ -42,6 +50,13 @@ def main() -> int:
     template = payload["prompt_text"]
     model = payload.get("model") or "claude-haiku-4-5-20251001"
     case_input = payload["input"]
+    try:
+        max_attempts, allow_fallback = transport_policy(
+            payload.get("transport_policy")
+        )
+    except LLMCallError as error:
+        sys.stderr.write(str(error))
+        return 1
 
     with tempfile.TemporaryDirectory(prefix="translator-eval-") as tmp:
         sandbox = Path(tmp)
@@ -72,6 +87,8 @@ def main() -> int:
             stdout = run_with_fallback(
                 [CliCall("claude", model, cmd, input_text=prompt, cwd="/opt/workspace")],
                 timeout=600,
+                max_attempts=max_attempts,
+                allow_fallback=False,
                 role="executor-adapter",
                 project=telemetry.get("project", "supervisor"),
                 prompt_id=telemetry.get("prompt_id", "synthesis-translator"),
@@ -86,7 +103,10 @@ def main() -> int:
                 out.append(path.read_text(encoding="utf-8"))
             print("\n".join(out))
             return 0
-        except AllProvidersThrottled:
+        except AllProvidersThrottled as primary_error:
+            if not allow_fallback:
+                sys.stderr.write(str(primary_error))
+                return 75
             fallback_prompt = prompt + """
 
 ## Eval fallback output contract
@@ -119,6 +139,8 @@ the report and ===EMITTED:0===.
                         fallback_from="claude",
                     )],
                     timeout=600,
+                    max_attempts=max_attempts,
+                    allow_fallback=False,
                     role="executor-adapter",
                     project=telemetry.get("project", "supervisor"),
                     prompt_id=telemetry.get("prompt_id", "synthesis-translator"),

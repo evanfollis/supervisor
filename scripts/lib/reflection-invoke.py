@@ -129,7 +129,7 @@ def main() -> int:
                 ),
             ],
             timeout=args.timeout,
-            retries=0,
+            max_attempts=1,
             role="reflector",
             project=args.project,
             prompt_id="artifact-reflection",

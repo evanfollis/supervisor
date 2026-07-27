@@ -18,7 +18,9 @@
       "scripts/lib/prompteval/llm.py",
       "scripts/lib/prompteval/telemetry.py",
       "scripts/lib/prompteval/core.py"
-    ]
+    ],
+    "same_provider_max_attempts": 1,
+    "allow_fallback": true
   },
   "judge": {
     "model": "opus"
@@ -30,7 +32,8 @@
   },
   "created": "2026-07-12T01:15:00Z",
   "known_gaps": [
-    "idempotency stratum (pre-existing handoff collision) not covered in v1.",
+    "Same-provider retries are disabled for this output-mutating adapter: a timed-out attempt may have written partial sandbox files, so retrying in the same sandbox could contaminate the successful attempt.",
+    "Idempotency stratum (pre-existing handoff collision) not covered in v1.",
     "stale-state stratum IS covered (contrary to v1 assumption): the eval sandbox reads the real workspace and the model primary-verifies unprompted; see golden/dimensions.md."
   ]
 }

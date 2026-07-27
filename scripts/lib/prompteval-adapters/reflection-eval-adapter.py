@@ -16,7 +16,13 @@ from pathlib import Path
 
 sys.path.insert(0, "/opt/workspace/supervisor/scripts/lib")
 
-from prompteval.llm import AllProvidersThrottled, CliCall, LLMCallError, run_with_fallback  # noqa: E402
+from prompteval.llm import (  # noqa: E402
+    AllProvidersThrottled,
+    CliCall,
+    LLMCallError,
+    run_with_fallback,
+    transport_policy,
+)
 from reflection_document import normalize_with_metadata  # noqa: E402
 
 CHECKER = "/opt/workspace/supervisor/scripts/lib/reflection-evidence.py"
@@ -66,6 +72,13 @@ def main() -> int:
     case = payload["input"]
     model = payload.get("model") or "claude-sonnet-4-6"
     telemetry = payload.get("telemetry") or {}
+    try:
+        max_attempts, allow_fallback = transport_policy(
+            payload.get("transport_policy")
+        )
+    except LLMCallError as error:
+        sys.stderr.write(str(error))
+        return 1
 
     with tempfile.TemporaryDirectory(prefix="reflection-eval-") as tmp_value:
         root = Path(tmp_value)
@@ -161,6 +174,8 @@ def main() -> int:
                     ),
                 ],
                 timeout=600,
+                max_attempts=max_attempts,
+                allow_fallback=allow_fallback,
                 role="executor-adapter",
                 project=telemetry.get("project", "supervisor"),
                 prompt_id=telemetry.get("prompt_id", "artifact-reflection"),

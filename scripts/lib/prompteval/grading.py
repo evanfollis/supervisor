@@ -28,6 +28,7 @@ is bad, and that must surface, not silently pass.
 
 from __future__ import annotations
 
+import inspect
 import json
 import re
 import subprocess
@@ -40,6 +41,7 @@ from .llm import (
     is_throttle,
     provider_for_model,
     run_with_fallback,
+    transport_policy,
 )
 
 DETERMINISTIC_KINDS = {
@@ -287,14 +289,7 @@ def call_judge_cli(
     timeout: int = 240,
     telemetry_context: dict | None = None,
 ) -> str:
-    """One judge call with cross-provider fallback.
-
-    One bounded retry on nonzero exit: the CLI intermittently exits 1 with
-    no diagnostic (observed 2026-07-12); the error message includes stdout
-    because the CLIs sometimes report there instead of stderr.
-    """
-    import time
-
+    """One judge call under an explicit same-provider/fallback policy."""
     ctx = telemetry_context or {}
     primary = provider_for_model(model, default="claude")
     fallback = "codex" if primary == "claude" else "claude"
@@ -315,6 +310,7 @@ def call_judge_cli(
                     input_text=prompt, fallback_from="codex"),
         ]
     try:
+        max_attempts, allow_fallback = transport_policy(ctx)
         return run_with_fallback(
             calls,
             timeout=timeout,
@@ -323,6 +319,9 @@ def call_judge_cli(
             prompt_id=ctx.get("prompt_id", ""),
             case_id=ctx.get("case_id", ""),
             trial=ctx.get("trial"),
+            max_attempts=max_attempts,
+            allow_fallback=allow_fallback,
+            circuit_config=ctx.get("circuit"),
         )
     except AllProvidersThrottled as exc:
         raise GradingError("THROTTLED: " + str(exc)) from exc
@@ -372,24 +371,34 @@ def run_judge_check(
     """
     if caller is None:
         caller = call_judge_cli
+    try:
+        signature = inspect.signature(caller)
+        parameters = signature.parameters
+        accepts_telemetry = (
+            "telemetry_context" in parameters
+            or any(
+                parameter.kind is inspect.Parameter.VAR_KEYWORD
+                for parameter in parameters.values()
+            )
+        )
+    except (TypeError, ValueError):
+        # Some extension callables do not expose an inspectable signature.
+        # Preserve the policy-bearing argument rather than silently dropping it.
+        accepts_telemetry = True
+
+    def invoke(request: str) -> str:
+        if accepts_telemetry:
+            return caller(request, model, telemetry_context=telemetry_context)
+        return caller(request, model)
+
     prompt = build_judge_prompt(check, case_input, output)
     votes, reasons = [], []
     for _ in range(max(1, trials)):
-        try:
-            reply = caller(prompt, model, telemetry_context=telemetry_context)
-        except TypeError:
-            reply = caller(prompt, model)
+        reply = invoke(prompt)
         verdict, reason = parse_verdict(reply)
         if verdict == "unknown" and reason == "judge reply had no parseable verdict":
             repair_prompt = build_verdict_repair_prompt(prompt, reply)
-            try:
-                repaired = caller(
-                    repair_prompt,
-                    model,
-                    telemetry_context=telemetry_context,
-                )
-            except TypeError:
-                repaired = caller(repair_prompt, model)
+            repaired = invoke(repair_prompt)
             verdict, reason = parse_verdict(repaired)
         votes.append(verdict)
         reasons.append(reason)

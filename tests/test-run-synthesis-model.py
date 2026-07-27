@@ -42,7 +42,7 @@ assert captured["run_id"] == "synthesis-test"
 assert captured["role"] == "workspace-synthesis"
 assert captured["project"] == "supervisor"
 assert captured["prompt_id"] == "workspace-synthesis"
-assert captured["retries"] == 0
+assert captured["max_attempts"] == 1
 assert captured["timeout"] == 42
 
 captured.clear()

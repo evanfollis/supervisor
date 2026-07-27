@@ -136,7 +136,7 @@ def execute(
     return run_with_fallback(
         build_calls(prompt, cwd, claude_model, claude_permission_mode),
         timeout=timeout,
-        retries=0,
+        max_attempts=1,
         role=role,
         project=project,
         prompt_id=prompt_id,

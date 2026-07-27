@@ -15,7 +15,12 @@ prompt under test for one case. All LLM paths are subscription CLIs
 
   {"type": "command", "argv": ["python3", "path/to/adapter.py"]}
       Project-owned adapter: receives {"prompt_text", "model", "params",
-      "input"} as JSON on stdin, prints the raw model output on stdout.
+      "input", "transport_policy"} as JSON on stdin, prints the raw model
+      output on stdout. The harness invokes the adapter once per uncached
+      trial. The adapter MUST strictly validate and honor transport_policy:
+      retry only the same provider for timeout/empty availability failures,
+      never retry semantic failures, and never call a sibling provider when
+      allow_fallback is false.
       This is how a project points evals at its real runtime path.
 
 Gate semantics (ADR-0039 §4): a run PASSES iff
@@ -57,6 +62,7 @@ from .llm import (
     current_run_id,
     is_throttle,
     run_with_fallback,
+    transport_policy,
 )
 from .registry import PromptSpec
 
@@ -89,17 +95,18 @@ def _render_user(template: str, case_input) -> str:
 
 
 def _run_cli(cmd: list[str], stdin_text: str | None, timeout: int,
-             retries: int = 1, cwd: Path | None = None) -> str:
-    """Run an executor command. Nonzero exits get `retries` re-attempts:
-    subscription CLIs intermittently exit 1 with no diagnostic (observed
-    2026-07-12), and a single bounded retry separates transient harness
-    noise from real failures without masking the latter. Error messages
-    include stdout as well — the CLIs sometimes put the error there.
+             max_attempts: int = 2, cwd: Path | None = None) -> str:
+    """Run one exact command with bounded transport-only retries.
+
+    Timeouts and successful-but-empty replies are availability failures and
+    may retry the same command. Any nonzero non-throttle result is semantic
+    command failure: fail closed immediately and never accept its stdout.
     """
     import time
 
-    last_err = ""
-    for attempt in range(retries + 1):
+    if type(max_attempts) is not int or not 1 <= max_attempts <= 3:
+        raise RunError("max_attempts must be an integer between 1 and 3")
+    for attempt in range(max_attempts):
         try:
             proc = subprocess.run(
                 cmd, input=stdin_text, capture_output=True, text=True,
@@ -108,23 +115,24 @@ def _run_cli(cmd: list[str], stdin_text: str | None, timeout: int,
         except FileNotFoundError as exc:
             raise RunError(f"executor binary not found: {cmd[0]}") from exc
         except subprocess.TimeoutExpired as exc:
+            if attempt + 1 < max_attempts:
+                time.sleep(5)
+                continue
             raise RunError(f"executor timed out after {timeout}s") from exc
         if proc.returncode == 0 and (proc.stdout or "").strip():
             return proc.stdout
         diag = ((proc.stderr or "").strip() or (proc.stdout or "").strip())[-400:]
         if proc.returncode == 0:
-            # Exit 0 with empty/whitespace output is the "Claude hung/returned
-            # empty" failure — transient harness noise, not a valid result. Give
-            # it the same bounded retry as a nonzero exit, then fail truthfully
-            # instead of returning "" and scoring an empty answer as success.
-            last_err = "executor exited 0 with empty output"
-        else:
-            if is_throttle(diag):
-                raise Throttled(diag)
-            last_err = f"executor exited {proc.returncode}: {diag or '<no output>'}"
-        if attempt < retries:
-            time.sleep(5)
-    raise RunError(last_err)
+            if attempt + 1 < max_attempts:
+                time.sleep(5)
+                continue
+            raise RunError("executor exited 0 with empty output")
+        if is_throttle(diag):
+            raise Throttled(diag)
+        raise RunError(
+            f"executor exited {proc.returncode}: {diag or '<no output>'}"
+        )
+    raise RunError("executor did not produce a result")
 
 
 def _codex_cmd(model: str) -> list[str]:
@@ -167,6 +175,7 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
         codex_model = ex.get("codex_fallback_model", "")
         codex_input = f"{prompt_text}\n\n---\n\n{user}"
         try:
+            max_attempts, allow_fallback = transport_policy(ex)
             return run_with_fallback([
                 CliCall("claude", model,
                         _claude_text_cmd(model, "--append-system-prompt", prompt_text, user),
@@ -176,6 +185,7 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
                         fallback_from="claude"),
             ], timeout=timeout, role="executor", project=project,
                 prompt_id=spec.prompt_id, case_id=case_id, trial=trial,
+                max_attempts=max_attempts, allow_fallback=allow_fallback,
                 circuit_config=ex.get("circuit"))
         except AllProvidersThrottled as exc:
             raise Throttled(str(exc)) from exc
@@ -186,6 +196,7 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
         full = f"{prompt_text}\n\n---\n\n{user}"
         claude_model = ex.get("claude_fallback_model", "sonnet")
         try:
+            max_attempts, allow_fallback = transport_policy(ex)
             return run_with_fallback([
                 CliCall("codex", model, _codex_cmd(model),
                         stdin_text=full, input_text=full),
@@ -195,6 +206,7 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
                         fallback_from="codex"),
             ], timeout=timeout, role="executor", project=project,
                 prompt_id=spec.prompt_id, case_id=case_id, trial=trial,
+                max_attempts=max_attempts, allow_fallback=allow_fallback,
                 circuit_config=ex.get("circuit"))
         except AllProvidersThrottled as exc:
             raise Throttled(str(exc)) from exc
@@ -205,12 +217,20 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
         if not argv:
             raise RunError("command executor needs 'argv'")
         command_timeout = int(ex.get("timeout", timeout))
+        try:
+            max_attempts, allow_fallback = transport_policy(ex)
+        except LLMCallError as exc:
+            raise RunError(str(exc)) from exc
         payload = json.dumps(
             {
                 "prompt_text": prompt_text,
                 "model": model,
                 "params": spec.spec.get("params", {}),
                 "input": case_input,
+                "transport_policy": {
+                    "same_provider_max_attempts": max_attempts,
+                    "allow_fallback": allow_fallback,
+                },
                 "telemetry": {
                     "project": project,
                     "prompt_id": spec.prompt_id,
@@ -221,7 +241,16 @@ def execute_case(spec: PromptSpec, prompt_text: str, case_input, timeout: int = 
             },
             ensure_ascii=False,
         )
-        return _run_cli(argv, payload, command_timeout, cwd=spec.repo)
+        return _run_cli(
+            argv,
+            payload,
+            command_timeout,
+            # Provider retries belong inside the policy-aware adapter. Retrying
+            # the adapter process here can orphan its provider grandchild when
+            # the outer timeout fires and can duplicate non-idempotent work.
+            max_attempts=1,
+            cwd=spec.repo,
+        )
     raise RunError(f"unknown executor type: {etype}")
 
 
@@ -264,7 +293,8 @@ def grade_output(spec: PromptSpec, case: dict, output: str, judge_trials: int,
     first; if any required deterministic check fails, judge checks are
     skipped (no reason to spend judge calls on structurally broken output).
     """
-    judge_model = (spec.spec.get("judge") or {}).get("model", "opus")
+    judge_config = spec.spec.get("judge") or {}
+    judge_model = judge_config.get("model", "opus")
     results, det_failed = [], False
     for check in case["checks"]:
         kind = check.get("kind")
@@ -294,6 +324,11 @@ def grade_output(spec: PromptSpec, case: dict, output: str, judge_trials: int,
                         "prompt_id": spec.prompt_id,
                         "case_id": case["id"],
                         "trial": trial,
+                        "same_provider_max_attempts": judge_config.get(
+                            "same_provider_max_attempts", 2
+                        ),
+                        "allow_fallback": judge_config.get("allow_fallback", True),
+                        "circuit": judge_config.get("circuit"),
                     },
                 )
             except GradingError as exc:

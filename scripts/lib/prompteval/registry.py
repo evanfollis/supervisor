@@ -21,8 +21,16 @@ spec.json shape:
              "var": "SONNET_SYSTEM_PROMPT"},
   "model": "sonnet",
   "params": {},                       # sampling params bundled into version
-  "executor": {...},                  # see runner.py
-  "judge": {"model": "opus"},
+  "executor": {                       # see runner.py
+    ...,
+    "same_provider_max_attempts": 2,  # integer 1..3
+    "allow_fallback": true
+  },
+  "judge": {
+    "model": "opus",
+    "same_provider_max_attempts": 2,  # integer 1..3
+    "allow_fallback": true
+  },
   "gate": {"aggregate_floor_delta": 0.02, "trials": 1,
            "max_unknown_ratio": 0.2}
 }

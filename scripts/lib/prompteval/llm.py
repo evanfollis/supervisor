@@ -44,6 +44,27 @@ class LLMCallError(Exception):
     pass
 
 
+MAX_SAME_PROVIDER_ATTEMPTS = 3
+
+
+def transport_policy(config: dict | None) -> tuple[int, bool]:
+    """Validate bounded retry/fallback policy without truthiness coercions."""
+    config = config or {}
+    max_attempts = config.get("same_provider_max_attempts", 2)
+    allow_fallback = config.get("allow_fallback", True)
+    if (
+        type(max_attempts) is not int
+        or not 1 <= max_attempts <= MAX_SAME_PROVIDER_ATTEMPTS
+    ):
+        raise LLMCallError(
+            "same_provider_max_attempts must be an integer between "
+            f"1 and {MAX_SAME_PROVIDER_ATTEMPTS}"
+        )
+    if type(allow_fallback) is not bool:
+        raise LLMCallError("allow_fallback must be a boolean")
+    return max_attempts, allow_fallback
+
+
 # A run-scoped metadata channel keeps provider provenance coupled to the
 # evaluator that produced it without threading bookkeeping arguments through
 # every adapter and grader call. ContextVar keeps the mechanism safe if the
@@ -113,7 +134,7 @@ def fallback_model(provider: str, configured: str | None = None) -> str:
 def run_cli_call(
     call: CliCall,
     timeout: int,
-    retries: int = 1,
+    max_attempts: int = 2,
     role: str = "executor",
     project: str = "",
     prompt_id: str = "",
@@ -121,14 +142,22 @@ def run_cli_call(
     trial: int | None = None,
     run_id: str = "",
 ) -> str:
-    last_err = ""
-    for attempt in range(retries + 1):
+    if (
+        type(max_attempts) is not int
+        or not 1 <= max_attempts <= MAX_SAME_PROVIDER_ATTEMPTS
+    ):
+        raise LLMCallError(
+            "max_attempts must be an integer between "
+            f"1 and {MAX_SAME_PROVIDER_ATTEMPTS}"
+        )
+    for attempt in range(max_attempts):
         started = time.monotonic()
         status = "error"
         exit_code = None
         stdout = ""
         stderr = ""
         detail = ""
+        availability_error: ProviderUnavailable | None = None
         try:
             proc = subprocess.run(
                 call.cmd,
@@ -151,7 +180,9 @@ def run_cli_call(
             # the circuit's own event carries reason=timeout.
             status = "unavailable"
             detail = f"timed out after {timeout}s"
-            raise ProviderUnavailable(call.provider, detail, kind="timeout") from exc
+            availability_error = ProviderUnavailable(
+                call.provider, detail, kind="timeout"
+            )
         finally:
             latency_ms = int((time.monotonic() - started) * 1000)
             resolved_run_id = run_id or current_run_id()
@@ -202,26 +233,39 @@ def run_cli_call(
                 stderr_text=stderr,
                 detail=detail,
             )
+        if availability_error is not None:
+            if attempt + 1 < max_attempts:
+                time.sleep(5)
+                continue
+            raise availability_error
         if exit_code == 0:
             if (stdout or "").strip():
                 return stdout
-            # Exit 0 but empty output: an availability failure, not a result.
-            # Fall back to the sibling subscription CLI once (via run_with_fallback)
-            # instead of returning "" as a falsely-successful answer.
-            raise ProviderUnavailable(call.provider, "exit 0 with empty output", kind="empty")
+            # Exit 0 but empty output is a transport/availability failure, not
+            # a semantic answer. Retry only this exact provider/model before
+            # the caller decides whether any sibling is allowed.
+            availability_error = ProviderUnavailable(
+                call.provider, "exit 0 with empty output", kind="empty"
+            )
+            if attempt + 1 < max_attempts:
+                time.sleep(5)
+                continue
+            raise availability_error
         diag = ((stderr or "").strip() or (stdout or "").strip())[-800:]
         if is_throttle(diag):
             raise ProviderThrottled(call.provider, diag)
-        last_err = f"{call.provider} exited {exit_code}: {diag or '<no output>'}"
-        if attempt < retries:
-            time.sleep(5)
-    raise LLMCallError(last_err)
+        # A nonzero non-throttle result is semantic/command failure. Never
+        # retry it and never accept stdout from it as a later answer.
+        raise LLMCallError(
+            f"{call.provider} exited {exit_code}: {diag or '<no output>'}"
+        )
 
 
 def run_with_fallback(
     calls: list[CliCall],
     timeout: int,
-    retries: int = 1,
+    max_attempts: int = 2,
+    allow_fallback: bool = True,
     role: str = "executor",
     project: str = "",
     prompt_id: str = "",
@@ -231,7 +275,8 @@ def run_with_fallback(
     run_id: str = "",
 ) -> str:
     unavailable: list[ProviderThrottled | ProviderUnavailable] = []
-    for call in calls:
+    eligible_calls = calls if allow_fallback else calls[:1]
+    for call in eligible_calls:
         model = call.model or "default"
         # Per-provider override (CliCall.circuit_config) beats the spec-level
         # default (circuit_config); either beats module defaults.
@@ -246,7 +291,7 @@ def run_with_fallback(
             result = run_cli_call(
                 call,
                 timeout=timeout,
-                retries=retries,
+                max_attempts=max_attempts,
                 role=role,
                 project=project,
                 prompt_id=prompt_id,

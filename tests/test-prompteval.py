@@ -17,6 +17,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts" / "lib"))
 
@@ -309,6 +310,35 @@ class TestGrading(unittest.TestCase):
         self.assertIn("do not independently verify", prompts[0].lower())
         self.assertIn("discard that preamble", prompts[1])
         self.assertIn("Do not call, invoke, simulate, or request tools", prompts[1])
+
+    def test_judge_internal_typeerror_does_not_drop_policy(self):
+        calls = []
+
+        def broken(_prompt, _model, telemetry_context=None):
+            calls.append(telemetry_context)
+            raise TypeError("internal caller bug")
+
+        with self.assertRaisesRegex(TypeError, "internal caller bug"):
+            grading.run_judge_check(
+                {"failure_mode": "fixture", "rubric": "fixture"},
+                {},
+                "output",
+                "opus",
+                caller=broken,
+                telemetry_context={"allow_fallback": False},
+            )
+        self.assertEqual(calls, [{"allow_fallback": False}])
+
+    def test_transport_policy_rejects_coercions_and_unbounded_attempts(self):
+        for policy in (
+            {"allow_fallback": "false"},
+            {"same_provider_max_attempts": None},
+            {"same_provider_max_attempts": 0},
+            {"same_provider_max_attempts": 4},
+        ):
+            with self.subTest(policy=policy):
+                with self.assertRaises(llm.LLMCallError):
+                    llm.transport_policy(policy)
 
     def test_llm_transcript_is_private_and_run_scoped(self):
         runtime = Path(tempfile.mkdtemp())
@@ -662,8 +692,85 @@ class TestRunnerAndGate(unittest.TestCase):
                 ],
                 None,
                 5,
-                retries=0,
+                max_attempts=1,
             )
+
+    def test_native_executor_retry_exhaustion_never_uses_sibling(self):
+        spec = write_spec(
+            self.repo,
+            executor={
+                "type": "claude_cli",
+                "same_provider_max_attempts": 3,
+                "allow_fallback": False,
+            },
+        )
+        side_effect = [
+            subprocess.TimeoutExpired(cmd="claude", timeout=5),
+            subprocess.TimeoutExpired(cmd="claude", timeout=5),
+            subprocess.TimeoutExpired(cmd="claude", timeout=5),
+            subprocess.CompletedProcess(
+                args=["codex"], returncode=0, stdout="forbidden sibling", stderr=""
+            ),
+        ]
+        with mock.patch.object(llm.subprocess, "run", side_effect=side_effect) as calls, \
+             mock.patch.object(llm.time, "sleep"):
+            with self.assertRaises(runner.Throttled):
+                runner.execute_case(
+                    spec,
+                    "system prompt",
+                    {"input": "fixture"},
+                    timeout=5,
+                )
+        self.assertEqual(calls.call_count, 3)
+        self.assertTrue(all(
+            call.args[0][0] == "claude" for call in calls.call_args_list
+        ))
+
+    def test_command_semantic_failure_is_not_retried(self):
+        side_effect = [
+            subprocess.CompletedProcess(
+                args=["adapter"],
+                returncode=1,
+                stdout="plausible invalid answer",
+                stderr="schema error",
+            ),
+            subprocess.CompletedProcess(
+                args=["adapter"], returncode=0, stdout="later answer", stderr=""
+            ),
+        ]
+        with mock.patch.object(
+            runner.subprocess, "run", side_effect=side_effect
+        ) as calls:
+            with self.assertRaises(runner.RunError):
+                runner._run_cli(
+                    ["adapter"],
+                    "{}",
+                    5,
+                    max_attempts=3,
+                )
+        self.assertEqual(calls.call_count, 1)
+
+    def test_command_executor_invokes_adapter_once_and_forwards_policy(self):
+        spec = write_spec(
+            self.repo,
+            executor={
+                "type": "command",
+                "argv": ["fixture-adapter"],
+                "same_provider_max_attempts": 3,
+                "allow_fallback": False,
+            },
+        )
+        with mock.patch.object(runner, "_run_cli", return_value="answer") as run:
+            self.assertEqual(
+                runner.execute_case(spec, "prompt", {"fixture": True}),
+                "answer",
+            )
+        payload = json.loads(run.call_args.args[1])
+        self.assertEqual(payload["transport_policy"], {
+            "same_provider_max_attempts": 3,
+            "allow_fallback": False,
+        })
+        self.assertEqual(run.call_args.kwargs["max_attempts"], 1)
 
     def test_provider_fallback_and_call_telemetry(self):
         out = llm.run_with_fallback(
@@ -684,7 +791,7 @@ class TestRunnerAndGate(unittest.TestCase):
                 ),
             ],
             timeout=5,
-            retries=0,
+            max_attempts=1,
             role="executor",
             project="test",
             prompt_id="p1",
@@ -720,7 +827,7 @@ class TestRunnerAndGate(unittest.TestCase):
                     ),
                 ],
                 timeout=1,
-                retries=0,
+                max_attempts=1,
                 role="executor",
                 project="test",
                 prompt_id="timeout-fallback",
@@ -757,7 +864,7 @@ class TestRunnerAndGate(unittest.TestCase):
                     ),
                 ],
                 timeout=5,
-                retries=0,
+                max_attempts=1,
             )
 
 
