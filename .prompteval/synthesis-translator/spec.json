@@ -19,6 +19,7 @@
       "scripts/lib/prompteval/telemetry.py",
       "scripts/lib/prompteval/core.py"
     ],
+    "timeout": 420,
     "same_provider_max_attempts": 1,
     "allow_fallback": true
   },
