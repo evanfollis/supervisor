@@ -16,6 +16,11 @@ THROTTLE_RE = re.compile(
     r"rate.?limit|overloaded|429|usage limit|session limit|hit your .*limit",
     re.IGNORECASE,
 )
+AUTH_UNAVAILABLE_RE = re.compile(
+    r"failed to authenticate|oauth session expired|could not be refreshed|"
+    r"not logged in|authentication required",
+    re.IGNORECASE,
+)
 
 
 class ProviderThrottled(Exception):
@@ -114,6 +119,16 @@ def is_throttle(text: str) -> bool:
     return bool(THROTTLE_RE.search(text or ""))
 
 
+def is_auth_unavailable(text: str) -> bool:
+    """Return true when the subscription CLI cannot currently authenticate.
+
+    Authentication transport failures are provider unavailability, not a
+    semantic failure in the evaluated prompt. Treating them as semantic errors
+    incorrectly suppresses an explicitly authorized sibling-provider fallback.
+    """
+    return bool(AUTH_UNAVAILABLE_RE.search(text or ""))
+
+
 def provider_for_model(model: str, default: str = "claude") -> str:
     m = (model or "").lower()
     if m.startswith(("gpt", "o1", "o3", "o4", "o5")) or "codex" in m:
@@ -193,7 +208,12 @@ def run_cli_call(
                 status = "success" if (stdout or "").strip() else "empty"
             elif exit_code is not None:
                 diag = ((stderr or "").strip() or (stdout or "").strip())[-800:]
-                status = "throttled" if is_throttle(diag) else "error"
+                if is_throttle(diag):
+                    status = "throttled"
+                elif is_auth_unavailable(diag):
+                    status = "unavailable"
+                else:
+                    status = "error"
                 detail = diag or "<no output>"
             emit_llm_call(
                 project=project,
@@ -254,6 +274,11 @@ def run_cli_call(
         diag = ((stderr or "").strip() or (stdout or "").strip())[-800:]
         if is_throttle(diag):
             raise ProviderThrottled(call.provider, diag)
+        if is_auth_unavailable(diag):
+            # Retrying the same expired OAuth session cannot recover without
+            # external reauthentication. Surface provider unavailability now
+            # so the caller can use an explicitly allowed sibling provider.
+            raise ProviderUnavailable(call.provider, diag, kind="auth")
         # A nonzero non-throttle result is semantic/command failure. Never
         # retry it and never accept stdout from it as a later answer.
         raise LLMCallError(

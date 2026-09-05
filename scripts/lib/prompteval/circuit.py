@@ -47,13 +47,14 @@ COOLDOWN_S = float(os.environ.get("PROMPTEVAL_CIRCUIT_COOLDOWN", "120"))
 PROBE_GRACE_S = float(os.environ.get("PROMPTEVAL_CIRCUIT_PROBE_GRACE", "60"))
 
 # Decisive failure kinds open the circuit on the FIRST occurrence. A full
-# subprocess timeout or an exit-0-empty response is a definitive availability
-# failure for that provider — we must not keep paying its (e.g. 380s) timeout
-# THRESHOLD times before skipping it. Transient capacity diagnostics (throttle)
-# stay threshold-gated, since a single 429 is often a brief blip.
+# subprocess timeout, an exit-0-empty response, or an expired authentication
+# session is a definitive availability failure for that provider — we must not
+# keep paying its (e.g. 380s) timeout or retrying unusable credentials before
+# skipping it. Transient capacity diagnostics (throttle) stay threshold-gated,
+# since a single 429 is often a brief blip.
 DECISIVE_REASONS = set(
     r.strip() for r in os.environ.get(
-        "PROMPTEVAL_CIRCUIT_DECISIVE_REASONS", "timeout,empty").split(",")
+        "PROMPTEVAL_CIRCUIT_DECISIVE_REASONS", "timeout,empty,auth").split(",")
     if r.strip())
 
 
@@ -184,7 +185,7 @@ def allow(provider: str, model: str = "", config=None) -> str:
 
 
 def record_failure(provider: str, model: str, reason: str, config=None) -> None:
-    """A capacity/availability failure. DECISIVE kinds (timeout, empty) open the
+    """A capacity/availability failure. DECISIVE kinds (timeout, empty, auth) open the
     circuit on the first occurrence — the provider is definitively unavailable
     for this call, so we must not pay its timeout THRESHOLD more times. TRANSIENT
     kinds (throttle) open only after the configured threshold of consecutive

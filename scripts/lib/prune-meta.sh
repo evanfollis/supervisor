@@ -41,8 +41,16 @@ for f in $(ls -1t *-reflection-*.md 2>/dev/null); do
   fi
 done
 
-# Synthesis hot-set retention: archive files older than 30 days.
+# Synthesis hot-set retention: archive files older than 30 days, except for
+# the artifact named by LATEST_SYNTHESIS.  The pointer is a live interface;
+# archiving its target leaves a plausible-looking but broken symlink.
+latest_synthesis_target="$(readlink -f "$WORKSPACE_LATEST_SYNTHESIS_PTR" 2>/dev/null || true)"
 while IFS= read -r -d '' f; do
+  candidate="$(readlink -f "$f" 2>/dev/null || true)"
+  if [[ -n "$latest_synthesis_target" && "$candidate" == "$latest_synthesis_target" ]]; then
+    echo "archive: preserving LATEST_SYNTHESIS target: $f"
+    continue
+  fi
   archive_file "$f" "$ARCHIVE_ROOT/syntheses"
 done < <(find . -maxdepth 1 -name 'cross-cutting-*.md' -mtime +30 -print0 2>/dev/null)
 

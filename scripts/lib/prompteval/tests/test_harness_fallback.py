@@ -121,6 +121,25 @@ def test_throttle_still_falls_back():
     print("ok: throttle -> fallback (regression guard)")
 
 
+def test_expired_auth_falls_back_and_is_not_semantic():
+    emitted = []
+    result, calls = _run_fallback(
+        [
+            _proc(
+                1,
+                "",
+                "Failed to authenticate: OAuth session expired and could not be refreshed",
+            ),
+            _proc(0, "sibling"),
+        ],
+        emitted,
+    )
+    assert result == "sibling", result
+    assert calls.call_count == 2
+    assert [event["status"] for event in emitted] == ["unavailable", "success"]
+    print("ok: expired auth -> sibling fallback + truthful unavailable telemetry")
+
+
 def test_executor_empty_output_is_truthful_error():
     with mock.patch.object(runner.subprocess, "run",
                            side_effect=[_proc(0, "  \n")]):
@@ -421,6 +440,7 @@ TESTS = [
     test_command_executor_forwards_transport_policy,
     test_command_executor_semantic_error_is_not_retried,
     test_empty_output_falls_back_and_is_not_success,
+    test_expired_auth_falls_back_and_is_not_semantic,
     test_executor_empty_output_is_truthful_error,
     test_executor_nonempty_output_returns,
     test_failed_attempt_stdout_is_never_accepted_or_retried,
