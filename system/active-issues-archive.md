@@ -1,7 +1,7 @@
 ---
 name: Active issues — historical archive
 description: Archive of resolved + closed items that used to live in active-issues.md. Load on demand, not in context-always-load. Preserves the narrative history that git log carries but that humans and agents may want to browse contiguously.
-updated: 2026-04-23
+updated: 2026-09-11
 ---
 
 # Active issues — historical archive
@@ -11,6 +11,17 @@ This file holds items that were previously tracked in `active-issues.md` and are
 The ordering here is reverse-chronological (most-recently-closed first). For the narrative of exactly how each item was closed, `git log` on the source files is authoritative; this archive carries the prose summary that was written when the item still felt current-state-shaped.
 
 See `active-issues.md` for items currently live.
+
+---
+
+## Snapshot retired 2026-09-11 during platform recovery
+
+The `active-issues.md` snapshot last updated on 2026-07-12 was retired after a
+primary-source recovery sweep. It still described July state as current,
+including 333-item inbox saturation, missing Synaplex remote/deploy, old tick
+failures, retired public routes, and a superseded reboot. Exact content remains
+in Git history at `08b9136e67f311931a7e8fc0ece6f7dfabaaba34`; current pressure
+was rewritten from live host, repository, project-state, and security evidence.
 
 ---
 

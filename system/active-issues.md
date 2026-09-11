@@ -1,94 +1,60 @@
 ---
 name: Active issues
-description: Currently-live pressure on the workspace. Each entry is ≤3 lines. Historical / closed items live in `active-issues-archive.md`. Read this; load the archive on demand only.
-updated: 2026-07-12T15:00Z
+description: Currently-live pressure on the workspace. Each entry is brief; machine state belongs in verified-state.md and closed history in active-issues-archive.md.
+updated: 2026-09-11T13:57Z
 ---
 
 # Active issues
 
-Rewritten from live sources during the attended session of 2026-07-11
-(ADR-0037). Prior snapshot (2026-06-09, 32 days stale) is in the archive.
-Cross-check any claim here against `runtime/.meta/LATEST_SYNTHESIS` first.
+This is a curated pressure surface, not proof of system state. Verify every
+operational claim against `system/verified-state.md` and the named project or
+runtime receipt before acting. A transient item past its `recheck_by` is
+unverified, not a continuing blocker.
 
-## CRITICAL / time-critical
+## Time-critical
 
-_(none as of 2026-07-11T23:15Z)_
+- **Command governed migration is in progress** — the restored subscription
+  session is running the authoritative 18-case Claude-only release evaluation.
+  Production remains on the known-good release until review, CI/CodeQL, canary,
+  authenticated smoke, deployment, and rollback gates all pass. Receipt:
+  `runtime/.meta/platform-recovery-2026-09-11-progress.md`; owner: executive;
+  `recheck_by: 2026-09-11T14:15Z`.
+- **Host reboot required after Command finishes** — the 2026-09-11 package pass
+  is otherwise clean, but libc6 set `/var/run/reboot-required`. Reboot only
+  after active release evidence is durable, then re-attest every surface.
+  Receipt: `system/verified-state.md`; owner: operator; `recheck_by:
+  2026-09-11T14:15Z`.
 
-- ~~Atlas Phase 2b~~ **CLOSED 2026-07-11T23:05Z** — scorer shipped +
-  deployed (`cf76b7b`, 184 tests, runner restarted 22:51Z); bucket 2948
-  recovered (20 scored), 2949 self-scores on Jul 16. Follow-on: 2c
-  calibration CLI (not time-critical).
-- ~~Unpushed branches~~ **CLOSED 2026-07-11T23:10Z** — principal authorized;
-  supervisor/context-repository/command/skillfoundry-harness pushed after
-  audit (composition + secrets scan, 0 hits); atlas + sf-products already in
-  sync. **Exception: synaplex has NO git remote** — "push synaplex" (rec
-  #19) was never executable; creating the GitHub repo is a principal-facing
-  naming/visibility decision.
+## Product and methodology pressure
 
-## Currently live (verified 2026-07-11)
+- **Synaplex produces no findings yet** — operations and publication are live,
+  while artifact-delivery v2 remains quarantined and the exploratory v3 method
+  was rejected pre-entry. The next admissible successor must correct the eight
+  methodological defects recorded in Synaplex `CURRENT_STATE.md`.
+- **Atlas remains intentionally parked** — do not restart autonomous execution
+  until its data-lineage and hypothesis-dedup acceptance criteria are met. A
+  healthy dormant pod is preferable to ungrounded activity.
+- **Private credential remediation is owner-secure work** — provider/database
+  credentials were identified in the 2026-07-27 private-boundary audit. Their
+  present validity/remediation state is unverified; the principal must verify
+  provider state before any rotation or private-history work. Receipt:
+  `runtime/.handoff/general-public-portfolio-private-boundary-audit-2026-07-27.md`.
 
-- **Tick recovery verification** — dirty-tree deadlock fixed 2026-07-11
-  (events ledger excluded from gate, commit `0ef69f2`). First post-fix tick
-  ~2026-07-11T22:47Z; confirm a `supervisor-tick-*.md` shows a real run, then
-  delete `handoffs/INBOX/URGENT-tick-escalation-9c6d9d393b.md`.
-- **INBOX saturation — 333 items** — mostly duplicate synthesis-translator
-  proposals (P3a suppression enforcement never landed). Sweep + P3a fix
-  pending.
-- **Synthesis follow-ups still unlanded** — P5 (reflect.sh HEAD-check false
-  positive — source of the `URGENT-supervisor-reflection-mutated-head` noise),
-  P3a (INBOX suppression), P2 (activity-gated reflection). P3 reflection
-  failure self-reporting landed 2026-07-12. Remaining items are small
-  `reflect.sh` / translator patches; see C138 for specs.
-- **Hook injection hardening (ADR-0037 review findings)** — the
-  session-start hook keys freshness on `updated:` only (not `generated:`)
-  and does not escape inner code fences; both matter if any generated file
-  is ever added to always-load. Deferred; do before any such addition.
-- **always-load 30KB cap collision** — aggregate exceeds cap; injection
-  truncates tail files (URGENT handoff `synaplex-always-load-cap-collision`
-  to principal). This rewrite shrinks active-issues from 10.3KB to ~4KB but
-  does not close it.
-- **Requirement-provenance enforcement (ADR-0047)** — a Letta example was
-  promoted into an unauthorized vendor/key blocker despite ADR-0036. Dispatch
-  now quarantines handoffs missing provenance declarations. Semantic truth is
-  still model/PM-reviewed, not machine-proven. Synaplex's vendor route is now
-  canonically withdrawn with zero Evidence. The first internal prospective
-  Claim was invalidated before observation after an opposing review found its
-  method contaminated. A replacement controlled instrument-validation study
-  is committed pre-entry at Synaplex `946c946` with Claim
-  `e1c51ab0d83be772`, frozen Policy `7628c88b8f08c7e8`, zero Evidence, and zero
-  subject access. Its Claude review is blocked by subscription connectivity;
-  a one-shot pre-entry retry is scheduled for 2026-07-12 20:21 UTC. The full
-  Evidence-to-reflection loop remains open.
-- **Prompt governance coverage is incomplete** — `prompteval check` validates
-  one governed prompt and reports 20 ungoverned prompt surfaces. The
-  workspace-charter registry now exists, but its release gate remains failed
-  after a fresh serialized run. One holdout also became author-visible during
-  cache diagnostics and must be retired as contaminated. No baseline was
-  accepted; the charter remains ungoverned and uncommitted.
-- **Model-work admission is implicit** — concurrent project prompt-eval runs
-  currently compete directly for subscription capacity. On 2026-07-12 a
-  workspace-charter release call hit the harness's 300s timeout while four
-  command eval processes were active. Until measured capacity supports a
-  larger budget, release evaluations must run one at a time; a shared,
-  telemetry-backed admission mechanism remains an explicit design gap.
-- ~~atlas-runner restart~~ **CLOSED** — restarted 2026-07-11T22:51Z with the
-  Phase 2b deploy; picked up `f24d298`.
-- **Codex config migrated 2026-07-11** — legacy `profile = "full_auto"`
-  rejected by the current codex CLI (breakage is recent: nightly maintenance
-  still ran at 01:23Z Jul 11). Migrated to `full_auto.config.toml`; `codex
-  exec` verified working post-migration. Watch tonight's 01:23Z run; backup
-  at `/root/.codex/config.toml.bak-2026-07-11`.
-- **Host reboot pending** — health snapshot 2026-07-11: `[REBOOT REQUIRED]`,
-  14 upgradable packages, uptime 4w3d. Principal-facing (restarts all
-  sessions).
+## Control-plane pressure
 
-## Carried, unverified since 2026-06-09 (see archive for detail)
+- **Prompt governance is incomplete** — `prompteval check` passes the two
+  governed prompts but still identifies 20 ungoverned instruction/prompt
+  surfaces. Treat this as bounded coverage, not platform-wide prompt proof.
+- **Model-work admission remains implicit** — expensive release evaluations
+  compete for subscription capacity. Continue serializing authoritative release
+  evals until measured evidence supports a broader concurrency budget.
+- **External account state is partly unobservable from the host** — registrar,
+  Render marketplace, and billing details require provider-side evidence. The
+  administrative register must never be treated as a live-status projection.
 
-- Synaplex site V1 deploy to synaplex.ai; L2/L3/L4 subsystems; cap policy
-  doc/code divergence.
-- Skillfoundry agentic inbound deploy; LCI outreach channel decision
-  (principal); discovery-adapter findings A/C.
-- Canon polarity audit (context-repo); pass-2 retrofit pickup.
-- Command browser-layer verification gap.
-- `synthesis_reviewed` event regression (C57 P1); reflection accuracy gap
-  (reads CURRENT_STATE.md instead of live sources).
+## Explicitly not active pressure
+
+- The stale Supervisor tick branch and saturated handoff queue are reconciled.
+- Synaplex dependency alerts are closed and its production release is current.
+- Retired Mentor/Recruiter/autodeploy surfaces are not recovery targets.
+- Read-only reflection sessions no longer create M5 state-drift handoff noise.
