@@ -24,8 +24,13 @@ echo "unexpected codex invocation: $*" >&2
 exit 1
 SH
 chmod +x "$tmp/codex"
+for bin in bwrap git tmux node python3; do
+  ln -s /bin/true "$tmp/$bin"
+done
+touch "$tmp/config.toml"
 
 export CODEX_TEST_ARGS="$tmp/args"
+export CODEX_CONFIG_PATH="$tmp/config.toml"
 export CODEX_THREAD_ID=test-managed-session
 output=$(PATH="$tmp:$PATH" "$ROOT/scripts/lib/check-codex-host.sh")
 grep -q '^Codex dependency preflight ' <<<"$output"

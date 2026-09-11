@@ -2,6 +2,7 @@
 set -euo pipefail
 
 failures=0
+CODEX_CONFIG_PATH="${CODEX_CONFIG_PATH:-/root/.codex/config.toml}"
 
 pass() {
   printf 'PASS  %s\n' "$1"
@@ -44,7 +45,7 @@ check_bin tmux
 check_bin node
 check_bin python3
 
-check_file /root/.codex/config.toml
+check_file "$CODEX_CONFIG_PATH"
 
 if [[ -f /root/.codex/auth.json ]]; then
   pass "present: /root/.codex/auth.json"
