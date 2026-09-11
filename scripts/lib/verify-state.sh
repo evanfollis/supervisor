@@ -88,8 +88,17 @@ http_probe() {
 }
 
 kernel_pending() {
-  local running newest
+  local running newest packages
   running=$(uname -r)
+  if [[ -e /var/run/reboot-required ]]; then
+    packages=$(paste -sd ',' /var/run/reboot-required.pkgs 2>/dev/null || true)
+    if [[ -n "$packages" ]]; then
+      echo "YES — host requested reboot ($packages)"
+    else
+      echo "YES — host requested reboot"
+    fi
+    return
+  fi
   newest=$(ls /boot/vmlinuz-* 2>/dev/null | sed 's|/boot/vmlinuz-||' | sort -V | tail -1 || true)
   if [[ -z "$newest" ]]; then
     echo "unobservable — installed kernel inventory unavailable"
