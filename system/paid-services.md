@@ -1,82 +1,80 @@
 ---
-name: Paid service asset register
-description: Every paid external service the workspace depends on. One row per account. Purpose, provisioned-for, status, who knows the credentials path.
-updated: 2026-04-18
+name: External service administrative register
+description: Administrative record of external accounts and their intended role. Runtime status must be verified from primary sources; this file is not a live-status projection.
+updated: 2026-09-11
 owner: executive
 ---
 
-# Paid services register
+# External services register
 
-The principal pays real money for these accounts. Any agent session that
-proposes provisioning a new paid service must first check whether one already
-covers the need. Any session that mentions paying for a service must update
-this file in the same turn.
+These accounts may carry cost, credentials, or external ownership. Before
+proposing a new service, check whether one already covers the need. Do not infer
+live deployment, billing tier, registrar state, or credential validity from
+this administrative record; use primary provider, host, and endpoint evidence.
+The register is not guaranteed complete: absence is a search lead, not evidence
+that no account exists.
 
-This is deliberately in `system/` (always-loaded), not in a decision record:
-it's current-state, not a historical choice.
+Credential values must never appear here. Paths may be recorded; validate only
+non-secret presence, permissions, and authentication status in operational
+receipts.
 
-## Active paid services
+## Known external accounts (billing status not host-verified)
 
 ### Hetzner — CPX31 at 5.78.185.6 (Hillsboro, OR)
 
-- Purpose: primary workspace host. Runs all persistent sessions, systemd
-  units, atlas/command/skillfoundry services, cloudflared tunnel.
+- Purpose: primary workspace host. Runs persistent sessions, the Supervisor
+  control plane, Command, Skillfoundry services, Synaplex operational jobs, and
+  the Cloudflare tunnel.
 - SSH: `/home/evan/.ssh/hetzner` (local) → server
-- Deploy path: `git push` → webhook → autodeploy
+- Project deployment paths are project-owned and vary by surface; there is no
+  generic host webhook autodeployer.
 - Billed: monthly, Hetzner account
 
-### Cloudflare — account holds synaplex.ai + tunnel + (soon) Pages
+### Cloudflare — DNS, tunnel, Pages, and Workers
 
-- Purpose: DNS for `synaplex.ai` (migrating from Namecheap 2026-04-18),
-  cloudflared tunnel fronting `skillfoundry.synaplex.ai`,
-  `command.synaplex.ai`, `mentor.synaplex.ai`, `api.synaplex.ai`, and
-  (planned) Cloudflare Pages hosting for preflight landing + blog + LCI
-  intake embed (per ADR-0024).
+- Purpose: public routing for Synaplex, Command, Skillfoundry, and Preflight.
+  The intended host tunnel routes are Command (including the private inbox)
+  and Skillfoundry; verify `/etc/cloudflared/config.yml` and the live endpoints.
+  Synaplex Pages and the Preflight Worker have separate deployment contracts.
 - API token: `/opt/workspace/runtime/.secrets/cloudflare_api_token`
-  (0600, gitignored). Principal decided 2026-04-19T~00:15Z to keep the
-  existing `cfut_cAt4F3J…` token rather than rotate (risk accepted:
-  the token sat plaintext in JSONL transcripts). Future sessions: **do not
-  re-propose rotation**; principal has already weighed and declined. If you
-  think rotation is again warranted, surface evidence of actual misuse, not
-  the historical exposure.
-- Billed: pay-as-you-go (DNS is free; domain registration and Pages are paid).
+  (root-owned runtime secret; never print its contents).
+- Billing and registrar state require provider-side verification.
 
-### Namecheap — legacy domain registrar (migrating out)
+### Namecheap — historical domain registrar
 
-- Purpose: `synaplex.ai` registration. **Migrating to Cloudflare Registrar
-  2026-04-18** (principal decision; cheaper). Any session that sees Namecheap
-  state should treat it as transient — the destination of record is
-  Cloudflare.
-- Billed: annual. Should decrease to zero once migration completes.
+- Historical purpose: `synaplex.ai` registration. A move to Cloudflare
+  Registrar was intended in 2026-04; completion and current billing are
+  unverified from this host. Do not claim either without provider evidence.
 
 ### Render — account holds `launchpad-lint` MCP on agenticmarket
 
-- Purpose: deploy `launchpad-lint` to the **agenticmarket** MCP marketplace
-  so MCP users discover it. Provisioned ~2026-04-11 (week prior to this
-  register) specifically for agenticmarket reach. Principal confirmed
-  deploy 2026-04-18T12:47Z: "I already have launchpad-lint on agenticmarket."
+- Historical purpose: deploy `launchpad-lint` to the **agenticmarket** MCP
+  marketplace for distribution. The principal confirmed that placement on
+  2026-04-18; its current marketplace state and tier are not host-verifiable.
 - Why it's not redundant with Hetzner: the Hetzner deploy at
   `skillfoundry.synaplex.ai/products/launchpad-lint/` is the owned-web
   surface. The Render deploy reaches the MCP marketplace audience, which is
   a different distribution channel.
 - Deploy source: `projects/skillfoundry/skillfoundry-products/products/launchpad-lint/render.yaml`
-- Credentials: Render account login (principal). Agent sessions do not need
-  Render API credentials for routine work because the marketplace deploy is
-  already live; re-deploy goes through Render's git auto-build.
-- Billed: Render account, likely free-tier or starter. Confirm tier at
-  next attended session.
+- Credentials: Render account login (principal). Do not initiate a deploy or
+  infer auto-build state without current provider evidence.
+- Billing tier is unknown and requires provider-side verification.
 
-### Anthropic API — Claude Code harness + programmatic Claude calls
+### Anthropic / Claude
 
-- Purpose: powers every Claude session on this host including the executive.
-- Billed: per-token, Anthropic account (principal).
+- Purpose: Claude subscription CLI for agent sessions and governed evaluation.
+- Check non-secret login readiness with `verify-state.sh`; account
+  tier and billing require provider-side verification.
+- ADR-0036 prohibits silently substituting metered model API credentials for
+  authorized subscription-CLI work.
 
-### OpenAI / Codex — adversarial-review path
+### OpenAI / Codex
 
 - Purpose: `codex exec --sandbox read-only` is the live adversarial-review
   path per `supervisor/scripts/lib/adversarial-review.sh` (since `/review`
   skill is EROFS-broken, FR-0021).
-- Billed: per-token, OpenAI account (principal).
+- Check non-secret login readiness with `verify-state.sh`; account
+  tier and billing require provider-side verification.
 
 ## Retired / off-this-host
 
@@ -90,7 +88,9 @@ it's current-state, not a historical choice.
 - **Before proposing any paid-service provisioning**: read this file. Confirm
   no existing account covers the need.
 - **Before walking the principal through a signup flow**: check the relevant
-  row here. If the service is listed, read the deployment state cross-check
-  rules in `feedback_verify_deploy_state_first.md`.
+  row here, then verify current provider and deployment state.
+- **When provider evidence requires principal-only login or 2FA**: label the
+  state unverified and do not guess. Ask the principal only if that fact blocks
+  a concrete current decision or authorized change.
 - **When the principal mentions a new paid account**: update this file in the
   same turn. See FR-0032 for why.

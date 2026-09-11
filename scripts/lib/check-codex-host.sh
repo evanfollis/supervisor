@@ -34,7 +34,8 @@ check_file() {
   fi
 }
 
-echo "Codex host preflight for $(hostname)"
+echo "Codex dependency preflight for $(hostname)"
+echo "Scope: binary, subscription login, and sandbox readiness only; not capability or host-control attestation."
 
 check_bin codex
 check_bin bwrap
@@ -62,19 +63,22 @@ if [[ "$codex_version_output" == *"could not update PATH"* ]]; then
   warn "Codex reported a PATH update warning; this is usually harmless in locked-down environments"
 fi
 
-if [[ -n "${CODEX_THREAD_ID:-}" ]]; then
-  warn "codex sandbox smoke test skipped because the check is running inside a Codex-managed session"
+codex_auth_output="$(codex login status 2>&1 || true)"
+if [[ "$codex_auth_output" == *"Logged in"* ]]; then
+  pass "codex subscription login is active"
 else
-  sandbox_output="$(codex sandbox linux /bin/sh -lc 'printf sandbox-ok' 2>&1 || true)"
-  if [[ "$sandbox_output" == *"sandbox-ok"* ]]; then
-    pass "codex sandbox smoke test passed"
-  else
-    fail "codex sandbox smoke test failed"
-  fi
+  fail "codex subscription login is unavailable"
+fi
 
-  if [[ "$sandbox_output" == *"could not find bubblewrap on PATH"* ]]; then
-    fail "Codex is still falling back to vendored bubblewrap"
-  fi
+sandbox_output="$(codex sandbox /bin/sh -lc 'printf sandbox-ok' 2>&1 || true)"
+if [[ "$sandbox_output" == *"sandbox-ok"* ]]; then
+  pass "codex sandbox smoke test passed"
+else
+  fail "codex sandbox smoke test failed"
+fi
+
+if [[ "$sandbox_output" == *"could not find bubblewrap on PATH"* ]]; then
+  fail "Codex is still falling back to vendored bubblewrap"
 fi
 
 userns_setting="$(cat /proc/sys/user/max_user_namespaces 2>/dev/null || true)"
@@ -85,5 +89,7 @@ if [[ -n "$userns_setting" ]]; then
     warn "user namespaces disabled: /proc/sys/user/max_user_namespaces=$userns_setting"
   fi
 fi
+
+echo "Capability authority must be attested separately with workspace.sh capabilities."
 
 exit "$failures"
