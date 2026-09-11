@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is brief; machine state belongs in verified-state.md and closed history in active-issues-archive.md.
-updated: 2026-09-11T14:45Z
+updated: 2026-09-11T15:38Z
 ---
 
 # Active issues
@@ -13,19 +13,20 @@ unverified, not a continuing blocker.
 
 ## Time-critical
 
-- **Command governed migration is in progress** — the restored subscription
-  session is running the authoritative replacement 18-case Claude-only release
-  evaluation. Six cases are fully graded and the seventh is judging; the
-  interrupted partial run remains excluded.
-  Production remains on the known-good release until review, CI/CodeQL, canary,
-  authenticated smoke, deployment, and rollback gates all pass. Receipt:
+- **Command governed migration is quota-paused, not bypassed** — the
+  authoritative replacement run failed closed at holdout case 16 when Claude
+  reached its session limit; 153 Claude calls succeeded, the Claude throttle
+  was recorded, and Codex fallback was denied. The accepted baseline was not
+  changed. Capacity reports a reset at 18:20 UTC. A narrow Next security hotfix
+  is independently deployed at `8b576c1`; the migration still requires a wholly
+  fresh 18-case run plus every review/release gate. Receipt:
   `runtime/.meta/platform-recovery-2026-09-11-progress.md`; owner: executive;
-  `recheck_by: 2026-09-11T15:30Z`.
-- **Host reboot required after Command finishes** — the 2026-09-11 package pass
-  is otherwise clean, but libc6 set `/var/run/reboot-required`. Reboot only
-  after active release evidence is durable, then re-attest every surface.
+  `recheck_by: 2026-09-11T18:25Z`.
+- **Host reboot is ready now** — the active eval has stopped, production is on
+  a verified immutable hotfix, and both main and candidate commit history are
+  durable. libc6 still requires reboot; re-attest every surface afterward.
   Receipt: `system/verified-state.md`; owner: operator; `recheck_by:
-  2026-09-11T15:30Z`.
+  2026-09-11T16:00Z`.
 
 ## Product and methodology pressure
 
