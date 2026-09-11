@@ -1,7 +1,7 @@
 ---
 name: Active issues
 description: Currently-live pressure on the workspace. Each entry is brief; machine state belongs in verified-state.md and closed history in active-issues-archive.md.
-updated: 2026-09-11T13:57Z
+updated: 2026-09-11T14:15Z
 ---
 
 # Active issues
@@ -18,12 +18,12 @@ unverified, not a continuing blocker.
   Production remains on the known-good release until review, CI/CodeQL, canary,
   authenticated smoke, deployment, and rollback gates all pass. Receipt:
   `runtime/.meta/platform-recovery-2026-09-11-progress.md`; owner: executive;
-  `recheck_by: 2026-09-11T14:15Z`.
+  `recheck_by: 2026-09-11T14:45Z`.
 - **Host reboot required after Command finishes** — the 2026-09-11 package pass
   is otherwise clean, but libc6 set `/var/run/reboot-required`. Reboot only
   after active release evidence is durable, then re-attest every surface.
   Receipt: `system/verified-state.md`; owner: operator; `recheck_by:
-  2026-09-11T14:15Z`.
+  2026-09-11T14:45Z`.
 
 ## Product and methodology pressure
 
